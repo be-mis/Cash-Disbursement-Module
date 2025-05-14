@@ -1,0 +1,619 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cash Liquidation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Apply gray color only to the placeholder option */
+    select:invalid {
+      color: gray;
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+        <!-- This is the Success Modal -->
+        <!-- This is the Success Modal -->
+        <div id="successModal" style="display: none; background: green; color: white; padding: 10px; text-align: center;">
+          Submission Successful!
+      </div>
+        <!-- This is the Success Modal -->
+        <!-- This is the Success Modal -->
+
+  <!-- Tab 1: Cash Advance Form (Expense Form) -->
+  <div id="tab1" class="tab-pane">
+    <div class="border-t-8 max-w-full bg-white p-6 shadow-lg rounded-lg relative" style="border-color: #00A3AD;">
+      <h2 class="text-2xl font-bold text-left ml-2 mb-4">
+        <span style="color: #00A3AD;">CASH</span>
+        <span style="color: #aa0061;">LIQUIDATION FORM</span>
+      </h2>
+      <form id="mainForm" method="POST" action="{% url 'liquidation-page' %}" class="max-w-full">
+        {% csrf_token %}
+        <!-- Basic Form Fields -->
+        <div class="grid grid-cols-2 gap-2 p-2 text-sm mt-4">
+          <input type="text" name="name" placeholder="Name" class="bg-white p-2 h-6 border border-black" required>
+          <div class="bg-white h-6 flex items-center px-2 border" style="border-color: black;">
+            <input type="text" name="date_filed_display" id="date_filed_display1" class="bg-transparent outline-none text-gray-500 text-sm w-full" disabled>
+          </div>
+          <input type="text" name="bu" placeholder="Business Unit" class="bg-white p-2 h-6 border border-black" required>
+          <select name="dept" class="bg-white border border-black h-6" required>
+            <option value="" disabled selected>Select Department</option>
+            <option value="EPC Merchandising">EPC Merchandising</option>
+            <option value="EPC Sales">EPC Sales</option>
+            <option value="NBFI Merchandising">NBFI Merchandising</option>
+            <option value="NBFI Sales">NBFI Sales</option>
+            <option value="Finance">Finance</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Human Resource">Human Resource</option>
+            <option value="MIS">MIS</option>
+            <option value="Operations">Operations</option>
+          </select>
+            <input type="text" name="departure_date_display" id="departure_date_display1" placeholder="  Departure Date" class="bg-transparent outline-none text-gray-500 text-sm w-full border border-black"
+                   onfocus="(this.type='date'); this.style.color='#000'" 
+                   onblur="if(!this.value){ this.type='text'; this.style.color='#9CA3AF'}" required>
+            <input type="text" name="return_date_display" id="return_date_display1" placeholder="  Return Date" class="bg-transparent outline-none text-gray-500 text-sm w-full border border-black"
+                   onfocus="(this.type='date'); this.style.color='#000'" 
+                   onblur="if(!this.value){ this.type='text'; this.style.color='#9CA3AF'}" required>
+          <input type="text" name="purpose" placeholder="Purpose" class="bg-white h-6 p-2 border border-black">
+        </div>
+
+        {% include 'accordionsreim.html' %}
+        <!-- Summary and Payment -->
+
+        <!-- Final Form Buttons -->
+        <div class="flex items-center justify-center gap-2 mt-4">
+          <button type="button" onclick="prepareTableDataAndSave()" style="border-color: #aa0061;" class="border w-20 h-8 text-sm text-[#aa0061] transition duration-300 hover:bg-[#aa0061] hover:text-white">
+            Save
+          </button>
+          <button type="button" onclick="prepareTableDataAndSubmit()" style="background-color:#00A3AD;" class="border w-20 h-8 text-sm text-white">
+            Submit
+          </button>
+        </div>
+        <input type="hidden" name="actionType" id="actionTypeField">
+      </form>
+    </div>
+  </div>
+  
+</body>
+
+<script>
+    // Toggle Accordion Function
+    function toggleAccordion(contentId, iconId) {
+      const content = document.getElementById(contentId);
+      const icon = document.getElementById(iconId);
+      content.classList.toggle('hidden');
+      icon.classList.toggle('rotate-180');
+    }
+
+
+
+
+    // Ensure only one checkbox is selected
+    function onlyOneCheckbox(checkbox) {
+      const checkboxes = document.getElementsByClassName('payment-checkbox');
+      for (let i = 0; i < checkboxes.length; i++) {
+          if (checkboxes[i] !== checkbox) {
+              checkboxes[i].checked = false;
+          }
+      }
+    }
+
+
+    //Clearing forms
+    function clearFormFields() {
+      document.getElementById('mainForm').reset();
+
+      // Cleardata lists
+      dataLists['expenseTableTransport1'] = [];
+      dataLists['expenseTableMeal1'] = [];
+      dataLists['expenseTableLodging1'] = [];
+
+
+      // Clear span elements displaying total amounts
+      document.getElementById('totalAmountBoxTransport1').textContent = '₱0.00';
+      document.getElementById('totalAmountBoxMeal1').textContent = '₱0.00';
+      document.getElementById('totalAmountBoxLodging1').textContent = '₱0.00';
+      document.getElementById('transportationSummary').textContent = '₱0.00';
+      document.getElementById('mealSummary').textContent = '₱0.00';
+      document.getElementById('lodgingSummary').textContent = '₱0.00';
+      document.getElementById('grandTotalSummary').textContent = '₱0.00';
+
+
+      // Function to clear table rows while keeping the last input row
+      function clearTableRows(tableId) {
+        const table = document.getElementById(tableId);
+        const tbody = table.querySelector('tbody');
+        const rows = tbody.querySelectorAll('tr');
+
+        // Remove all rows except the last input row
+        rows.forEach((row, index) => {
+          if (index < rows.length - 1) {
+            row.remove();
+          }
+        });
+      }
+
+      // call the function above and pass the table ids
+      clearTableRows('expenseTableTransport1');
+      clearTableRows('expenseTableMeal1');
+      clearTableRows('expenseTableLodging1');
+
+      // Close all open accordions
+      const accordions = [
+        { contentId: 'accordionContentTransport1', iconId: 'accordionIconTransport1' },
+        { contentId: 'accordionContentMeal1', iconId: 'accordionIconMeal1' },
+        { contentId: 'accordionContentLodging1', iconId: 'accordionIconLodging1' },
+      ];
+
+      accordions.forEach(({ contentId, iconId }) => {
+        const content = document.getElementById(contentId);
+        if (content && !content.classList.contains('hidden')) {
+          toggleAccordion(contentId, iconId);
+        }
+      });
+
+      console.log("Form and tables cleared");
+    }
+
+
+
+
+    // Lists to store data tab1 and tab2
+    let dataLists = {
+      'expenseTableTransport1': [],
+      'expenseTableMeal1': [],
+      'expenseTableLodging1': [],
+    };
+
+
+
+    //validate required fields
+    function validateFormFields() {
+      const requiredFields = document.querySelectorAll('.required-field');
+      for (let field of requiredFields) {
+          console.log(field, field?.value); // Debugging
+          if (!field.value.trim()) {
+              console.error("Missing value for:", field);
+              return false;
+          }
+      }
+      return true;
+    }
+
+
+
+
+    // Add row to table tab1 and tab2
+    function addRow(tableId, totalBoxId, summaryId) {
+      const table = document.getElementById(tableId);
+      const tbody = table.querySelector('tbody');
+      const inputs = tbody.querySelectorAll('tr:last-child input, tr:last-child select');
+      let rowData = {};
+
+      // Collect input values based on table type
+      if (tableId === 'expenseTableTransport1') {
+        const fileInput = tbody.querySelector('tr:last-child .fileInput'); // Match your HTML class
+        const files = fileInput ? fileInput.files : [];
+
+        rowData = {
+          date: inputs[0].value,
+          from: inputs[1].value,
+          to: inputs[2].value,
+          desc: inputs[3].value,
+          amount: inputs[4].value,
+          attachment: files.length > 0 ? files[0] : null // Store the file object
+        };
+
+        // Validate inputs (excluding attachment, which is optional)
+        if (Object.values(rowData).slice(0, 5).some(val => !val)) {
+          alert('Please fill all required fields');
+          return;
+        }
+
+        // Create new row with attachment column
+        const newRow = document.createElement('tr');
+        newRow.className = 'bg-white border-t';
+        newRow.innerHTML = `
+          <td class="p-2">${rowData.date}</td>
+          <td class="p-2">${rowData.from}</td>
+          <td class="p-2">${rowData.to}</td>
+          <td class="p-2">${rowData.desc}</td>
+          <td class="p-2">${rowData.amount}</td>
+          <td class="p-2">${rowData.attachment ? rowData.attachment.name : 'No file'}</td>
+          <td class="p-2">
+            <button type="button" onclick="deleteRow(this, '${tableId}', '${totalBoxId}', '${summaryId}')" 
+                    class="flex items-center justify-center border border-red-500 text-red-500 text-sm w-full h-8 transition duration-300 hover:bg-red-500 hover:text-white">
+              Delete
+            </button>
+          </td>
+        `;
+        tbody.insertBefore(newRow, tbody.querySelector('tr:last-child'));
+
+        // Add to data list
+        dataLists[tableId].push(rowData);
+
+        // Clear inputs including file
+        inputs.forEach(input => input.value = '');
+        if (fileInput) fileInput.value = '';
+        const fileNameSpan = tbody.querySelector('.fileName');
+        if (fileNameSpan) fileNameSpan.textContent = ''; // Clear filename display
+
+      } else if (tableId === 'expenseTableMeal1') {
+        rowData = {
+          date: inputs[0].value,
+          mealType: inputs[1].value,
+          desc: inputs[2].value,
+          amount: inputs[3].value
+        };
+
+        // Validate inputs
+        if (Object.values(rowData).some(val => !val)) {
+          alert('Please fill all fields');
+          return;
+        }
+
+        // Create new row
+        const newRow = document.createElement('tr');
+        newRow.className = 'bg-white border-t';
+        newRow.innerHTML = `
+          <td class="p-2">${rowData.date}</td>
+          <td class="p-2">${rowData.mealType}</td>
+          <td class="p-2">${rowData.desc}</td>
+          <td class="p-2">${rowData.amount}</td>
+          <td class="p-2">
+            <button type="button" onclick="deleteRow(this, '${tableId}', '${totalBoxId}', '${summaryId}')" 
+                    class="flex items-center justify-center border border-red-500 text-red-500 text-sm w-full h-8 transition duration-300 hover:bg-red-500 hover:text-white">
+              Delete
+            </button>
+          </td>
+        `;
+        tbody.insertBefore(newRow, tbody.querySelector('tr:last-child'));
+
+        // Add to data list
+        dataLists[tableId].push(rowData);
+
+        // Clear inputs
+        inputs.forEach(input => input.value = '');
+
+      } else if (tableId === 'expenseTableLodging1') {
+        rowData = {
+          checkIn: inputs[0].value,
+          checkOut: inputs[1].value,
+          desc: inputs[2].value,
+          amount: inputs[3].value
+        };
+
+        // Validate inputs
+        if (Object.values(rowData).some(val => !val)) {
+          alert('Please fill all fields');
+          return;
+        }
+
+        // Create new row
+        const newRow = document.createElement('tr');
+        newRow.className = 'bg-white border-t';
+        newRow.innerHTML = `
+          <td class="p-2">${rowData.checkIn}</td>
+          <td class="p-2">${rowData.checkOut}</td>
+          <td class="p-2">${rowData.desc}</td>
+          <td class="p-2">${rowData.amount}</td>
+          <td class="p-2">
+            <button type="button" onclick="deleteRow(this, '${tableId}', '${totalBoxId}', '${summaryId}')" 
+                    class="flex items-center justify-center border border-red-500 text-red-500 text-sm w-full h-8 transition duration-300 hover:bg-red-500 hover:text-white">
+              Delete
+            </button>
+          </td>
+        `;
+        tbody.insertBefore(newRow, tbody.querySelector('tr:last-child'));
+
+        // Add to data list
+        dataLists[tableId].push(rowData);
+
+        // Clear inputs
+        inputs.forEach(input => input.value = '');
+      }
+
+      // Update totals
+      updateTotalAmount(tableId, totalBoxId, summaryId);
+      updateTotalAmount1(tableId, totalBoxId, summaryId);
+    }
+
+
+
+    // Validate at least one expense entry and one payment method selection
+    function validateExpenseEntries() {
+      console.log("Checking expense entries for: tab1");
+      console.log("Transport Entries:", dataLists['expenseTableTransport1'].length);
+      console.log("Meal Entries:", dataLists['expenseTableMeal1'].length);
+      console.log("Lodging Entries:", dataLists['expenseTableLodging1'].length);
+
+      const hasExpenseEntries = 
+        dataLists['expenseTableTransport1'].length > 0 ||
+        dataLists['expenseTableMeal1'].length > 0 ||
+        dataLists['expenseTableLodging1'].length > 0;
+
+      if (!hasExpenseEntries) {
+        console.error("Error: No expense entries provided.");
+        alert("Please add at least one expense entry before submitting.");
+        return false;
+      }
+      return true;
+    }
+
+      
+
+    // Prepare and submit form data with validation
+    function prepareTableDataAndSubmit() {
+      const actionType = 'forapproval';
+      const form = document.getElementById('mainForm');
+      const departureDateInput = document.getElementById("departure_date_display1");
+      const returnDateInput = document.getElementById("return_date_display1");
+      const paymentCheckboxes = document.querySelectorAll(".payment-checkbox");
+      const accountNumberField = document.getElementById('accountNumber');
+
+      // Required fields
+      const requiredFields = [
+        document.querySelector("input[name='name']"),
+        document.querySelector("input[name='bu']"),
+        document.querySelector("select[name='dept']"),
+        document.querySelector("input[name='departure_date_display']"),
+        document.querySelector("input[name='return_date_display']"),
+        document.querySelector("input[name='purpose']")
+      ];
+
+      // Validation for Required Fields
+      const missingFields = requiredFields.filter(field => !field || !field.value.trim());
+      
+      requiredFields.forEach(field => {
+        if (field && missingFields.includes(field)) {
+          field.classList.add("border-red-500"); // Highlight missing field
+          // Remove highlight after 4.5 seconds
+          setTimeout(() => {
+            field.classList.remove("border-red-500");
+          }, 4500);
+        }
+      });
+
+      // Payment Method Validation
+      const isPaymentSelected = [...paymentCheckboxes].some(checkbox => checkbox.checked);
+      
+      paymentCheckboxes.forEach(checkbox => {
+        checkbox.classList.toggle("border-red-500", !isPaymentSelected);
+      });
+
+      // Improved Account Number Validation
+      const isNonCashSelected = [...paymentCheckboxes].some(checkbox => checkbox.checked && checkbox.value !== "Cash");
+
+      if (isNonCashSelected && !accountNumberField.value.trim()) {
+        alert("Please enter account number.");
+        accountNumberField.classList.add("border-red-500");
+        accountNumberField.focus();
+        return;
+      } else {
+        accountNumberField.classList.remove("border-red-500");
+      }
+
+      // Validate Expense Entries
+      if (!validateExpenseEntries()) {
+        return; // Stop submission if no expense entries
+      }
+
+      // Stop Submission if Fields are Missing
+      if (missingFields.length > 0 || !isPaymentSelected) {
+        alert("Please complete all required fields before saving.");
+        return;
+      }
+
+      if (!form) {
+        console.error('Form not found');
+        return;
+      }
+
+      // Ensure Departure & Return Dates are Handled Correctly
+      if (!departureDateInput.value) {
+        departureDateInput.value = "null";
+      }
+      if (!returnDateInput.value) {
+        returnDateInput.value = "null";
+      }
+
+      // Proceed with Form Submission
+      const formData = new FormData(form);
+
+      // Add transportation data with attachments
+      dataLists['expenseTableTransport1'].forEach((entry, index) => {
+        formData.append(`transportation[${index}][date]`, entry.date);
+        formData.append(`transportation[${index}][from]`, entry.from);
+        formData.append(`transportation[${index}][to]`, entry.to);
+        formData.append(`transportation[${index}][desc]`, entry.desc);
+        formData.append(`transportation[${index}][amount]`, entry.amount);
+        if (entry.attachment) {
+          formData.append(`transportation[${index}][attachment]`, entry.attachment);
+        }
+      });
+
+      // Add meal and lodging data as JSON strings (no attachments yet)
+      formData.append('mealData', JSON.stringify(dataLists['expenseTableMeal1'] || []));
+      formData.append('lodgingData', JSON.stringify(dataLists['expenseTableLodging1'] || []));
+      formData.append('actionType', actionType);
+
+      // Debugging Output
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+
+      fetch(form.action, {
+        method: "POST",
+        body: formData,
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken') // Add CSRF token
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          return response.text().then(text => { throw new Error(text || response.status); });
+        }
+        return response.text();
+      })
+      .then(data => {
+        console.log("Success:", data);
+        clearFormFields();  // Clear fields after successful submission
+        showSuccessModal(); // Show success modal
+      })
+      .catch(error => console.error("Error:", error));
+    }
+
+    // Assuming you have this helper function for CSRF
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    // Prepare and submit form data with validation
+    function prepareTableDataAndSave() {
+      const actionType = 'draft';
+      const form = document.getElementById('mainForm');
+
+      if (!form) {
+          console.error('Form not found');
+          return;
+      }
+
+      const requiredFields = [
+        document.querySelector("input[name='name']"),
+        document.querySelector("input[name='bu']"),
+        document.querySelector("select[name='dept']"),
+        document.querySelector("input[name='departure_date_display']"),
+        document.querySelector("input[name='return_date_display']"),
+        document.querySelector("input[name='purpose']")
+      ];
+      let missingFields = false;
+
+      // Loop through fields to check if they are empty
+      for (let field of requiredFields) {
+          if (!field || !field.value.trim()) {
+              field.classList.add("border-red-500"); // Add highlight
+              missingFields = true;
+          } else {
+              field.classList.remove("border-red-500"); // Remove highlight if filled
+          }
+      }
+
+      if (missingFields) {
+          alert("Please complete all required fields before saving.");
+          return;
+      }
+
+      // Handle date validation
+      const departureDateInput = document.getElementById("departure_date_display1");
+      const returnDateInput = document.getElementById("return_date_display1");
+
+      if (!departureDateInput.value) departureDateInput.value = "null";
+      if (!returnDateInput.value) returnDateInput.value = "null";
+
+
+      const formData = new FormData(form);
+
+
+      formData.append('transportationData', JSON.stringify(dataLists['expenseTableTransport1'] || []));
+      formData.append('mealData', JSON.stringify(dataLists['expenseTableMeal1'] || []));
+      formData.append('lodgingData', JSON.stringify(dataLists['expenseTableLodging1'] || []));
+      formData.append('actionType', actionType);
+
+      // Debug: Log FormData contents
+      for (let [key, value] of formData.entries()) {
+          console.log(`${key}: ${value}`);
+      }
+
+      // Submit the form
+      fetch(form.action, {
+          method: "POST",
+          body: formData,
+      })
+      .then(response => {
+          if (!response.ok) {
+              return response.text().then(text => { throw new Error(text || response.status); });
+          }
+          return response.text();
+      })
+      .then(data => {
+          console.log("Success:", data);
+          clearFormFields();  // Clear fields and close accordions after submission
+          showSuccessModal(); // Show success message
+      })
+      .catch(error => console.error("Error:", error));
+    }
+
+
+
+
+    //auto-date for date filed
+    document.addEventListener("DOMContentLoaded", function() {
+      const dateInput = document.getElementById("date_filed_display1");
+      const today = new Date();
+      
+      // Format date as MM/DD/YYYY
+      const formattedDate = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`;
+      
+      dateInput.placeholder = formattedDate;
+
+    });
+
+    // Delete row from table
+    function deleteRow(button, tableId, totalBoxId, summaryId) {
+      const row = button.parentElement.parentElement;
+      const tbody = row.parentElement;
+      const index = Array.from(tbody.children).indexOf(row);
+      dataLists[tableId].splice(index, 1);
+      row.remove();
+      updateTotalAmount(tableId, totalBoxId, summaryId);
+    }
+
+    // Update total amount for a table
+    function updateTotalAmount(tableId, totalBoxId, summaryId) {
+      const totalBox = document.getElementById(totalBoxId);
+      const summaryBox = document.getElementById(summaryId);
+      const total = dataLists[tableId].reduce((sum, row) => sum + parseFloat(row.amount || 0), 0);
+      totalBox.textContent = `₱${total.toFixed(2)}`;
+      summaryBox.textContent = `₱${total.toFixed(2)}`;
+
+      // Update grand total
+      if (tableId.includes('Purchasing_2')) {
+        const grandTotalBox = document.getElementById('grandTotalPurchasing_2');
+        grandTotalBox.textContent = `₱${total.toFixed(2)}`;
+      } else {
+        const grandTotalBox = document.getElementById('grandTotalSummary');
+        const transportTotal = dataLists['expenseTableTransport1'].reduce((sum, row) => sum + parseFloat(row.amount || 0), 0);
+        const mealTotal = dataLists['expenseTableMeal1'].reduce((sum, row) => sum + parseFloat(row.amount || 0), 0);
+        const lodgingTotal = dataLists['expenseTableLodging1'].reduce((sum, row) => sum + parseFloat(row.amount || 0), 0);
+        const grandTotal = transportTotal + mealTotal + lodgingTotal;
+        grandTotalBox.textContent = `₱${grandTotal.toFixed(2)}`;
+      }
+    }
+
+
+    function showSuccessModal() {
+      const modal = document.getElementById('successModal');
+      if (modal) {
+          modal.style.display = 'block';
+          setTimeout(() => { modal.style.display = 'none'; }, 3000); // Hide after 3 seconds
+      } else {
+          alert("Success! Your entry has been submitted.");
+      }
+    }
+
+
+</script>
+</html>

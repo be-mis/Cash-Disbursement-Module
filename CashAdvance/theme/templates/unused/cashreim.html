@@ -1,0 +1,856 @@
+{% comment %} {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advance / Purchase</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Apply gray color only to the placeholder option */
+    select:invalid {
+      color: gray;
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+        <!-- This is the Success Modal -->
+        <!-- This is the Success Modal -->
+        <div id="successModal" style="display: none; background: green; color: white; padding: 10px; text-align: center;">
+          Submission Successful!
+        </div>
+        <!-- This is the Success Modal -->
+        <!-- This is the Success Modal -->
+
+<!-- Tabs Navigation -->
+  <div class="--my-max-width p-4 border-t-8" style="border-color: #00A3AD;">
+    <div class="flex relative text-sm font-medium text-center text-gray-500">
+      <button class="tab-link cursor-pointer inline-block px-4 pb-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500" data-tab="tab1">
+        CR Travel Form
+      </button>
+      <button class="tab-link cursor-pointer inline-block ml-2 px-4 pb-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" data-tab="tab2">
+        CR Purchase Form
+      </button>
+    </div>
+
+
+
+    <!-- Tab 1: Cash Advance Form (Expense Form) -->
+    <div id="tab1" class="tab-pane">
+        <div class="my-4">
+          <h2 class="text-2xl font-bold">
+            <span style="color: #00A3AD;">CASH REIMBURSEMENT</span>
+            <span style="color: #aa0061;">TRAVEL FORM</span>
+          </h2>
+        </div>
+        {% include 'reimbursementTravelForm.html' %}
+    </div>
+    <div id="tab2" class="tab-pane" hidden>
+    {% include 'reimbursementPurchaseForm.html' %}
+    </div>
+  </div>
+</body>
+
+<script>
+  // Toggle Accordion Function
+  // Tab1 and Tab2
+  function toggleAccordion(contentId, iconId) {
+    const content = document.getElementById(contentId);
+    const icon = document.getElementById(iconId);
+
+    if (!content) {
+      console.error(`Content element with ID '${contentId}' not found`);
+      return;
+    }
+    if (!icon) {
+      console.error(`Icon element with ID '${iconId}' not found`);
+      return;
+    }
+
+    content.classList.toggle('hidden');
+    icon.classList.toggle('rotate-180');
+  }
+
+  // Ensure only one checkbox is selected
+  //tab1
+  function onlyOneCheckbox(checkbox) {
+    const checkboxes = document.getElementsByClassName('payment-checkbox');
+    for (let i = 0; i < checkboxes.length; i++) {
+        if (checkboxes[i] !== checkbox) {
+            checkboxes[i].checked = false;
+        }
+    }
+  }
+
+
+  //tab2
+  function onlyOneCheckbox1(checkbox) {
+    const checkboxes = document.getElementsByClassName('ppayment-checkbox');
+    for (let i = 0; i < checkboxes.length; i++) {
+        if (checkboxes[i] !== checkbox) {
+            checkboxes[i].checked = false;
+        }
+    }
+  }
+
+
+
+    //Clearing forms
+    //tab1 and tab2
+  function clearFormFields() {
+    const mainForm = document.getElementById('mainForm');
+    const mainFormTab2 = document.getElementById('mainFormTab2');
+    if (mainForm) mainForm.reset();
+    else console.error("Element with ID 'mainForm' not found");
+    if (mainFormTab2) mainFormTab2.reset();
+    else console.error("Element with ID 'mainFormTab2' not found");
+
+    // Clear data lists
+    dataLists['expenseTableTransport1'] = [];
+    dataLists['expenseTableMeal1'] = [];
+    dataLists['expenseTableLodging1'] = [];
+    dataLists['expenseTablePurchasing_2'] = [];
+
+    // Clear span elements displaying total amounts
+    const totalElements = [
+      { id: 'totalAmountBoxTransport1', label: 'Total Amount Transport1' },
+      { id: 'totalAmountBoxMeal1', label: 'Total Amount Meal1' },
+      { id: 'totalAmountBoxLodging1', label: 'Total Amount Lodging1' },
+      { id: 'transportationSummary', label: 'Transportation Summary' },
+      { id: 'mealSummary', label: 'Meal Summary' },
+      { id: 'lodgingSummary', label: 'Lodging Summary' },
+      { id: 'grandTotalSummary', label: 'Grand Total Summary' },
+      { id: 'purchaseSummaryTab2', label: 'Purchase Summary Tab2' },
+      { id: 'grandTotalPurchasing_2', label: 'Grand Total Purchasing_2' }
+    ];
+
+    totalElements.forEach(({ id, label }) => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.textContent = '₱0.00';
+      } else {
+        console.error(`Element with ID '${id}' (${label}) not found`);
+      }
+    });
+
+    // Function to clear table rows while keeping the last input row
+    function clearTableRows(tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) {
+        console.error(`Table with ID '${tableId}' not found`);
+        return;
+      }
+      const tbody = table.querySelector('tbody');
+      const rows = tbody.querySelectorAll('tr');
+      rows.forEach((row, index) => {
+        if (index < rows.length - 1) {
+          row.remove();
+        }
+      });
+    }
+
+    // Call clearTableRows for each table
+    clearTableRows('expenseTableTransport1');
+    clearTableRows('expenseTableMeal1');
+    clearTableRows('expenseTableLodging1');
+    clearTableRows('expenseTablePurchasing_2');
+
+    // Close all open accordions
+    const accordions = [
+      { contentId: 'accordionContentTransport1', iconId: 'accordionIconTransport1' },
+      { contentId: 'accordionContentMeal1', iconId: 'accordionIconMeal1' },
+      { contentId: 'accordionContentLodging1', iconId: 'accordionIconLodging1' },
+    ];
+
+    accordions.forEach(({ contentId, iconId }) => {
+      const content = document.getElementById(contentId);
+      if (content && !content.classList.contains('hidden')) {
+        toggleAccordion(contentId, iconId);
+      } else if (!content) {
+        console.error(`Accordion content with ID '${contentId}' not found`);
+      }
+    });
+
+    console.log("Form and tables cleared");
+  }
+
+
+
+  // Tab switching
+  document.querySelectorAll('.tab-link').forEach(button => {
+    button.addEventListener('click', () => {
+      const confirmSwitch = window.confirm("Switching tabs will clear this form.\nAre you sure you want to switch tabs?");
+      
+      if (!confirmSwitch) return; // User canceled, exit early
+
+      clearFormFields(); // Clear forms if confirmed
+
+      // Remove active state from all tab links
+      document.querySelectorAll('.tab-link').forEach(btn => btn.classList.remove('border-b-2', 'border-blue-500'));
+
+      // Add active state to clicked tab link
+      button.classList.add('border-b-2', 'border-blue-500');
+
+      // Hide all tab panes
+      document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.add('hidden'));
+
+      // Show the selected tab pane and remove hidden
+      const targetPane = document.getElementById(button.dataset.tab);
+      targetPane.classList.remove('hidden');
+
+      // Explicitly remove the hidden attribute if present (for tab2 specifically)
+      if (button.dataset.tab === 'tab2') {
+        targetPane.removeAttribute('hidden');
+      }
+    });
+  });
+
+
+
+  // Lists to store data tab1 and tab2
+  let dataLists = {
+    'expenseTableTransport1': [],
+    'expenseTableMeal1': [],
+    'expenseTableLodging1': [],
+    'expenseTablePurchasing_2': []
+  };
+
+
+
+  //validate required fields
+  //tab1 and tab2
+  function validateFormFields() {
+    const requiredFields = document.querySelectorAll('.required-field');
+    for (let field of requiredFields) {
+        console.log(field, field?.value); // Debugging
+        if (!field.value.trim()) {
+            console.error("Missing value for:", field);
+            return false;
+        }
+    }
+    return true;
+  }
+
+
+
+  // Add row to table tab1 and tab2
+  function addRow(tableId, totalBoxId, summaryId) {
+    const table = document.getElementById(tableId);
+    const tbody = table.querySelector('tbody');
+    const inputs = tbody.querySelectorAll('tr:last-child input, tr:last-child select');
+    let rowData = {};
+
+    // Function to show error message
+    function showError(message) {
+      console.error(message);
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'text-red-500 text-sm mt-2';
+      errorDiv.textContent = message;
+      const tableContainer = table.parentElement;
+      const existingError = tableContainer.querySelector('.text-red-500');
+      if (existingError) existingError.remove();
+      tableContainer.insertBefore(errorDiv, table);
+      setTimeout(() => errorDiv.remove(), 3000);
+    }
+
+    // Collect input values based on table type
+    if (tableId === 'expenseTableTransport1') {
+      rowData = {
+        date: inputs[0].value,
+        from: inputs[1].value,
+        to: inputs[2].value,
+        desc: inputs[3].value,
+        amount: inputs[4].value
+      };
+    } else if (tableId === 'expenseTableMeal1') {
+      rowData = {
+        date: inputs[0].value,
+        mealType: inputs[1].value,
+        desc: inputs[2].value,
+        amount: inputs[3].value
+      };
+    } else if (tableId === 'expenseTableLodging1') {
+      rowData = {
+        checkIn: inputs[0].value,
+        checkOut: inputs[1].value,
+        desc: inputs[2].value,
+        amount: inputs[3].value
+      };
+    } else if (tableId === 'expenseTablePurchasing_2') {
+      rowData = {
+        purchase_number: inputs[0].value,
+        particulars: inputs[1].value,
+        amount: inputs[2].value
+      };
+    }
+
+    // Validate inputs
+    if (tableId === 'expenseTablePurchasing_2') {
+      if (!rowData.particulars || !rowData.amount) {
+        showError('Please fill Description and Amount fields');
+        return;
+      }
+    } else {
+      if (Object.values(rowData).some(val => !val)) {
+        showError('Please fill all fields');
+        return;
+      }
+    }
+
+    // Add to data list
+    dataLists[tableId].push(rowData);
+
+    // Create new row
+    const newRow = document.createElement('tr');
+    newRow.className = 'bg-white border-t';
+    if (tableId === 'expenseTableTransport1') {
+      newRow.innerHTML = `
+        <td class="p-2">${rowData.date}</td>
+        <td class="p-2">${rowData.from}</td>
+        <td class="p-2">${rowData.to}</td>
+        <td class="p-2">${rowData.desc}</td>
+        <td class="p-2">${rowData.amount}</td>
+        <td class="p-2">
+          <button type="button" onclick="deleteRow(this, '${tableId}', '${totalBoxId}', '${summaryId}')" class="flex rounded items-center justify-center border border-red-500 text-red-500 text-sm px-4 h-8 transition duration-300 hover:bg-red-500 hover:text-white">
+            Delete
+          </button>
+        </td>
+      `;
+    } else if (tableId === 'expenseTableMeal1') {
+      newRow.innerHTML = `
+        <td class="p-2">${rowData.date}</td>
+        <td class="p-2">${rowData.mealType}</td>
+        <td class="p-2">${rowData.desc}</td>
+        <td class="p-2">${rowData.amount}</td>
+        <td class="p-2">
+          <button type="button" onclick="deleteRow(this, '${tableId}', '${totalBoxId}', '${summaryId}')" class="flex rounded items-center justify-center border border-red-500 text-red-500 text-sm px-4 h-8 transition duration-300 hover:bg-red-500 hover:text-white">
+            Delete
+          </button>
+        </td>
+      `;
+    } else if (tableId === 'expenseTableLodging1') {
+      newRow.innerHTML = `
+        <td class="p-2">${rowData.checkIn}</td>
+        <td class="p-2">${rowData.checkOut}</td>
+        <td class="p-2">${rowData.desc}</td>
+        <td class="p-2">${rowData.amount}</td>
+        <td class="p-2">
+          <button type="button" onclick="deleteRow(this, '${tableId}', '${totalBoxId}', '${summaryId}')" class="flex rounded items-center justify-center border border-red-500 text-red-500 text-sm px-4 h-8 transition duration-300 hover:bg-red-500 hover:text-white">
+            Delete
+          </button>
+        </td>
+      `;
+    } else if (tableId === 'expenseTablePurchasing_2') {
+      newRow.innerHTML = `
+        <td class="p-2">${rowData.purchase_number}</td>
+        <td class="p-2">${rowData.particulars}</td>
+        <td class="p-2">${rowData.amount}</td>
+        <td class="p-2">
+          <button type="button" onclick="deleteRow(this, '${tableId}', '${totalBoxId}', '${summaryId}')" class="flex rounded items-center justify-center border border-red-500 text-red-500 text-sm px-4 h-8 transition duration-300 hover:bg-red-500 hover:text-white">
+            Delete
+          </button>
+        </td>
+      `;
+    }
+
+    // Insert new row before the input row
+    const inputRow = tbody.querySelector('tr:last-child');
+    tbody.insertBefore(newRow, inputRow);
+
+    // Clear inputs
+    inputs.forEach(input => {
+      if (input.id !== 'pPurchaseNumber') input.value = '';
+    });
+
+    // Update totals with error handling
+    try {
+      if (tableId === 'expenseTableLodging1' || tableId === 'expenseTableMeal1' || tableId === 'expenseTableTransport1'){
+        updateTotalAmount(tableId, totalBoxId, summaryId);
+      }
+      else if (tableId === 'expenseTablePurchasing_2') {
+        updateTotalAmount1(tableId, totalBoxId, summaryId);
+        updatePurchaseSummary(tableId, summaryId);
+      }
+    } catch (e) {
+      console.error("Error updating totals:", e.message);
+    }
+  }
+
+
+  // New function to update purchase summary for expenseTablePurchasing_2
+  function updatePurchaseSummary(tableId, summaryId) {
+    if (tableId !== 'expenseTablePurchasing_2') return; // Only handle purchase table
+
+    const data = dataLists[tableId];
+    const summaryList = document.getElementById(summaryId);
+    const grandTotalElement = document.getElementById('grandTotalPurchasing_2');
+    let total = 0;
+
+    // Clear existing summary
+    summaryList.innerHTML = '';
+
+    // Add each purchase to the summary list
+    data.forEach(item => {
+      const amount = parseFloat(item.amount) || 0;
+      total += amount;
+      const listItem = document.createElement('li');
+      listItem.textContent = `${item.particulars}: ₱${amount.toFixed(2)}`;
+      summaryList.appendChild(listItem);
+    });
+
+    // Update grand total
+    grandTotalElement.textContent = `₱${total.toFixed(2)}`;
+  }
+
+
+
+
+  // Validate at least one expense entry and one payment method selection
+  // Tab1
+  function validateExpenseEntries() {
+    console.log("Checking expense entries for: tab1");
+    console.log("Transport Entries:", dataLists['expenseTableTransport1'].length);
+    console.log("Meal Entries:", dataLists['expenseTableMeal1'].length);
+    console.log("Lodging Entries:", dataLists['expenseTableLodging1'].length);
+
+    const hasExpenseEntries = 
+      dataLists['expenseTableTransport1'].length > 0 ||
+      dataLists['expenseTableMeal1'].length > 0 ||
+      dataLists['expenseTableLodging1'].length > 0;
+
+    if (!hasExpenseEntries) {
+      console.error("Error: No expense entries provided.");
+      alert("Please add at least one expense entry before submitting.");
+      return false;
+    }
+    return true;
+  }
+
+  // Validate at least one expense entry and one payment method selection
+  // Tab2
+  function validateExpenseEntries1() {
+    console.log("Checking expense entries for: tab2");
+    console.log("Purchasing Entries:", dataLists['expenseTablePurchasing_2'].length);
+
+    const hasExpenseEntries = 
+      dataLists['expenseTablePurchasing_2'].length > 0;
+
+    if (!hasExpenseEntries) {
+      console.error("Error: No expense entries provided.");
+      alert("Please add at least one expense entry before submitting.");
+      return false;
+    }
+    return true;
+  }
+    
+
+  function prepareTableDataAndSubmit(formId, tabType, config, actionType) {
+    if (!config) {
+        console.error('Configuration object is undefined');
+        return;
+    }
+
+    const form = document.getElementById(formId);
+
+    if (!form) {
+        console.error('Form not found:', formId);
+        return;
+    }
+
+    // Validate required fields
+    const requiredFields = config.requiredFields.map(selector => document.querySelector(selector));
+    const missingFields = requiredFields.filter(field => !field || !field.value.trim());
+
+    requiredFields.forEach(field => {
+        if (field && missingFields.includes(field)) {
+            field.classList.add("border-red-500");
+            setTimeout(() => {
+                field.classList.remove("border-red-500");
+            }, 4500);
+        }
+    });
+
+    // Validate payment method
+    const paymentCheckboxes = document.querySelectorAll(config.paymentCheckboxClass);
+    const isPaymentSelected = [...paymentCheckboxes].some(checkbox => checkbox.checked);
+    paymentCheckboxes.forEach(checkbox => {
+        checkbox.classList.toggle("border-red-500", !isPaymentSelected);
+    });
+
+    // Validate account number for non-cash payments
+    const accountNumberField = document.getElementById(config.accountNumberId);
+    const isNonCashSelected = [...paymentCheckboxes].some(checkbox => checkbox.checked && checkbox.value !== "Cash");
+    if (isNonCashSelected && !accountNumberField.value.trim()) {
+        alert("Please enter account number.");
+        accountNumberField.classList.add("border-red-500");
+        accountNumberField.focus();
+        return;
+    } else {
+        accountNumberField.classList.remove("border-red-500");
+    }
+
+    // Validate expense entries
+    if (!config.validateExpenseEntries()) {
+        return;
+    }
+
+    // Stop submission if fields are missing
+    if (missingFields.length > 0 || !isPaymentSelected) {
+        alert("Please complete all required fields before saving.");
+        return;
+    }
+
+    // Handle date validation (only for CashAdvance)
+    if (tabType === 'CashAdvance') {
+        const departureDateInput = document.getElementById(config.departureDateId);
+        const returnDateInput = document.getElementById(config.returnDateId);
+        if (departureDateInput && !departureDateInput.value) departureDateInput.value = "null";
+        if (returnDateInput && !returnDateInput.value) returnDateInput.value = "null";
+    }
+
+    // Prepare form data
+    const formData = new FormData(form);
+
+    // Append tab-specific data
+    if (tabType === 'Purchase') {
+        formData.append('purchaseData', JSON.stringify(dataLists[config.dataLists.purchase] || []));
+    } else {
+        formData.append('transportationData', JSON.stringify(dataLists[config.dataLists.transportation] || []));
+        formData.append('mealData', JSON.stringify(dataLists[config.dataLists.meal] || []));
+        formData.append('lodgingData', JSON.stringify(dataLists[config.dataLists.lodging] || []));
+    }
+
+    formData.append('actionType', actionType);
+
+    // Debug: Log FormData contents
+    for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+    }
+
+    // Submit the form
+    fetch(form.action, {
+        method: "POST",
+        body: formData,
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => { throw new Error(text || response.status); });
+        }
+        return response.text();
+    })
+    .then(data => {
+        console.log("Success:", data);
+        clearFormFields();
+        showSuccessModal();
+    })
+    .catch(error => console.error("Error:", error));
+  }
+
+
+
+  // Wrapper functions
+  function submitCashAdvance() {
+    if (!tabConfigs.CashAdvance) {
+        console.error('CashAdvance configuration not found');
+        return;
+    }
+    prepareTableDataAndSubmit('mainForm', 'CashAdvance', tabConfigs.CashAdvance, 'forapproval');
+  }
+
+  function submitPurchase() {
+    if (!tabConfigs.Purchase) {
+        console.error('Purchase configuration not found');
+        return;
+    }
+    prepareTableDataAndSubmit('mainFormTab2', 'Purchase', tabConfigs.Purchase, 'forapproval');
+  }
+
+
+  // Configuration for each tab
+  const tabConfigs = {
+    CashAdvance: {
+        requiredFields: [
+            "input[name='name']",
+            "input[name='bu']",
+            "input[name='userEmail']",
+            "input[name='userID']",
+            "input[name='position']",
+            "select[name='dept']",
+            "input[name='departure_date_display']",
+            "input[name='return_date_display']",
+            "input[name='purpose']",
+            "input[name='payment_method']"
+        ],
+        dataLists: {
+            transportation: 'expenseTableTransport1',
+            meal: 'expenseTableMeal1',
+            lodging: 'expenseTableLodging1'
+        },
+        departureDateId: 'departure_date_display1',
+        returnDateId: 'return_date_display1',
+        paymentCheckboxClass: '.payment-checkbox',
+        accountNumberId: 'accountNumber',
+        validateExpenseEntries: validateExpenseEntries
+    },
+    Purchase: {
+        requiredFields: [
+            "input[name='pname']",
+            "input[name='pbu']",
+            "input[name='puserID']",
+            "input[name='puserEmail']",
+            "select[name='pdept']",
+            "input[name='pposition']",
+            "input[name='ppurpose']"
+
+        ],
+        dataLists: {
+            purchase: 'expenseTablePurchasing_2'
+        },
+        paymentCheckboxClass: '.ppayment-checkbox',
+        accountNumberId: 'accountNumberTab2',
+        validateExpenseEntries: validateExpenseEntries1
+    }
+  };
+
+  // Prepare and submit form data with validation
+  // Tab1
+  function prepareTableDataAndSave() {
+    const actionType = 'draft';
+    const form = document.getElementById('mainForm');
+
+    if (!form) {
+      console.error('Form not found');
+      return;
+    }
+
+    const requiredFields = [
+      document.querySelector("input[name='name']"),
+      document.querySelector("input[name='bu']"),
+      document.querySelector("select[name='dept']"),
+      document.querySelector("input[name='departure_date_display']"),
+      document.querySelector("input[name='return_date_display']"),
+      document.querySelector("input[name='purpose']"),
+    ];
+    let missingFields = [];
+
+    // Check each required field and add to missingFields if empty
+    requiredFields.forEach(field => {
+      if (field && (!field.value || field.value.trim() === '')) {
+        missingFields.push(field);
+        field.classList.add("border-red-500");
+        setTimeout(() => {
+          field.classList.remove("border-red-500");
+        }, 4500);
+      }
+    });
+
+    if (missingFields.length > 0) {
+      alert("Please complete all required fields before saving.");
+      return;
+    }
+
+    // Handle date formatting
+    const departureDateInput = document.getElementById("departure_date_display1");
+    const returnDateInput = document.getElementById("return_date_display1");
+
+    // Convert yyyy-mm-dd to mm/dd/yyyy or set to "null" if empty
+    const formatDate = (dateStr) => {
+      if (!dateStr) return "null";
+      const [year, month, day] = dateStr.split('-');
+      return `${month}/${day}/${year}`;
+    };
+
+    // Update input values for FormData
+    departureDateInput.value = formatDate(departureDateInput.value);
+    returnDateInput.value = formatDate(returnDateInput.value);
+
+    const formData = new FormData(form);
+
+    formData.append('transportationData', JSON.stringify(dataLists['expenseTableTransport1'] || []));
+    formData.append('mealData', JSON.stringify(dataLists['expenseTableMeal1'] || []));
+    formData.append('lodgingData', JSON.stringify(dataLists['expenseTableLodging1'] || []));
+    formData.append('actionType', actionType);
+
+    // Debug: Log FormData contents
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+
+    // Submit the form
+    fetch(form.action, {
+      method: "POST",
+      body: formData,
+    })
+      .then(response => {
+        if (!response.ok) {
+          return response.text().then(text => { throw new Error(text || response.status); });
+        }
+        return response.text();
+      })
+      .then(data => {
+        console.log("Success:", data);
+        clearFormFields();
+        showSuccessModal();
+      })
+      .catch(error => console.error("Error:", error));
+  }
+
+
+
+
+  // Prepare and submit form data with validation
+  // Tab2
+  function prepareTableDataAndSave1() {
+    const actionType = 'draft';
+    const form = document.getElementById('mainFormTab2');
+
+    if (!form) {
+        console.error('Form not found');
+        return;
+    }
+
+    const requiredFields = [
+        document.querySelector("input[name='pname']"),
+        document.querySelector("input[name='pbu']"),
+        document.querySelector("input[name='puserEmail']"),
+        document.querySelector("input[name='puserID']"),
+        document.querySelector("input[name='pposition']"),
+        document.querySelector("select[name='pdept']"),
+        document.querySelector("input[name='prequested_date']"),
+        document.querySelector("input[name='pdate_needed']"),
+        document.querySelector("input[name='ppurpose']"),
+        document.querySelector("input[name='ppayment_method']")
+
+    ];
+
+    // Identify missing fields (empty or null)
+    const missingFields = requiredFields.filter(field => !field || !field.value.trim());
+
+    // Highlight missing fields
+    requiredFields.forEach(field => {
+        if (field && missingFields.includes(field)) {
+            field.classList.add("border-red-500"); // Highlight missing field
+            setTimeout(() => {
+                field.classList.remove("border-red-500");
+            }, 4500);
+        }
+    });
+
+    // Stop submission if there are missing fields
+    if (missingFields.length > 0) {
+        alert("Please complete all required fields before saving.");
+        return;
+    }
+
+
+    const formData = new FormData(form);
+
+    formData.append('purchaseData', JSON.stringify(dataLists['expenseTablePurchasing_2'] || []));
+    formData.append('actionType', actionType);
+
+    // Debug: Log FormData contents
+    for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+    }
+
+    // Submit the form
+    fetch(form.action, {
+        method: "POST",
+        body: formData,
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => { throw new Error(text || response.status); });
+        }
+        return response.text();
+    })
+    .then(data => {
+        console.log("Success:", data);
+        clearFormFields();  // Clear fields and close accordions after submission
+        showSuccessModal(); // Show success message
+    })
+    .catch(error => console.error("Error:", error));
+  }
+
+
+  // Delete row from table
+  //tab1 and tab2
+  function deleteRow(button, tableId, totalBoxId, summaryId) {
+    const row = button.parentElement.parentElement;
+    const tbody = row.parentElement;
+    const index = Array.from(tbody.children).indexOf(row);
+    dataLists[tableId].splice(index, 1);
+    row.remove();
+    updateTotalAmount(tableId, totalBoxId, summaryId);
+    updateTotalAmount1(tableId, totalBoxId, summaryId);
+    // Update purchase summary if expenseTablePurchasing_2
+    if (tableId === 'expenseTablePurchasing_2') {
+      updatePurchaseSummary(tableId, summaryId);
+    }
+  }
+
+  // Update total amount for a table
+  // Tab1
+  function updateTotalAmount(tableId, totalBoxId, summaryId) {
+    const totalBox = document.getElementById(totalBoxId);
+    const summaryBox = document.getElementById(summaryId);
+    const total = dataLists[tableId].reduce((sum, row) => sum + parseFloat(row.amount || 0), 0);
+    totalBox.textContent = `₱${total.toFixed(2)}`; // Potential error if totalBox is null
+    summaryBox.textContent = `₱${total.toFixed(2)}`; // Potential error if summaryBox is null
+
+    const grandTotalBox = document.getElementById('grandTotalSummary');
+    const transportTotal = dataLists['expenseTableTransport1'].reduce((sum, row) => sum + parseFloat(row.amount || 0), 0);
+    const mealTotal = dataLists['expenseTableMeal1'].reduce((sum, row) => sum + parseFloat(row.amount || 0), 0);
+    const lodgingTotal = dataLists['expenseTableLodging1'].reduce((sum, row) => sum + parseFloat(row.amount || 0), 0);
+    const grandTotal = transportTotal + mealTotal + lodgingTotal;
+    grandTotalBox.textContent = `₱${grandTotal.toFixed(2)}`; // Potential error if grandTotalBox is null
+  }
+
+  // Update total amount for a table
+  // Tab2
+  function updateTotalAmount1(tableId, totalBoxId, summaryId) {
+    const totalBox = document.getElementById(totalBoxId);
+    const summaryBox = document.getElementById(summaryId);
+    const grandTotalBox = document.getElementById('grandTotalPurchasing_2');
+
+    // Log missing elements
+    if (!totalBox) console.error(`Element with ID '${totalBoxId}' not found`);
+    if (!summaryBox) console.error(`Element with ID '${summaryId}' not found`);
+    if (!grandTotalBox && tableId === 'expenseTablePurchasing_2') {
+      console.error("Element with ID 'grandTotalPurchasing_2' not found");
+    }
+
+    // Calculate total
+    const total = dataLists[tableId].reduce((sum, row) => sum + parseFloat(row.amount || 0), 0);
+
+    // Update totalBox for non-Purchasing tables, summaryBox for all tables
+    if (tableId !== 'expenseTablePurchasing_2' && totalBox) {
+      totalBox.textContent = `₱${total.toFixed(2)}`;
+    }
+    if (summaryBox) {
+      summaryBox.textContent = `₱${total.toFixed(2)}`;
+    }
+
+    // Update grand total for Purchasing_2
+    if (tableId === 'expenseTablePurchasing_2' && grandTotalBox) {
+      const purchaseTotal = dataLists['expenseTablePurchasing_2'].reduce(
+        (sum, row) => sum + parseFloat(row.amount || 0),
+        0
+      );
+      const grandTotal = purchaseTotal;
+      grandTotalBox.textContent = `₱${grandTotal.toFixed(2)}`; // This line is fine
+    }
+  }
+
+  // Tab1 and Tab2
+  function showSuccessModal() {
+    const modal = document.getElementById('successModal');
+    if (modal) {
+        modal.style.display = 'block';
+        setTimeout(() => { modal.style.display = 'none'; }, 3000); // Hide after 3 seconds
+    } else {
+        alert("Success! Your entry has been submitted.");
+    }
+  }
+</script>
+</html> {% endcomment %}

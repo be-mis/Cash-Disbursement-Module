@@ -1,0 +1,110 @@
+                
+                    <!-- Transportation Expenses Table -->
+                    <h3 class="font-bold mb-2 border-b border-gray-600 pb-1" >Transportation Expenses</h3>
+                    <table class="table-fixed w-full border border-gray-200 mb-4 text-sm" id="transportation">
+                        <thead>
+                            <tr class="bg-gray-100">
+                            <th class="p-2 border border-gray-200 text-left w-1/4">Date</th>
+                            <th class="p-2 border border-gray-200 text-left w-1/4">From - To</th>
+                            <th class="p-2 border border-gray-200 text-left w-1/4">Amount (PHP)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-white">
+                            <td id="transportDate" class="p-2 border border-gray-200">-</td>
+                            <td id="transportRoute" class="p-2 border border-gray-200">-</td>
+                            <td id="transportAmount" class="p-2 border border-gray-200">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+        
+                    <!-- Meal Expenses Table -->
+                    <h3 class="font-bold mb-2 border-b border-gray-600 pb-1">Meal Expenses</h3>
+                    <table class="table-fixed w-full border border-gray-200 mb-4 text-sm" id="meal">
+                        <thead>
+                            <tr class="bg-gray-100">
+                            <th class="p-2 border border-gray-200 text-left w-1/4">Date</th>
+                            <th class="p-2 border border-gray-200 text-left w-1/4">Meal Type</th>
+                            <th class="p-2 border border-gray-200 text-left w-1/4">Amount (PHP)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-white">
+                            <td id="mealDate" class="p-2 border border-gray-200">-</td>
+                            <td id="mealType" class="p-2 border border-gray-200">-</td>
+                            <td id="mealAmount" class="p-2 border border-gray-200">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+        
+                    <!-- Lodging Expenses Table -->
+                    <h3 class="font-bold mb-2 border-b border-gray-600 pb-1">Lodging Expenses</h3>
+                    <table class="table-fixed w-full border border-gray-200 text-sm" id="lodging">
+                        <thead>
+                            <tr class="bg-gray-100">
+                            <th class="p-2 border border-gray-200 text-left w-1/4">Check-In - Check-Out</th>
+                            <th class="p-2 border border-gray-200 text-left w-1/4">Description</th>
+                            <th class="p-2 border border-gray-200 text-left w-1/4">Amount (PHP)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-white">
+                            <td id="lodgingDate" class="p-2 border border-gray-200">-</td>
+                            <td id="lodgingDesc" class="p-2 border border-gray-200">-</td>
+                            <td id="lodgingAmount" class="p-2 border border-gray-200">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+        
+                <!-- Outer Container -->
+                <div class="justify-between mx-auto mt-4">
+                <!-- Payment + Summary Section -->
+                <div class="flex justify-between">
+                <!-- Left Column: Mode of Payment -->
+                    <div class="bg-gray-100 p-4 max-w-sm">
+                    <h3 class="font-bold text-xl mb-3">Mode of Disbursement</h3>
+                    <p class="mb-1">
+                        <strong><span id="payment_mode"> </span></strong>
+                    </p>
+                    <p>
+                        <strong><span id="account_number"> </span></strong>
+
+                    </p>
+                    </div>
+                
+        
+        
+        
+                <!-- Right Column: Total Summary -->
+                    <div class="bg-gray-100 p-4 max-w-sm">
+                    <h3 class="font-bold text-xl mb-2">Total Summary</h3>
+                    <div class="grid grid-cols-2">
+                        <p class="text-medium text-left font-semibold">Transportation:</p>
+                        <p class="text-medium text-center"><span id="transportationSummary">₱0.00</span></p>
+                    </div>
+                    <div class="grid grid-cols-2">
+                        <p class="text-medium text-left font-semibold">Meal:</p>
+                        <p class="text-medium text-center"><span id="mealSummary">₱0.00</span></p>
+                    </div>
+                    <div class="grid grid-cols-2">
+                        <p class="text-medium text-left font-semibold">Lodging:</p>
+                        <p class="text-medium text-center"><span id="lodgingSummary">₱0.00</span></p>
+                    </div>
+                    
+                    <!-- Grand Total row -->
+                    <div class="grid grid-cols-2 font-bold mt-2 border-t border-gray-400 pt-2">
+                        <p class="text-xl font-semibold text-left">Grand Total:</p>
+                        <p class="text-xl font-semibold text-center"><span id="grandTotalSummary">₱0.00</span></p>
+                    </div>
+                    </div>
+                </div>
+            
+        
+                <!-- Rejection Reason Display (if applicable) -->
+                <div id="rejectReasonContainer" class="mt-2 hidden text-sm bg-red-50 p-4">
+                    <strong>Rejection Reason:</strong>
+                    <p id="rejectReasonText" class="text-red-600"></p>
+                </div>
+                </div> <!-- End of Content Wrapper -->
+            </div>
+            </div>

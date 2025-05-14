@@ -1,0 +1,184 @@
+<div class="my-4">
+  <h2 class="text-2xl font-bold">
+    <span style="color: #00A3AD;">
+      CASH 
+      {% if db == 'ADVANCE' %}
+        ADVANCE
+      {% elif db == 'REIMBURSEMENT' %}
+        REIMBURSEMENT
+      {% elif db == 'LIQUIDATION' %}
+        LIQUIDATION
+      {% else %}
+        NO DB
+      {% endif %}
+    </span>      
+    <span style="color: #aa0061;">PURCHASE FORM</span>
+  </h2>
+  </div>
+  <div>
+    {% if db == 'ADVANCE' %}
+    <form id="mainFormTab2" method="POST" action="{% url 'save-advance' table_type='PurchaseAdvance' %}" class="max-w-full">
+    {% elif db == 'REIMBURSEMENT' %}
+    <form id="mainFormTab2" method="POST" action="{% url 'save-reimbursement' table_type='PurchaseReimbursement' %}" class="max-w-full">
+    {% elif db == 'LIQUIDATION' %}
+    <form id="mainFormTab2" method="POST" action="{% url 'save-liquidation' table_type='PurchaseLiquidation' %}" class="max-w-full">
+    {% else %}
+    <form id="mainForm" method="POST" action="#">
+    {% endif %}
+      {% csrf_token %}
+      <!-- Basic Form Fields -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 text-sm my-4 gap-2 sm:gap-8">
+        <div class="grid gap-2">
+
+          <input type="hidden" name="puserEmail" value="{{ user_email }}">
+          <input type="hidden" name="puserID" value="{{ user_id }}">
+          <input type="hidden" name="pposition" value="{{ position }}">
+
+
+          <div class="grid sm:grid-cols-6">
+            <span class="inline-flex items-center text-sm text-gray-600 font-medium">Name</span>
+            <input type="text" name="pname" value="{{ username }}" class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-900 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none" required readonly>
+          </div>
+
+          <div class="grid sm:grid-cols-6">
+            <span class="inline-flex items-center text-sm text-gray-600 font-medium">Company</span>
+            <input type="text" name="pbu" value="{{ company }}" class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-900 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none" required readonly>
+          </div>
+
+          <div class="grid sm:grid-cols-6">
+            <span class="inline-flex items-center text-sm text-gray-600 font-medium"> Department </span>
+            <select name="pdept" class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-900 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none" required>
+              <option value="" disabled selected>Select Department</option>
+              <option value="EPC Merchandising">EPC Merchandising</option>
+              <option value="EPC Sales">EPC Sales</option>
+              <option value="NBFI Merchandising">NBFI Merchandising</option>
+              <option value="NBFI Sales">NBFI Sales</option>
+              <option value="Finance">Finance</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Human Resource">Human Resource</option>
+              <option value="MIS">MIS</option>
+              <option value="Operations">Operations</option>
+            </select>
+          </div>
+
+        </div>
+
+        <div class="grid gap-2">
+
+          <div class="grid sm:grid-cols-6">
+            <span class="inline-flex items-center text-sm text-gray-600 font-medium"> Purpose </span>
+            <input type="text" name="ppurpose" placeholder="Purpose" class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-900 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none">
+          </div>
+
+          <div class="grid sm:grid-cols-6">
+            <span class="inline-flex items-center text-sm text-gray-600 font-medium"> Requested Date </span>
+            <input type="text" value="{{ today }}" name="pdate_requested" id="pdate_requested1" readonly class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-600 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none">
+          </div>
+
+          <div class="grid sm:grid-cols-6">
+            <span class="inline-flex items-center text-sm text-gray-600 font-medium"> Date Need </span>
+            <input type="date" name="pdate_needed" id="pdate_needed1" class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-600 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none" placeholder="">
+          </div>
+        </div>
+
+      </div>
+      
+
+
+      <!-- Accordion: Purchasing -->
+      <div class="my-12">
+        <div id="accordionContentPurchasing2" class="overflow-x-auto">
+          <table id="expenseTablePurchasing_2" class="w-full border-collapse border border-gray-300">
+            <thead class="font-medium text-medium text-gray-600 bg-gray-100">
+              <th scope="col" class="w-40 sm:w-1/4 px-2 py-2">Purchase Number</th>
+              <th scope="col" class="w-40 sm:w-1/4 px-2 py-3">Description</th>
+              <th scope="col" class="w-40 sm:w-1/4 px-2 py-3">Amount</th>
+              <th scope="col" class="w-40 sm:w-1/4 px-2 py-3">Actions</th>
+            </thead>
+            <tbody id="tableBodyPurchasing2">
+              <tr class="bg-white border-t">
+                <td class="p-2"><input type="text" id="pPurchaseNumber" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" value="{{ purchase_number }}" readonly></td>
+                <td class="p-2"><input type="text" id="pDescription" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder=""></td>
+                <td class="p-2"><input type="number" id="pAmount" step="any" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder=""></td>
+                <td class="p-2">
+                  <button type="button" onclick="addRow('expenseTablePurchasing_2', 'purchaseSummaryTab2', 'purchaseSummaryTab2')" class="flex rounded items-center justify-center border border-green-600 text-green-600 text-sm px-4 h-8 transition duration-300 hover:bg-green-600 hover:text-white">
+                    Add Row
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <input type="hidden" name="purchaseData" id="purchaseDataField">
+        </div>
+      </div>
+
+
+      <div class="grid sm:grid-cols-2 gap-8">
+          <!-- Mode of Disbursement -->
+          <div class="my-4">
+            <h3 class="font-bold border-b-2 text-gray-600 text-lg mb-2 border-b border-gray-200 text-gray-700 pb-1">Mode of Disbursement</h3>
+            <div>
+              <ul class="grid w-full gap-2 sm:gap-6 grid-cols-3">
+                <li>
+                  <input type="checkbox" id="pmop-gcash" name="ppayment_method" value="GCASH" class="hidden peer ppayment-checkbox" onchange="onlyOneCheckbox1(this)">
+                  <label for="pmop-gcash" class="inline-flex items-center justify-center w-full p-2 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100">
+                    <div class="block flex items-center justify-center">
+                      <div class="w-full text-sm font-semibold">GCash</div>
+                    </div>
+                  </label>
+                </li>
+                <li>
+                  <input type="checkbox" id="pmop-bank" name="ppayment_method" value="METROBANK" class="hidden peer ppayment-checkbox" onchange="onlyOneCheckbox1(this)">
+                  <label for="pmop-bank" class="inline-flex items-center justify-center w-full p-2 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100">
+                    <div class="block">
+                      <div class="w-full text-sm font-semibold">Metrobank</div>
+                    </div>
+                  </label>
+                </li>
+                <li>
+                  <input type="checkbox" id="pmop-cash" name="ppayment_method" value="CASH" class="hidden peer ppayment-checkbox" onchange="onlyOneCheckbox1(this)">
+                  <label for="pmop-cash" class="inline-flex items-center justify-center w-full p-2 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100">
+                    <div class="block">
+                      <div class="w-full text-sm font-semibold">Cash</div>
+                    </div>
+                  </label>
+                </li>
+              </ul>
+            </div>
+            <div class="my-2">
+              <label for="accountNumberTab2" class="inline-flex items-center text-sm text-gray-600 font-medium" required>Account #:</label>
+              <input type="text" name="paccount_number" id="accountNumberTab2" class="w-full rounded border border-gray-300 p-1 outline-none focus:border-blue-500" placeholder="Enter account number">
+            </div>
+          </div>
+          
+
+
+        <!-- Total Summary -->
+        <div class="bg-gray-100 p-4 rounded-sm">
+          <h3 class="mb-2 border-b border-gray-200 text-gray-700 pb-1 font-bold">Summary</h3>
+          <div class="text-gray-600 text-sm">
+            <p class="font-medium mb-1">Purchases:</p>
+            <ul id="purchaseSummaryTab2" class="list-disc pl-5"></ul>
+          </div>
+          <div class="grid grid-cols-2">
+            <p class="mt-2 border-t border-gray-200 text-gray-700 pb-1 font-bold">Grand Total:</p>
+            <p class="mt-2 border-t border-gray-200 text-gray-700 pb-1 font-bold text-right"><span id="grandTotalPurchasing_2">₱0.00</span></p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Final Form Buttons -->
+      <div class="flex items-center justify-center gap-2 mt-4">
+        <button type="button" onclick="prepareTableDataAndSave1()" style="border-color: #aa0061;" class="border w-20 h-8 text-sm text-[#aa0061] transition duration-300 hover:bg-[#aa0061] hover:text-white">
+          Save
+        </button>
+        <button type="button" onclick="submitPurchase()" style="background-color:#00A3AD;" class="border w-20 h-8 text-sm text-white">
+          Submit
+        </button>
+      </div>
+      <input type="hidden" name="actionType" id="actionTypeFieldTab2">
+    </form>
+  </div>
+</div>

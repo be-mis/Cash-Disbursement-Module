@@ -1,0 +1,831 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Dashboard</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+      </head>
+      <style>
+        /* Hide the status list on mobile devices */
+        @media (max-width: 768px) {
+            #statusList {
+                display: none; /* Hide the list on mobile */
+            }
+
+            #mobileTabMenu {
+                display: flex; /* Hide the list on mobile */
+            }
+        }
+
+        /* Show the status list on larger screens */
+        @media (min-width: 769px) {
+            #statusList {
+                display: flex; /* Show the list on desktop */
+            }
+
+            #mobileTabMenu {
+                display: none; /* Hide the list on desktop */
+            }
+        }
+        .btn-approve {
+            background-color: rgb(0, 163, 173);
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        
+        .btn-approve:hover {
+            background-color: rgb(0, 140, 150);
+            transform: scale(1.05);
+        }
+        .btn-reject {
+            background-color: rgb(170, 0, 97);
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        
+        .btn-reject:hover {
+            background-color: rgb(145, 0, 83);
+            transform: scale(1.05);
+        }
+
+        .filter-btn {
+            padding: 4px 8px;
+            transition: all 0.2s ease-in-out;
+        }
+    
+        .filter-btn:hover {
+            background-color: #f0f4f8;
+            border-radius: 4px;
+            color: #1d4ed8; /* Blue-700 */
+        }
+    
+        .filter-btn sup {
+            font-size: 0.7em;
+            color: #6b7280; /* Gray-500 */
+            margin-left: 2px;
+            vertical-align: top;
+        }
+        
+        
+      </style>
+<body>
+    <div class="--my-max-width p-4 border-t-8" style="border-color: #00A3AD;">
+        <!-- HEADER -->
+            <div>
+                <h2 class="text-2xl font-bold">
+                    <span style="color: #00A3AD;">Cash Advance</span> 
+                    <span style="color: #aa0061;">List</span>
+                </h2>
+            </div>
+        
+            <!-- FILTER SECTION -->
+            <div class="my-4 grid grid-cols-1 sm:grid-cols-3 gap-0 sm:gap-4">
+                <div class="col-span-2 h-full flex items-center relative mb-2 sm:mb-0 text-sm font-medium text-center text-gray-500">
+                    <ul class="flex flex-wrap -mb-px" id="statusList">
+                        <li class="me-4">
+                            <a class="cursor-pointer inline-block px-4 pb-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500" onclick="filterTable('All')">
+                                All<sup>{{ status_counts.All }}</sup>
+                            </a>
+                        </li>
+                        <li class="me-4">
+                            <a class="cursor-pointer inline-block px-4 pb-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" onclick="filterTable('forapproval')">
+                                For Approval<sup>{{ status_counts.For_Approval }}</sup>
+                            </a>
+                        </li>
+                        <li class="me-4">
+                            <a class="cursor-pointer inline-block px-4 pb-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" onclick="filterTable('forprocess')">
+                                For Process<sup>{{ status_counts.For_Process }}</sup>
+                            </a>
+                        </li>
+                        <li class="me-4">
+                            <a class="cursor-pointer inline-block px-4 pb-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" onclick="filterTable('forrelease')">
+                                For Release<sup>{{ status_counts.For_Release }}</sup>
+                            </a>
+                        </li>
+                        <li class="me-4">
+                            <a class="cursor-pointer inline-block px-4 pb-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" onclick="filterTable('pendingliquidation')">
+                                Pending Liquidation<sup>{{ status_counts.Pending_Liquidation }}</sup>
+                            </a>
+                        </li>
+                        <li class="me-4">
+                            <a class="cursor-pointer inline-block px-4 pb-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" onclick="filterTable('denied')">
+                                Denied<sup>{{ status_counts.Denied }}</sup>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="cursor-pointer inline-block px-4 pb-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" onclick="filterTable('completed')">
+                                Completed<sup>{{ status_counts.Completed }}</sup>
+                            </a>
+                        </li>
+                    </ul>
+
+
+                    <div class="relative w-full text-center items-center" id="mobileTabMenu" >
+                        <span class="mr-4">Status: </span>
+                        <button id="dropdownButton" class="inline-flex items-center justify-center px-4 py-2 text-blue-600 bg-white border-b-2 border-blue-600 shadow-sm focus:outline-none" onclick="toggleDropdown()">
+                            Select Status
+                        </button>
+                        <ul id="statusListMobile" class="hidden absolute z-10 left-8 top-10 bg-white border border-gray-300 rounded-md shadow-lg">
+                            {% comment %} <li>
+                                <a id="draftLink" onclick="setActiveLink('draft', 'Draft')" class="cursor-pointer block px-4 py-2 text-gray-700 hover:bg-gray-100">Draft</a>
+                            </li> {% endcomment %}
+                            <li>
+                                <a onclick="setActiveLink('forapproval', 'For Approval')" class="cursor-pointer block px-4 py-2 text-gray-700 hover:bg-gray-100">For Approval</a>
+                            </li>
+                            <li>
+                                <a onclick="setActiveLink('forprocess', 'For Process')" class="cursor-pointer block px-4 py-2 text-gray-700 hover:bg-gray-100">For Process</a>
+                            </li>
+                            <li>
+                                <a onclick="setActiveLink('forrelease', 'For Release')" class="cursor-pointer block px-4 py-2 text-gray-700 hover:bg-gray-100">For Release</a>
+                            </li>
+                            <li>
+                                <a onclick="setActiveLink('pendingliquidation', 'Pending Liquidation')" class="cursor-pointer block px-4 py-2 text-gray-700 hover:bg-gray-100">Pending Liquidation</a>
+                            </li>
+                            <li>
+                                <a onclick="setActiveLink('denied', 'Denied')" class="cursor-pointer block px-4 py-2 text-gray-700 hover:bg-gray-100">Denied</a>
+                            </li>
+                            <li>
+                                <a onclick="setActiveLink('completed', 'Completed')" class="cursor-pointer block px-4 py-2 text-gray-700 hover:bg-gray-100">Completed</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            
+
+
+
+                <div class="flex items-center justify-end mt-2">
+                    <div class="col-span-1 w-full relative text-gray-600 my-2 sm:my-0 focus-within:text-gray-200">
+                        <form id="searchForm" onsubmit="searchTable(event)">
+                            <span class="absolute top-1 left-0 flex items-center pl-2">
+                                <button type="submit" class="p-1 focus:outline-none focus:shadow-outline border-b-4 border-transparent">
+                                    <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" class="w-6 h-6">
+                                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                </button>
+                            </span>
+                            <input type="search" id="searchInput" name="q" class="w-full py-2 text-sm border text-gray-400 border-gray-200 rounded-md pl-10 shadow-sm focus:outline-none focus:bg-white focus:font-medium" placeholder="Search..." autocomplete="off">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% include 'list.html' %}
+    
+    </div>
+    {% include 'singlemodal.html' %}
+
+</body>
+<script>
+    
+    // DATE FORMAT
+    function formatDate(dateString) {
+        if (!dateString) return ""; // Handle empty or undefined dates
+        let date = new Date(dateString);
+        return date.toLocaleDateString("en-US", {
+            month: "numeric",
+            day: "numeric",
+            year: "numeric"
+        });
+    }
+    
+    // FILTERING
+    function filterTable(status) {
+        let rows = document.querySelectorAll("#dataTable tbody tr");
+    
+        rows.forEach(row => {
+            let rowStatus = row.getAttribute("data-status");
+            
+            if (status === "All" || rowStatus === status) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    }
+
+
+
+    // Optional: For DELETING
+    document.addEventListener('keydown', (e) => {
+        const modal = document.getElementById("deleteModal");
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+            modal.classList.add('hidden');
+        }
+    });
+
+    function deletethisModal(id, tableType) {
+        console.log(`Opening modal for id=${id}, tableType=${tableType}`);
+        const modal = document.getElementById("deleteModal");
+        const confirmBtn = document.getElementById("confirmDeleteBtn");
+        const cancelBtn = document.getElementById("cancelDeleteBtn");
+      
+        if (!modal || !confirmBtn || !cancelBtn) {
+          console.error("Delete modal elements not found");
+          alert("Delete modal is not properly configured.");
+          return;
+        }
+      
+        modal.classList.remove("hidden");
+        confirmBtn.dataset.deleteId = id;
+        confirmBtn.dataset.tableType = tableType;
+      
+        const handleDelete = async () => {
+          try {
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = "Deleting...";
+      
+            // Clean query string (remove leading ? if present)
+            let queryString = window.location.search;
+            if (queryString.startsWith('?')) {
+              queryString = queryString.slice(1);
+            }
+            console.log(`Sending DELETE request to /delete_main_data/${id}/${tableType}/?${queryString}`);
+      
+            const response = await fetch(`/delete_main_data/${id}/${tableType}/?${queryString}`, {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+              },
+            });
+      
+            if (!response.ok) {
+              const text = await response.text();
+              throw new Error(`HTTP ${response.status}: ${text}`);
+            }
+      
+            const data = await response.json();
+      
+            if (data.status === "success") {
+              console.log("Delete successful, redirecting to:", data.redirect_url);
+              modal.classList.add("hidden");
+              window.location.href = data.redirect_url;
+            } else {
+              throw new Error(data.message || "Delete failed");
+            }
+          } catch (error) {
+            console.error("Error deleting item:", error);
+            alert(`Failed to delete item: ${error.message}`);
+          } finally {
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = "DELETE";
+          }
+        };
+      
+        const closeModal = () => modal.classList.add("hidden");
+      
+        confirmBtn.onclick = handleDelete;
+        cancelBtn.onclick = closeModal;
+      
+        modal.onclick = (e) => {
+          if (e.target === modal) closeModal();
+        };
+    }
+
+
+    function openModal(id, tableType, ga_username, status) {
+        console.debug(`Fetching data for id: ${id}, tableType: ${tableType}`);
+
+        // Map frontend tableType to backend expected values
+        const tableTypeMapping = {
+            'Purchase': 'PurchaseAdvance', // Adjust based on actual backend type
+            'CashAdvance': 'CashAdvance',
+            'CashReimbursement': 'CashReimbursement',
+            'CashLiquidation': 'CashLiquidation'
+        };
+        const backendTableType = tableTypeMapping[tableType] || tableType;
+    
+        fetch(`/get_main_data/${id}/${backendTableType}/`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(`HTTP ${response.status}: ${text}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Fetched data:", data);
+    
+            const statusMap = {
+                draft: "Draft",
+                forapproval: "For Approval",
+                forprocess: "For Process",
+                forrelease: "For Release",
+                pendingliquidation: "Pending Liquidation",
+                denied: "Denied",
+                completed: "Completed"
+            };
+    
+            if (tableType === 'Purchase') {
+                // Purchase Modal logic
+                document.getElementById("pName").textContent = data.main.name;
+                document.getElementById("pBusinessUnit").textContent = data.main.businessUnit;
+                document.getElementById("pDepartment").textContent = data.main.department;
+                document.getElementById("pDate").textContent = formatDate(data.main.date_requested); // Use date_requested
+                document.getElementById("pPurpose").textContent = data.main.purpose;
+                document.getElementById("ppayment_mode").textContent = data.main.paymentMode;
+                document.getElementById("paccount_number").textContent = data.main.accountNumber;
+                document.getElementById("caStatus").textContent = statusMap[data.main.status] || data.main.status;
+                let purchaseTableBody = document.querySelector("#purchaseModal #purchase tbody");
+                purchaseTableBody.innerHTML = "";
+                data.purchase.forEach(item => {
+                    let row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td class="p-2 border border-gray-200">${formatDate(item.date)}</td>
+                        <td class="p-2 border border-gray-200">${item.purchase_number}</td>
+                        <td class="p-2 border border-gray-200">${item.particulars}</td>
+                        <td class="p-2 border border-gray-200">${item.amount}</td>
+                    `;
+                    purchaseTableBody.appendChild(row);
+                });
+    
+                calculateTotal1(data);
+    
+                if (data.main.status === "denied") {
+                    document.getElementById("rejectReasonContainer").classList.remove("hidden");
+                    document.getElementById("rejectReasonText").textContent = data.main.rejection_reason || 'N/A';
+                } else {
+                    document.getElementById("rejectReasonContainer").classList.add("hidden");
+                }
+    
+                document.getElementById("purchaseModal").classList.remove("hidden");
+            } else {
+                // CashAdvance/CashReimbursement/CashLiquidation Modal
+                document.getElementById("caName").textContent = data.main.name;
+                document.getElementById("caBusinessUnit").textContent = data.main.businessUnit;
+                document.getElementById("caDepartment").textContent = data.main.department;
+                document.getElementById("caDateFiled").textContent = formatDate(data.main.date_requested); // Use date_requested
+                document.getElementById("caDepartureDate").textContent = formatDate(data.main.departureDate);
+                document.getElementById("caReturnDate").textContent = formatDate(data.main.returnDate);
+                document.getElementById("caPurpose").textContent = data.main.purpose;
+                document.getElementById("payment_mode").textContent = data.main.paymentMode;
+                document.getElementById("account_number").textContent = data.main.accountNumber;
+                document.getElementById("caStatus").textContent = statusMap[data.main.status] || data.main.status;
+    
+                document.getElementById("table-type").textContent = tableType === 'CashAdvance' ? "ADVANCE" :
+                                                                   tableType === 'CashReimbursement' ? "REIMBURSEMENT" :
+                                                                   "LIQUIDATION";
+    
+                // Populate Transportation, Meal, Lodging Tables
+                let transportTableBody = document.querySelector("#cashAdvanceModal #transportation tbody");
+                transportTableBody.innerHTML = "";
+                data.transportation.forEach(item => {
+                    let row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td class="p-2 border border-gray-200">${formatDate(item.date)}</td>
+                        <td class="p-2 border border-gray-200">${item.locFrom} - ${item.locTo}</td>
+                        <td class="p-2 border border-gray-200">${item.amount}</td>
+                    `;
+                    transportTableBody.appendChild(row);
+                });
+    
+                let mealTableBody = document.querySelector("#cashAdvanceModal #meal tbody");
+                mealTableBody.innerHTML = "";
+                data.meal.forEach(item => {
+                    let row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td class="p-2 border border-gray-200">${formatDate(item.date)}</td>
+                        <td class="p-2 border border-gray-200">${item.meal_type}</td>
+                        <td class="p-2 border border-gray-200">${item.amount}</td>
+                    `;
+                    mealTableBody.appendChild(row);
+                });
+    
+                let lodgingTableBody = document.querySelector("#cashAdvanceModal #lodging tbody");
+                lodgingTableBody.innerHTML = "";
+                data.lodging.forEach(item => {
+                    let row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td class="p-2 border border-gray-200">${formatDate(item.check_in)} - ${formatDate(item.check_out)}</td>
+                        <td class="p-2 border border-gray-200">${item.description}</td>
+                        <td class="p-2 border border-gray-200">${item.amount}</td>
+                    `;
+                    lodgingTableBody.appendChild(row);
+                });
+    
+                calculateTotal(data);
+    
+                if (data.main.status === "denied") {
+                    document.getElementById("rejectReasonContainer").classList.remove("hidden");
+                    document.getElementById("rejectReasonText").textContent = data.main.rejection_reason || 'N/A';
+                } else {
+                    document.getElementById("rejectReasonContainer").classList.add("hidden");
+                }
+    
+                // Handle Approve/Reject buttons
+                const approveBtn = document.getElementById("approveBtn");
+                const rejectBtn = document.getElementById("rejectBtn");
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                const approvers = ['Shiela Prado', 'Gian Francisco'];
+                const ga_status = ['forprocess', 'forrelease'];
+                if (approveBtn && rejectBtn) {
+                    const isRequestor = data.main.name === ga_username;
+                    const isForApproval1 = data.main.status === 'forapproval' && !approvers.includes(ga_username) && !isRequestor;
+                    const isForProcessWithGA = ga_status.includes(data.main.status) && approvers.includes(ga_username) && !isRequestor;
+                    
+                    if (isForApproval1 || isForProcessWithGA ) {
+                        approveBtn.style.display = 'block';
+                        rejectBtn.style.display = 'block';
+                    } else {
+                        approveBtn.style.display = 'none';
+                        rejectBtn.style.display = 'none';
+                    }
+
+                    // Reattach event listeners
+                    approveBtn.removeEventListener('click', openApproveModal);
+                    approveBtn.addEventListener('click', () => openApproveModal(id, tableType, ga_username, status));
+
+                    rejectBtn.removeEventListener('click', openRejectModal);
+                    rejectBtn.addEventListener('click', () => openRejectModal(id, tableType, ga_username));
+                } else {
+                    console.warn("Approve/Reject buttons not found in cashAdvanceModal. User may not be an approver.");
+                }
+    
+                document.getElementById("cashAdvanceModal").classList.remove("hidden");
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching data:", error);
+            const message = error.message.includes('404') ? 'Record not found.' : 'Failed to load record data. Please try again.';
+            alert(message);
+        });
+    }
+    
+    
+    // Function to open the Approve Modal and attach event listeners
+    function openApproveModal(id, tableType, ga_username, status){
+        const approveModal = document.getElementById("approveModal");
+        if (approveModal) {
+            approveModal.classList.remove("hidden");
+    
+            // Attach event listener to Approve button
+            const approveRequestBtn = document.getElementById("approverequest");
+            if (approveRequestBtn) {
+                approveRequestBtn.removeEventListener('click', handleApprove); // Prevent duplicate listeners
+                approveRequestBtn.addEventListener('click', () => handleApprove(id, tableType, ga_username, status));
+            }
+    
+            // Attach event listeners to Cancel buttons
+            const cancelApproveBtn = document.getElementById("cancelApproveBtn");
+            const cancelApproveBtn2 = document.getElementById("cancelApproveBtn2");
+            if (cancelApproveBtn) {
+                cancelApproveBtn.removeEventListener('click', closeApproveModal);
+                cancelApproveBtn.addEventListener('click', closeApproveModal);
+            }
+            if (cancelApproveBtn2) {
+                cancelApproveBtn2.removeEventListener('click', closeApproveModal);
+                cancelApproveBtn2.addEventListener('click', closeApproveModal);
+            }
+        } else {
+            console.error("Approve modal not found.");
+        }
+    }
+
+    // Function to handle Approve action
+    function handleApprove(id, tableType, ga_username, status) {
+        console.debug(`Approving request with id: ${id}, tableType: ${tableType}`);
+        fetch(`/approve-request/${id}/${tableType}/${ga_username}/${status}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ action: 'approve' })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(`HTTP ${response.status}: ${text}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert('Request approved successfully!');
+            closeApproveModal(); // Close the approve modal
+            closeModal(); // Close the main modal
+            // Optionally refresh the page or update the UI
+            location.reload();
+        })
+        .catch(error => {
+            console.error("Error approving request:", error);
+            alert('Failed to approve request. Please try again.');
+        });
+    }
+
+    
+    // Function to open the reject modal
+    function openRejectModal(id, tableType, ga_username) {
+        const rejectModal = document.getElementById("rejectModal");
+        if (rejectModal) {
+            rejectModal.classList.remove("hidden");
+
+            // Attach event listener to Reject button
+            const rejectRequestBtn = document.getElementById("rejectrequest");
+            if (rejectRequestBtn) {
+                rejectRequestBtn.removeEventListener('click', handleReject);
+                rejectRequestBtn.addEventListener('click', () => handleReject(id, tableType, ga_username));
+            }
+
+            // Attach event listeners to Cancel buttons
+            const cancelRejectBtn = document.getElementById("cancelRejectBtn");
+            const cancelRejectBtn2 = document.getElementById("cancelRejectBtn2");
+            if (cancelRejectBtn) {
+                cancelRejectBtn.removeEventListener('click', closeRejectModal);
+                cancelRejectBtn.addEventListener('click', closeRejectModal);
+            }
+            if (cancelRejectBtn2) {
+                cancelRejectBtn2.removeEventListener('click', closeRejectModal);
+                cancelRejectBtn2.addEventListener('click', closeRejectModal);
+            }
+        } else {
+            console.error("Reject modal not found.");
+        }
+    }
+    
+    
+   // Function to handle Reject action
+    async function handleReject(id, tableType, ga_username) {
+        const rejectionReason = document.getElementById("rejectionReason")?.value.trim();
+        const rejectionError = document.getElementById("rejectionError");
+
+        // Validate rejection reason
+        if (!rejectionReason) {
+            if (rejectionError) {
+                rejectionError.classList.remove("hidden");
+            }
+            return;
+        } else {
+            if (rejectionError) {
+                rejectionError.classList.add("hidden");
+            }
+        }
+
+        console.debug(`Rejecting request with id: ${id}, tableType: ${tableType}, reason: ${rejectionReason}`);
+        try {
+            const response = await fetch(`/reject-request/${id}/${tableType}/${ga_username}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ rejectionReason: rejectionReason }) // Changed to match backend
+            });
+
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(`HTTP ${response.status}: ${text}`);
+            }
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                alert('Request rejected successfully!');
+                closeRejectModal();
+                closeModal();
+                // Refresh the main modal with updated data
+                const updatedData = await fetchRecord(id, tableType);
+                if (updatedData) {
+                    openModal(updatedData);
+                } else {
+                    console.error('Failed to refresh modal data');
+                    location.reload(); // Fallback to page reload
+                }
+            } else {
+                console.error('Rejection failed:', data.message);
+                if (rejectionError) {
+                    rejectionError.textContent = data.message || 'Failed to reject request';
+                    rejectionError.classList.remove("hidden");
+                }
+            }
+        } catch (error) {
+            console.error("Error rejecting request:", error);
+            if (rejectionError) {
+                rejectionError.textContent = 'An error occurred while rejecting';
+                rejectionError.classList.remove("hidden");
+            }
+        }
+    }
+    
+    // Function to close the main modal
+    function closeModal() {
+        const cashAdvanceModal = document.getElementById("cashAdvanceModal");
+        const purchaseModal = document.getElementById("purchaseModal");
+        if (cashAdvanceModal) cashAdvanceModal.classList.add("hidden");
+        if (purchaseModal) purchaseModal.classList.add("hidden");
+        closeApproveModal();
+        closeRejectModal();
+    }
+    
+    // Function to close the Approve modal
+    function closeApproveModal() {
+        const approveModal = document.getElementById("approveModal");
+        if (approveModal) approveModal.classList.add("hidden");
+    }
+    
+    // Function to close the Reject modal
+    function closeRejectModal() {
+        const rejectModal = document.getElementById("rejectModal");
+        const rejectionReason = document.getElementById("rejectionReason");
+        const rejectionError = document.getElementById("rejectionError");
+        if (rejectModal) {
+            rejectModal.classList.add("hidden");
+            if (rejectionReason) rejectionReason.value = ""; // Clear textarea
+            if (rejectionError) rejectionError.classList.add("hidden"); // Hide error
+        }
+    }
+    
+
+
+
+    function searchTable(event) {
+        event.preventDefault(); // Prevent form reload
+        const searchInput = document.getElementById('searchInput').value;
+        const username = "{{ username|escapejs }}";
+        const userId = "{{ user_id|escapejs }}";
+        const db = "CashAdvance";
+
+        fetch(`/search/${db}?word=${encodeURIComponent(searchInput)}&username=${encodeURIComponent(username)}&userId=${encodeURIComponent(userId)}`, {
+            method: 'GET',
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(`HTTP error ${response.status}: ${text.slice(0, 100)}...`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.records) {
+                // Filter out records with status 'draft'
+                const filteredRecords = data.records.filter(record => record.status !== 'draft');
+                updateTable(filteredRecords);
+            } else {
+                console.error('Error:', data.error || 'No records found');
+            }
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+    
+    
+    function updateTable(records) {
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+    
+        records.forEach(record => {
+            const statusMap = {
+                'draft': { text: 'Draft'},
+                'forapproval': { text: 'For Approval' },
+                'forprocess': { text: 'For Process' },
+                'forrelease': { text: 'For Release'},
+                'completed': { text: 'Completed'},
+                'pendingliquidation': { text: 'Pending Liquidation'},
+                'denied': { text: 'Denied' }
+            };
+            const statusInfo = statusMap[record.status] || { text: record.status };
+    
+            const row = document.createElement('tr');
+            row.className = 'bg-white border row';
+            row.dataset.status = record.status;
+            row.innerHTML = `
+                <td class="border p-2 text-left">${record.date_requested ? new Date(record.date_requested).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : ''}</td>
+                <td class="border p-2 text-left">${record.purpose || ''}</td>
+                <td class="border p-2 text-left">${record.table_type || ''}</td>
+                <td class="border p-2 text-left">${statusInfo.text}</td>
+                <td class="border p-2 text-left">${record.name || ''}</td>
+                <td class="border p-2 text-left">
+                    <div class="flex items-center gap-2 w-full">
+                        ${record.status === 'draft' ? `
+                        <button class="edit-btn bg-yellow-100 px-2 py-1 rounded hover:bg-yellow-200" onclick="updateRecord(${record.id}, '${record.table_type}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688 a1.875 1.875 0 1 1 2.652 2.652 L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8 .8-2.685a4.5 4.5 0 0 1 1.13-1.897 L16.863 4.487Zm0 0L19.5 7.125" />
+                            </svg>
+                        </button>
+                        <button class="delete-btn bg-red-100 px-2 py-1 rounded hover:bg-red-200" onclick="deletethisModal(${record.id}, '${record.table_type}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9 m9.968-3.21c.342.052.682.107 1.022.166 m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077 H8.084a2.25 2.25 0 0 1-2.244-2.077 L4.772 5.79m14.456 0 a48.108 48.108 0 0 0-3.478-.397 m-12 .562c.34-.059.68-.114 1.022-.165 m0 0a48.11 48.11 0 0 1 3.478-.397 m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201 a51.964 51.964 0 0 0-3.32 0 c-1.18.037-2.09 1.022-2.09 2.201v.916 m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                            </svg>
+                        </button>
+                        ` : ''}
+                        <button class="view-btn bg-green-100 px-2 py-1 rounded hover:bg-green-200" onclick="openModal(${record.id}, '${record.table_type}')" title="View Summary">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5 c4.638 0 8.573 3.007 9.963 7.178 .07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5 c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                            </svg>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+        
+    // Attach event listeners
+    document.getElementById('searchInput').addEventListener('input', searchTable);
+
+
+
+    
+    // Automated calculation of the totals for Tab 1
+    function calculateTotal(data) {
+
+        let transportationTotal = data.transportation.reduce((acc, item) => acc + parseFloat(item.amount), 0);
+        let mealTotal = data.meal.reduce((acc, item) => acc + parseFloat(item.amount), 0);
+        let lodgingTotal = data.lodging.reduce((acc, item) => acc + parseFloat(item.amount), 0);
+        let grandTotal = transportationTotal + mealTotal + lodgingTotal;
+        document.getElementById("transportationSummary").textContent = `₱${transportationTotal.toFixed(2)}`;
+        document.getElementById("mealSummary").textContent = `₱${mealTotal.toFixed(2)}`;
+        document.getElementById("lodgingSummary").textContent = `₱${lodgingTotal.toFixed(2)}`;
+        document.getElementById("grandTotalSummary").textContent = `₱${grandTotal.toFixed(2)}`;
+    }
+
+    // Automated calculation of the totals for Tab 2
+    function calculateTotal1(data) {
+        let purchaseTotal = data.purchase.reduce((acc, item) => acc + parseFloat(item.amount), 0);
+        let grandTotal = purchaseTotal;
+
+        document.getElementById("purchaseSummary").textContent = `₱${purchaseTotal.toFixed(2)}`;
+        document.getElementById("pgrandTotalSummary").textContent = `₱${grandTotal.toFixed(2)}`;
+    }
+
+
+    function updateRecord(id, table_type){
+        window.location.href = `/update/${id}/${table_type}/`;
+    }
+
+    // Function to hide / close the modal
+    function closeModal() {
+        document.getElementById("cashAdvanceModal").classList.add("hidden");
+        document.getElementById("purchaseModal").classList.add("hidden");
+    }
+
+
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        let modal = document.getElementById("cashAdvanceModal");
+        let modal1 = document.getElementById("purchaseModal");
+        let modal2 = document.getElementById("cashReimbursementModal");
+
+        if (event.target === modal) {
+            closeModal();
+        }
+        if (event.target === modal1) {
+            closeModal();
+        }
+        if (event.target === modal2) {
+            closeModal();
+        }
+    };
+
+
+    //Filter the table by clicking on the status
+    document.addEventListener("DOMContentLoaded", function () {
+        const filterButtons = document.querySelectorAll(".filter-btn");
+        const tableRows = document.querySelectorAll("#data-table tbody tr");
+    
+        filterButtons.forEach(button => {
+            button.addEventListener("click", function () {
+                let filterValue = this.getAttribute("data-filter");
+    
+                tableRows.forEach(row => {
+                    let status = row.getAttribute("data-status"); // Get status from row
+                    if (filterValue === "All" || status === filterValue) {
+                        row.style.display = "";
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+            });
+        });
+    });
+
+</script>
+</html>

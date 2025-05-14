@@ -1,0 +1,564 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Dashboard</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        
+        <style scoped>
+            /* Hide the status list on mobile devices */
+            @media (max-width: 768px) {
+                #statusList {
+                    display: none; /* Hide the list on mobile */
+                }
+
+                #mobileTabMenu {
+                    display: flex; /* Hide the list on mobile */
+                }
+            }
+
+            /* Show the status list on larger screens */
+            @media (min-width: 769px) {
+                #statusList {
+                    display: flex; /* Show the list on desktop */
+                }
+
+                #mobileTabMenu {
+                    display: none; /* Hide the list on desktop */
+                }
+            }
+        </style>
+      </head>
+<body>
+
+    <div class="--my-max-width p-4 border-t-8" style="border-color: #00A3AD;">
+        <div>
+            <h2 class="text-2xl font-bold">
+                <span style="color: #00A3AD;">Cash Advance</span> 
+                <span style="color: #aa0061;">Dashboard</span>
+            </h2>
+        </div>
+
+        
+        <div class="my-4 grid grid-cols-1 sm:grid-cols-3 gap-0 sm:gap-4">
+            <div class="col-span-2 h-full flex items-center relative mb-2 sm:mb-0 text-sm font-medium text-center text-gray-500">
+                <ul class="flex flex-wrap -mb-px" id="statusList">
+                    <li class="me-4">
+                        <a id="draftLink" onclick="setActiveLink('save')" class="cursor-pointer inline-block px-4 pb-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500">Draft</a>
+                    </li>
+                    <li class="me-4">
+                        <a onclick="setActiveLink('submitted')" class="cursor-pointer inline-block px-4 pb-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300">For Approval</a>
+                    </li>
+                    <li class="me-4">
+                        <a onclick="setActiveLink('approved')" class="cursor-pointer inline-block px-4 pb-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300">For Process</a>
+                    </li>
+                    <li class="me-4">
+                        <a onclick="setActiveLink('release')" class="cursor-pointer inline-block px-4 pb-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300">For Release</a>
+                    </li>
+                    <li class="me-4">
+                        <a onclick="setActiveLink('liquidate')" class="cursor-pointer inline-block px-4 pb-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300">Pending Liquidation</a>
+                    </li>
+                    <li class="me-4">
+                        <a onclick="setActiveLink('rejected')" class="cursor-pointer inline-block px-4 pb-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300">Denied</a>
+                    </li>
+                    <li>
+                        <a onclick="setActiveLink('completed')" class="cursor-pointer inline-block px-4 pb-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300">Completed</a>
+                    </li>
+                </ul>
+
+                <div class="relative w-full text-center items-center" id="mobileTabMenu" >
+                    <span class="mr-4">Status: </span>
+                    <button id="dropdownButton" class="inline-flex items-center justify-center px-4 py-2 text-blue-600 bg-white border-b-2 border-blue-600 shadow-sm focus:outline-none" onclick="toggleDropdown()">
+                        Select Status
+                    </button>
+                    <ul id="statusListMobile" class="hidden absolute z-10 left-8 top-10 bg-white border border-gray-300 rounded-md shadow-lg">
+                        <li>
+                            <a id="draftLink" onclick="setActiveLink('save', 'Draft')" class="cursor-pointer block px-4 py-2 text-gray-700 hover:bg-gray-100">Draft</a>
+                        </li>
+                        <li>
+                            <a onclick="setActiveLink('submitted', 'For Approval')" class="cursor-pointer block px-4 py-2 text-gray-700 hover:bg-gray-100">For Approval</a>
+                        </li>
+                        <li>
+                            <a onclick="setActiveLink('approved', 'For Process')" class="cursor-pointer block px-4 py-2 text-gray-700 hover:bg-gray-100">For Process</a>
+                        </li>
+                        <li>
+                            <a onclick="setActiveLink('release', 'For Release')" class="cursor-pointer block px-4 py-2 text-gray-700 hover:bg-gray-100">For Release</a>
+                        </li>
+                        <li>
+                            <a onclick="setActiveLink('liquidate', 'Pending Liquidation')" class="cursor-pointer block px-4 py-2 text-gray-700 hover:bg-gray-100">Pending Liquidation</a>
+                        </li>
+                        <li>
+                            <a onclick="setActiveLink('rejected', 'Denied')" class="cursor-pointer block px-4 py-2 text-gray-700 hover:bg-gray-100">Denied</a>
+                        </li>
+                        <li>
+                            <a onclick="setActiveLink('completed', 'Completed')" class="cursor-pointer block px-4 py-2 text-gray-700 hover:bg-gray-100">Completed</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-span-1 w-full relative text-gray-600 my-2 sm:my-0 focus-within:text-gray-200">
+                <span class="absolute top-1 left-0 flex items-center pl-2">
+                    <button type="submit" class="p-1 focus:outline-none focus:shadow-outline border-b-4 border-transparent">
+                        <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" class="w-6 h-6"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </button>
+                </span>
+                <input type="search" name="q" class="w-full py-2 text-sm border text-gray-400 border-gray-200 rounded-md pl-10 shadow-sm focus:outline-none focus:bg-white focus:font-medium" placeholder="Search..." autocomplete="off">
+            </div>
+        </div>
+        <div>
+            {% include 'list.html' %}
+        </div>
+        <div>
+        </div>
+        <div>
+
+        </div>
+    </div>
+    {% include 'singlemodal.html' %}
+    {% include 'deleteModal.html' %}
+</body>
+<script>
+    
+    var draftTab = true;
+    var approvalTab = false;
+    var processTab = false;
+    var releaseTab = false;
+    var liquidationTab = false;
+    var deniedTab = false;
+    var completedTab = false;
+    
+
+    function toggleDropdown() {
+        const dropdown = document.getElementById('statusListMobile');
+        dropdown.classList.toggle('hidden');
+    }
+
+    function setActiveLink(value, text) {
+        // Update the button text with the selected status
+        document.getElementById('dropdownButton').innerText = text;
+
+        // Close the dropdown after selection
+        const dropdown = document.getElementById('statusListMobile');
+        dropdown.classList.add('hidden');
+        
+        const links = document.querySelectorAll('#statusList a');
+
+            links.forEach(link => {
+                // Remove active classes
+                link.classList.remove('text-blue-600', 'border-blue-600', 'active', 'dark:text-blue-500', 'dark:border-blue-500');
+                link.classList.add('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+            });
+
+            // Set the active link based on the status
+            if (value === 'save') {
+                const draftLink = document.getElementById('draftLink');
+                draftLink.classList.add('text-blue-600', 'border-blue-600', 'active', 'dark:text-blue-500', 'dark:border-blue-500');
+                draftLink.classList.remove('border-transparent');
+            } else {
+                // Activate the corresponding link based on the status
+                const linkToActivate = Array.from(links).find(link => link.getAttribute('onclick').includes(value));
+                if (linkToActivate) {
+                    linkToActivate.classList.add('text-blue-600', 'border-blue-600', 'active', 'dark:text-blue-500', 'dark:border-blue-500');
+                    linkToActivate.classList.remove('border-transparent');
+                }
+            }
+
+        filterTable(value);
+    }
+
+    // Optional: Close the dropdown if clicked outside
+    window.onclick = function(event) {
+        if (!event.target.matches('#dropdownButton')) {
+            const dropdowns = document.getElementsByClassName("absolute");
+            for (let i = 0; i < dropdowns.length; i++) {
+                const openDropdown = dropdowns[i];
+                if (!openDropdown.classList.contains('hidden')) {
+                    openDropdown.classList.add('hidden');
+                }
+            }
+        }
+    }
+
+    function filterTable(status) {
+        
+        let rows = document.querySelectorAll("#dataTable tbody tr");
+    
+        rows.forEach(row => {
+            let rowStatus = row.getAttribute("data-status");
+            
+            if (status === "All" || rowStatus === status) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    }
+
+
+
+    //Open modal for tab 1 (Cash Advance)
+    function openModal(id, table_type) {
+        fetch(`/get_main_data/${id}/${table_type}/`)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Fetched data:", data);
+                // Populate Main Details
+                document.getElementById("caName").textContent = data.main.fname + " " + data.main.lname;
+                document.getElementById("caBusinessUnit").textContent = data.main.businessUnit;
+                document.getElementById("caDepartment").textContent = data.main.department;
+                document.getElementById("caDateFiled").textContent = data.main.dateFiled;
+                document.getElementById("caDepartureDate").textContent = data.main.departureDate;
+                document.getElementById("caReturnDate").textContent = data.main.returnDate;
+                document.getElementById("caPurpose").textContent = data.main.purpose;
+                document.getElementById("payment_mode").textContent = data.main.paymentMode;
+                document.getElementById("account_number").textContent = data.main.accountNumber;
+
+
+
+                let status = data.main.status;
+                let color;
+                let table_type = data.main.table_type
+
+
+                let approveBtn = document.getElementById("approveBtn");
+
+                // Show or hide the Approve button based on status
+                if (status === 'submitted') {
+                    approveBtn.style.display = "block"; // Show button
+                    approveBtn.setAttribute("data-id", id);
+                    approveBtn.setAttribute("data-table-type", table_type);
+                } else {
+                    approveBtn.style.display = "none"; // Hide button
+                }
+
+
+                switch (status) {
+                    case 'submitted':
+                        document.getElementById("caStatus").textContent = 'Pending';
+                        color = 'orange';
+                        break;
+                    case 'save':
+                        document.getElementById("caStatus").textContent = 'Draft';
+                        color = 'gray';
+                        break;
+                    case 'rejected':
+                        document.getElementById("caStatus").textContent = 'Rejected';
+                        color = 'red';
+                        break;
+                    case 'approved':
+                        document.getElementById("caStatus").textContent = 'Approved(1/2)';
+                        color = 'green';
+                        break;
+                    case 'released':
+                        document.getElementById("caStatus").textContent = 'Released';
+                        color = 'green';
+                        break;
+                    default:
+                        document.getElementById("caStatus").textContent = status;
+                        color = 'black';
+                }
+                document.getElementById("caStatus").style.color = color;
+
+                document.getElementById("cashAdvanceModal").classList.remove("hidden");
+                
+                if(table_type === 'CashAdvance'){
+                    document.getElementById("table-type").textContent = "ADVANCE";
+                    }
+                else if(table_type === 'CashReimbursement'){
+                    document.getElementById("table-type").textContent = "REIMBURSEMENT";
+                }
+
+                // Populate Transportation Table
+                let transportTableBody = document.querySelector("#cashAdvanceModal #transportation tbody");
+                transportTableBody.innerHTML = ""; // Clear existing rows
+                data.transportation.forEach(item => {
+                    let row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td class="p-2 border border-gray-200">${formatDate(item.date)}</td>
+                        <td class="p-2 border border-gray-200">${item.locFrom} - ${item.locTo}</td>
+                        <td class="p-2 border border-gray-200">${item.amount}</td>
+                    `;
+                    transportTableBody.appendChild(row);
+                });
+                
+                // Populate Meal Table
+                let mealTableBody = document.querySelector("#cashAdvanceModal #meal tbody");
+                mealTableBody.innerHTML = "";
+                data.meal.forEach(item => {
+                    let row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td class="p-2 border border-gray-200">${formatDate(item.date)}</td>
+                        <td class="p-2 border border-gray-200">${item.meal_type}</td>
+                        <td class="p-2 border border-gray-200">${item.amount}</td>
+                    `;
+                    mealTableBody.appendChild(row);
+                });
+    
+                // Populate Lodging Table
+                let lodgingTableBody = document.querySelector("#cashAdvanceModal #lodging tbody");
+                lodgingTableBody.innerHTML = "";
+                data.lodging.forEach(item => {
+                    let row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td class="p-2 border border-gray-200">${formatDate(item.check_in)} - ${formatDate(item.check_out)}</td>
+                        <td class="p-2 border border-gray-200">${item.description}</td>
+                        <td class="p-2 border border-gray-200">${item.amount}</td>
+                    `;
+                    lodgingTableBody.appendChild(row);
+                });
+
+
+                // Calculate and Populate Totals
+                calculateTotal(data);
+
+                // Populate Rejection Reason (if applicable)
+                if (data.main.status === "rejected") {
+                    document.getElementById("rejectReasonContainer").classList.remove("hidden");
+                    document.getElementById("rejectReasonText").textContent = data.main.rejection_reason;
+                } else {
+                    document.getElementById("rejectReasonContainer").classList.add("hidden");
+                }
+                
+    
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+            });
+    }
+
+
+    document.getElementById("approveBtn").addEventListener("click", function() {
+        let id = this.getAttribute("data-id"); // Get the stored id
+        let table_type = this.getAttribute("data-table-type"); // Get the stored table_type
+    
+        if (id && table_type) {
+            window.location.href = `/approve-request/${id}/${table_type}/`; // Redirect to the approval URL
+        }
+    });
+    
+
+
+    // open modal for Tab 2 (Purchase)
+    function openModal1(id) {
+        fetch(`/get_main_data1/${id}/`)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Fetched data:", data);
+                // Populate Main Details
+                document.getElementById("pName").textContent = data.main.fname + " " + data.main.lname;
+                document.getElementById("pBusinessUnit").textContent = data.main.businessUnit;
+                document.getElementById("pDepartment").textContent = data.main.department;
+                document.getElementById("pDateFiled").textContent = data.main.dateFiled;
+                document.getElementById("pDepartureDate").textContent = data.main.departureDate;
+                document.getElementById("pReturnDate").textContent = data.main.returnDate;
+                document.getElementById("pPurpose").textContent = data.main.purpose;
+                document.getElementById("ppayment_mode").textContent = data.main.paymentMode;
+                document.getElementById("paccount_number").textContent = data.main.accountNumber;
+
+                let status = data.main.status;
+                let color;
+                switch (status) {
+                    case 'submitted':
+                        document.getElementById("pStatus").textContent = 'Pending';
+                        color = 'orange';
+                        break;
+                    case 'save':
+                        document.getElementById("pStatus").textContent = 'Draft';
+                        color = 'gray';
+                        break;
+                    case 'rejected':
+                        document.getElementById("pStatus").textContent = 'Rejected';
+                        color = 'red';
+                        break;
+                    case 'approved':
+                        document.getElementById("pStatus").textContent = 'Approved';
+                        color = 'green';
+                        break;
+                    default:
+                        document.getElementById("pStatus").textContent = status;
+                        color = 'black';
+                }
+                document.getElementById("pStatus").style.color = color;
+
+                document.getElementById("purchaseModal").classList.remove("hidden");
+
+                // Populate Purchase Table
+                let purchaseTableBody = document.querySelector("#purchaseModal #purchase tbody");
+                purchaseTableBody.innerHTML = "";
+                data.purchase.forEach(item => {
+                    let row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td class="p-2 border border-gray-200">${formatDate(item.date)}</td>
+                        <td class="p-2 border border-gray-200">${item.purchase_number}</td>
+                        <td class="p-2 border border-gray-200">${item.particulars}</td>
+                        <td class="p-2 border border-gray-200">${item.amount}</td
+                    `;
+                    purchaseTableBody.appendChild(row);
+                });
+    
+                // Calculate and Populate Totals
+                calculateTotal1(data);
+
+                // Populate Rejection Reason (if applicable)
+                if (data.main.status === "rejected") {
+                    document.getElementById("rejectReasonContainer").classList.remove("hidden");
+                    document.getElementById("rejectReasonText").textContent = data.main.rejection_reason;
+                } else {
+                    document.getElementById("rejectReasonContainer").classList.add("hidden");
+                }
+    
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+            });
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return ""; // Handle empty or undefined dates
+        let date = new Date(dateString);
+        return date.toLocaleDateString("en-US", {
+            month: "numeric",
+            day: "numeric",
+            year: "numeric"
+        });
+    }
+    
+
+    function deletethisModal(id, table_type) {
+        const modal = document.getElementById("deleteModal");
+        const confirmBtn = document.getElementById("confirmDeleteBtn");
+        const cancelBtn = document.getElementById("cancelDeleteBtn");
+        const cancelBtn2 = document.getElementById("cancelDeleteBtn2");
+    
+        modal.classList.remove("hidden");
+        confirmBtn.dataset.deleteId = id;
+    
+        const handleDelete = async () => {
+            try {
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = 'Deleting...';
+    
+                const response = await fetch(`/delete_main_data/${id}/${table_type}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+    
+                const data = await response.json();
+    
+                if (response.ok) {
+                    modal.classList.add("hidden");
+                    if (data.redirect) {
+                        window.location.href = data.redirect; // Use redirect URL from backend
+                    }
+                } else {
+                    throw new Error(data.message || 'Delete failed');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to delete item: ' + error.message);
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = 'DELETE';
+            }
+        };
+    
+        const closeModal = () => modal.classList.add("hidden");
+    
+        confirmBtn.onclick = handleDelete;
+        cancelBtn.onclick = closeModal;
+        cancelBtn2.onclick = closeModal;
+    
+        modal.onclick = (e) => {
+            if (e.target === modal) closeModal();
+        };
+    }
+    
+
+    // Optional: Add keyboard accessibility === Closes modal if esc is pressed
+    document.addEventListener('keydown', (e) => {
+        const modal = document.getElementById("deleteModal");
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+            modal.classList.add('hidden');
+        }
+    });
+    
+    // Automated calculation of the totals for Tab 1
+    function calculateTotal(data) {
+
+        let transportationTotal = data.transportation.reduce((acc, item) => acc + parseFloat(item.amount), 0);
+        let mealTotal = data.meal.reduce((acc, item) => acc + parseFloat(item.amount), 0);
+        let lodgingTotal = data.lodging.reduce((acc, item) => acc + parseFloat(item.amount), 0);
+        let grandTotal = transportationTotal + mealTotal + lodgingTotal;
+        document.getElementById("transportationSummary").textContent = `₱${transportationTotal.toFixed(2)}`;
+        document.getElementById("mealSummary").textContent = `₱${mealTotal.toFixed(2)}`;
+        document.getElementById("lodgingSummary").textContent = `₱${lodgingTotal.toFixed(2)}`;
+        document.getElementById("grandTotalSummary").textContent = `₱${grandTotal.toFixed(2)}`;
+    }
+
+    // Automated calculation of the totals for Tab 2
+    function calculateTotal1(data) {
+        let purchaseTotal = data.purchase.reduce((acc, item) => acc + parseFloat(item.amount), 0);
+        let grandTotal = purchaseTotal;
+
+        document.getElementById("purchaseSummary").textContent = `₱${purchaseTotal.toFixed(2)}`;
+        document.getElementById("pgrandTotalSummary").textContent = `₱${grandTotal.toFixed(2)}`;
+    }
+
+
+    function updateRecord(id, table_type){
+        window.location.href = `/update/${id}/${table_type}/`;
+    }
+
+    // Function to hide / close the modal
+    function closeModal() {
+        document.getElementById("cashAdvanceModal").classList.add("hidden");
+        document.getElementById("purchaseModal").classList.add("hidden");
+    }
+
+
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        let modal = document.getElementById("cashAdvanceModal");
+        let modal1 = document.getElementById("purchaseModal");
+        let modal2 = document.getElementById("cashReimbursementModal");
+
+        if (event.target === modal) {
+            closeModal();
+        }
+        if (event.target === modal1) {
+            closeModal();
+        }
+        if (event.target === modal2) {
+            closeModal();
+        }
+    };
+
+
+    //Filter the table by clicking on the status
+    document.addEventListener("DOMContentLoaded", function () {
+        const filterButtons = document.querySelectorAll(".filter-btn");
+        const tableRows = document.querySelectorAll("#data-table tbody tr");
+    
+        filterButtons.forEach(button => {
+            button.addEventListener("click", function () {
+                let filterValue = this.getAttribute("data-filter");
+    
+                tableRows.forEach(row => {
+                    let status = row.getAttribute("data-status"); // Get status from row
+                    if (filterValue === "All" || status === filterValue) {
+                        row.style.display = "";
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+            });
+        });
+    });
+
+</script>
+</html>

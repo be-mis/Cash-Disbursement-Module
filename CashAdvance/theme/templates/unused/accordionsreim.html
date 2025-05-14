@@ -1,0 +1,229 @@
+          <!-- Accordion: Transportation (Tab 1) -->
+          <div class="mt-4 ml-2 mr-2">
+            <div class="cursor-pointer bg-gray-100 border text-[#aa0061] p-2 flex justify-between items-center transition duration-300 hover:bg-[#aa0061] hover:text-white"
+                onclick="toggleAccordion('accordionContentTransport1', 'accordionIconTransport1')">
+              <h3 class="text-lg font-bold flex items-center">
+                Transportation
+                <span id="totalAmountBoxTransport1" class="ml-4 text-black px-3 py-1 font-semibold text-lg">₱0.00</span>
+              </h3>
+              <svg id="accordionIconTransport1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300"
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            <div id="accordionContentTransport1" class="border border-t-0 border-gray-300 p-4 hidden">
+              <div class="overflow-x-auto">
+                <table id="expenseTableTransport1" class="w-full border-collapse border border-gray-300">
+                  <thead>
+                      <tr class="bg-[#00A3AD] text-white">
+                          <th class="p-2 text-center">Date</th>
+                          <th class="p-2 text-center">From</th>
+                          <th class="p-2 text-center">To</th>
+                          <th class="p-2 text-center">Description</th>
+                          <th class="p-2 text-center">Amount</th>
+                          <th class="p-2 text-center">Attachments</th>
+                          <th class="p-2 text-center">Actions</th>
+                      </tr>
+                  </thead>
+                  <tbody id="tableBodyTransport1">
+                      <tr class="bg-white border-t">
+                          <td class="p-2"><input type="date" id="tDate" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+                          <td class="p-2"><input type="text" id="tFrom" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="From"></td>
+                          <td class="p-2"><input type="text" id="tTo" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="To"></td>
+                          <td class="p-2"><input type="text" id="tDesc" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Description"></td>
+                          <td class="p-2"><input type="number" id="tAmount" step="any" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Amount"></td>
+                          <!-- Attachments cell -->
+                        <td class="p-2">
+                            <div class="flex items-center space-x-2">
+                                <label class="flex items-center justify-center bg-transparent border border-gray-500 text-gray-500 text-sm w-full h-8 cursor-pointer transition duration-300 hover:bg-gray-500 hover:text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 mr-1 fill-current" viewBox="0 0 32 32">
+                                    <path d="M23.75 11.044a7.99 7.99 0 0 0-15.5-.009A8 8 0 0 0 9 27h3a1 1 0 0 0 0-2H9a6 6 0 0 1-.035-12 1.038 1.038 0 0 0 1.1-.854 5.991 5.991 0 0 1 11.862 0A1.08 1.08 0 0 0 23 13a6 6 0 0 1 0 12h-3a1 1 0 0 0 0 2h3a8 8 0 0 0 .75-15.956z"/>
+                                    <path d="M20.293 19.707a1 1 0 0 0 1.414-1.414l-5-5a1 1 0 0 0-1.414 0l-5 5a1 1 0 0 0 1.414 1.414L15 16.414V29a1 1 0 0 0 2 0V16.414z"/>
+                                </svg>
+                                Upload
+                                <input type="file" multiple class="hidden fileInput" />
+                                </label>
+                                <span class="fileName text-black font-semibold"></span>
+                            </div>
+                            </td>
+                          <td class="p-2">
+                              <button type="button" onclick="addRow('expenseTableTransport1', 'totalAmountBoxTransport1', 'transportationSummary')" class="flex items-center justify-center border border-[#00A3AD] text-[#00A3AD] text-sm w-full h-8 transition duration-300 hover:bg-[#00A3AD] hover:text-white">
+                                  Add Row
+                              </button>
+                          </td>
+                      </tr>
+                  </tbody>
+                </table>
+              </div>
+              <input type="hidden" name="transportationData" id="transportationDataField">
+            </div>
+          </div>
+
+      <!-- Accordion: Meal (Tab 1) -->
+      <div class="mt-4 ml-2 mr-2">
+        <div class="cursor-pointer bg-gray-100 border text-[#aa0061] p-2 flex justify-between items-center transition duration-300 hover:bg-[#aa0061] hover:text-white"
+             onclick="toggleAccordion('accordionContentMeal1', 'accordionIconMeal1')">
+          <h3 class="text-lg font-bold flex items-center">
+            Meal
+            <span id="totalAmountBoxMeal1" class="ml-4 text-black px-3 py-1 font-semibold text-lg">₱0.00</span>
+          </h3>
+          <svg id="accordionIconMeal1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300"
+               fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+        <div id="accordionContentMeal1" class="border border-t-0 border-gray-300 p-4 hidden">
+          <div class="overflow-x-auto">
+            <table id="expenseTableMeal1" class="w-full border-collapse border border-gray-300">
+              <thead>
+                <tr class="bg-[#00A3AD] text-white">
+                  <th class="p-2 text-center">Date</th>
+                  <th class="p-2 text-center">Meal Type</th>
+                  <th class="p-2 text-center">Description</th>
+                  <th class="p-2 text-center">Amount</th>
+                  <th class="p-2 text-center">Attachments</th>
+                  <th class="p-2 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tableBodyMeal1">
+                <tr class="bg-white border-t">
+                  <td class="p-2"><input type="date" id="mDate" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+                  <td class="p-2">
+                    <select id="mType" class="w-full p-2 bg-gray-100">
+                      <option value="" disabled selected hidden>Meal Type</option>
+                      <option value="Breakfast">Breakfast</option>
+                      <option value="Lunch">Lunch</option>
+                      <option value="Dinner">Dinner</option>
+                    </select>
+                  </td>
+                  <td class="p-2"><input type="text" id="mDesc" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Description"></td>
+                  <td class="p-2"><input type="number" id="mAmount" step="any" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Amount"></td>
+                  <!-- Attachments cell -->
+                  <td class="p-2">
+                    <div class="flex items-center space-x-2">
+                        <label class="flex items-center justify-center bg-transparent border border-gray-500 text-gray-500 text-sm w-full h-8 cursor-pointer transition duration-300 hover:bg-gray-500 hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 mr-1 fill-current" viewBox="0 0 32 32">
+                            <path d="M23.75 11.044a7.99 7.99 0 0 0-15.5-.009A8 8 0 0 0 9 27h3a1 1 0 0 0 0-2H9a6 6 0 0 1-.035-12 1.038 1.038 0 0 0 1.1-.854 5.991 5.991 0 0 1 11.862 0A1.08 1.08 0 0 0 23 13a6 6 0 0 1 0 12h-3a1 1 0 0 0 0 2h3a8 8 0 0 0 .75-15.956z"/>
+                            <path d="M20.293 19.707a1 1 0 0 0 1.414-1.414l-5-5a1 1 0 0 0-1.414 0l-5 5a1 1 0 0 0 1.414 1.414L15 16.414V29a1 1 0 0 0 2 0V16.414z"/>
+                        </svg>
+                        Upload
+                        <input type="file" multiple class="hidden fileInput" />
+                        </label>
+                        <span class="fileName text-black font-semibold"></span>
+                    </div>
+                    </td>
+                  <td class="p-2">
+                    <button type="button" onclick="addRow('expenseTableMeal1', 'totalAmountBoxMeal1', 'mealSummary')" class="flex items-center justify-center border border-[#00A3AD] text-[#00A3AD] text-sm w-full h-8 transition duration-300 hover:bg-[#00A3AD] hover:text-white">
+                      Add Row
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <input type="hidden" name="mealData" id="mealDataField">
+        </div>
+      </div>
+      <!-- Accordion: Lodging (Tab 1) -->
+      <div class="mt-4 ml-2 mr-2">
+        <div class="cursor-pointer bg-gray-100 border text-[#aa0061] p-2 flex justify-between items-center transition duration-300 hover:bg-[#aa0061] hover:text-white"
+             onclick="toggleAccordion('accordionContentLodging1', 'accordionIconLodging1')">
+          <h3 class="text-lg font-bold flex items-center">
+            Lodging
+            <span id="totalAmountBoxLodging1" class="ml-4 text-black px-3 py-1 font-semibold text-lg">₱0.00</span>
+          </h3>
+          <svg id="accordionIconLodging1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300"
+               fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+        <div id="accordionContentLodging1" class="border border-t-0 border-gray-300 p-4 hidden">
+          <div class="overflow-x-auto">
+            <table id="expenseTableLodging1" class="w-full border-collapse border border-gray-300">
+              <thead>
+                <tr class="bg-[#00A3AD] text-white">
+                  <th class="p-2 text-center">Check-In Date</th>
+                  <th class="p-2 text-center">Check-Out Date</th>
+                  <th class="p-2 text-center">Description</th>
+                  <th class="p-2 text-center">Amount</th>
+                  <th class="p-2 text-center">Attachments</th>
+                  <th class="p-2 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tableBodyLodging1">
+                <tr class="bg-white border-t">
+                  <td class="p-2"><input type="date" id="lCheckIn" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+                  <td class="p-2"><input type="date" id="lCheckOut" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+                  <td class="p-2"><input type="text" id="lDesc" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Description"></td>
+                  <td class="p-2"><input type="number" id="lAmount" step="any" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Amount"></td>
+                  <!-- Attachments cell -->
+                  <td class="p-2">
+                    <div class="flex items-center space-x-2">
+                        <label class="flex items-center justify-center bg-transparent border border-gray-500 text-gray-500 text-sm w-full h-8 cursor-pointer transition duration-300 hover:bg-gray-500 hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 mr-1 fill-current" viewBox="0 0 32 32">
+                            <path d="M23.75 11.044a7.99 7.99 0 0 0-15.5-.009A8 8 0 0 0 9 27h3a1 1 0 0 0 0-2H9a6 6 0 0 1-.035-12 1.038 1.038 0 0 0 1.1-.854 5.991 5.991 0 0 1 11.862 0A1.08 1.08 0 0 0 23 13a6 6 0 0 1 0 12h-3a1 1 0 0 0 0 2h3a8 8 0 0 0 .75-15.956z"/>
+                            <path d="M20.293 19.707a1 1 0 0 0 1.414-1.414l-5-5a1 1 0 0 0-1.414 0l-5 5a1 1 0 0 0 1.414 1.414L15 16.414V29a1 1 0 0 0 2 0V16.414z"/>
+                        </svg>
+                        Upload
+                        <input type="file" multiple class="hidden fileInput" />
+                        </label>
+                        <span class="fileName text-black font-semibold"></span>
+                    </div>
+                    </td>
+                  <td class="p-2">
+                    <button type="button" onclick="addRow('expenseTableLodging1', 'totalAmountBoxLodging1', 'lodgingSummary')" class="flex items-center justify-center border border-[#00A3AD] text-[#00A3AD] text-sm w-full h-8 transition duration-300 hover:bg-[#00A3AD] hover:text-white">
+                      Add Row
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <input type="hidden" name="lodgingData" id="lodgingDataField">
+        </div>
+      </div>
+      <div class="flex flex-wrap justify-between mt-4">
+        <!-- Mode of Payment -->
+        <div class="bg-gray-100 w-1/4 p-2 ml-2 mr-2">
+          <h3 class="font-bold text-lg mb-2">Mode of Payment:</h3>
+          <div class="flex flex-col space-y-2">
+            <label class="inline-flex items-center">
+              <input type="checkbox" name="payment_method" value="GCash" class="accent-[#00A3AD] payment-checkbox" onclick="onlyOneCheckbox(this)" >
+              <span class="ml-1">GCash</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input type="checkbox" name="payment_method" value="Metrobank" class="accent-[#00A3AD] payment-checkbox" onclick="onlyOneCheckbox(this)">
+              <span class="ml-1">Metrobank</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input type="checkbox" name="payment_method" id="cashCheckbox" value="Cash" class="accent-[#00A3AD] payment-checkbox" onclick="onlyOneCheckbox(this)">
+              <span class="ml-1">Cash</span>
+            </label>
+          </div>
+          <div class="mt-2">
+            <label for="accountNumber" class="block font-semibold" required>Account #:</label>
+            <input type="text" name="account_number" id="accountNumber" class="w-full h-8 border border-gray-300 p-2" placeholder="Enter account number">
+          </div>
+        </div>
+        <!-- Total Summary -->
+        <div class="bg-gray-100 w-1/4 p-2 mr-2">
+          <h3 class="font-bold text-lg">Total Summary</h3>
+          <div class="grid grid-cols-2">
+            <p class="text-medium text-left font-semibold">Transportation:</p>
+            <p class="text-medium text-center"><span id="transportationSummary">₱0.00</span></p>
+          </div>
+          <div class="grid grid-cols-2">
+            <p class="text-medium text-left font-semibold">Meal:</p>
+            <p class="text-medium text-center"><span id="mealSummary">₱0.00</span></p>
+          </div>
+          <div class="grid grid-cols-2">
+            <p class="text-medium text-left font-semibold">Lodging:</p>
+            <p class="text-medium text-center"><span id="lodgingSummary">₱0.00</span></p>
+          </div>
+          <hr class="my-2">
+          <div class="grid grid-cols-2 items-center">
+            <p class="text-xl font-semibold text-left">Grand Total:</p>
+            <p class="text-xl font-semibold text-center"><span id="grandTotalSummary">₱0.00</span></p>
+          </div>
+        </div>
+      </div>

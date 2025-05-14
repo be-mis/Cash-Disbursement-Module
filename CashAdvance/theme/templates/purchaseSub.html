@@ -1,0 +1,57 @@
+
+                <!-- Purchase Expenses Table -->
+                <h3 class="font-bold mb-2 border-b border-gray-600 pb-1">Purchase Expenses</h3>
+                <table class="table-fixed w-full border border-gray-200 text-sm" id="purchase">
+                    <thead>
+                        <tr class="bg-gray-100">
+                        <th class="p-2 border border-gray-200 text-left w-1/4">Date</th>
+                        <th class="p-2 border border-gray-200 text-left w-1/4">Purchase #</th>
+                        <th class="p-2 border border-gray-200 text-left w-1/4">Particular/s</th>
+                        <th class="p-2 border border-gray-200 text-left w-1/4">Amount (PHP)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="bg-white">
+                        <td id="purchaseDate" class="p-2 border border-gray-200">-</td>
+                        <td id="purchaseNumber" class="p-2 border border-gray-200">-</td>
+                        <td id="purchaseParticulars" class="p-2 border border-gray-200">-</td>
+                        <td id="purchaseAmount" class="p-2 border border-gray-200">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+
+    
+            <!-- Outer Container -->
+            <div class="justify-between mx-auto mt-4">
+            <!-- Payment + Summary Section -->
+            <div class="flex justify-between">
+            <!-- Left Column: Mode of Payment -->
+                <div class="bg-gray-100 p-4 max-w-sm">
+                <h3 class="font-bold text-xl mb-3">Mode of Disbursement</h3>
+                <p class="mb-1">
+                    <strong><span id="ppayment_mode"></span></strong>
+                </p>
+                <p>
+                    <strong>Account Number:</strong> <span id="paccount_number"> </span>
+                </p>
+                </div>
+            
+    
+    
+    
+            <!-- Right Column: Total Summary -->
+                <div class="bg-gray-100 p-4 max-w-sm">
+                <h3 class="font-bold text-xl mb-2">Total Summary</h3>
+                <div class="grid grid-cols-2">
+                    <p class="text-medium text-left font-semibold">Purchase:</p>
+                    <p class="text-medium text-center"><span id="purchaseSummary">₱0.00</span></p>
+                </div>
+
+                <!-- Grand Total row -->
+                <div class="grid grid-cols-2 font-bold mt-2 border-t border-gray-400 pt-2">
+                    <p class="text-xl font-semibold text-left">Grand Total:</p>
+                    <p class="text-xl font-semibold text-center"><span id="pgrandTotalSummary">₱0.00</span></p>
+                </div>
+                </div>
+            </div>

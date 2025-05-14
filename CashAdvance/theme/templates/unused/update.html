@@ -1,0 +1,965 @@
+{% load static %}
+{% load file_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Update {{ main.table_type }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+  <div id="tab1" class="tab-pane">
+    <div class="border-t-8 max-w-(--my-max-width) bg-white p-6 shadow-lg rounded-lg relative" style="border-color: #00A3AD;">
+      <h2 class="text-2xl font-bold text-left ml-2 mb-4">
+        <span id="table-type" style="color: #00A3AD;">CASH
+          {% if main.table_type == 'CashAdvance' %}ADVANCE
+          {% elif main.table_type == 'Purchase' %}ADVANCE PURCHASE
+          {% elif main.table_type == 'CashReimbursement' %}REIMBURSEMENT
+          {% endif %}
+          </span> 
+        <span style="color: #aa0061;">FORM</span>
+      </h2>
+      <form method="POST" action="{% url 'update-page' id=request.resolver_match.kwargs.id table_type=main.table_type %}" class="max-w-(--my-max-width)">
+        {% csrf_token %}
+        <!-- Basic Form Fields -->
+        <div class="grid grid-cols-2 gap-2 p-2 text-sm mt-4">
+          <input type="text" name="name" value="{{ main.name }}" placeholder="Name" class="bg-white p-2 h-6 border" style="border-color: black;" required>
+          <div class="bg-white h-6 flex items-center px-2 border" style="border-color: black;">
+            <input type="date" name="date_filed_display" id="date_filed_display1" class="bg-transparent outline-none text-sm w-full" required disabled>
+          </div>
+          <input type="text" name="bu" value="{{ main.businessUnit }}" placeholder="Business Unit" class="bg-white p-2 h-6 border" style="border-color: black;" required>
+          <select name="dept" class="bg-white border border-black h-6" required>
+            <option value="" {% if not main.department or main.department == "" %}selected{% endif %}>Select Department</option>
+            <option value="EPC Merchandising" {% if main.department == "EPC Merchandising" %}selected{% endif %}>EPC Merchandising</option>
+            <option value="EPC Sales" {% if main.department == "EPC Sales" %}selected{% endif %}>EPC Sales</option>
+            <option value="NBFI Merchandising" {% if main.department == "NBFI Merchandising" %}selected{% endif %}>NBFI Merchandising</option>
+            <option value="NBFI Sales" {% if main.department == "NBFI Sales" %}selected{% endif %}>NBFI Sales</option>
+            <option value="Finance" {% if main.department == "Finance" %}selected{% endif %}>Finance</option>
+            <option value="Marketing" {% if main.department == "Marketing" %}selected{% endif %}>Marketing</option>
+            <option value="Human Resource" {% if main.department == "Human Resource" %}selected{% endif %}>Human Resource</option>
+            <option value="MIS" {% if main.department == "MIS" %}selected{% endif %}>MIS</option>
+            <option value="Operations" {% if main.department == "Operations" %}selected{% endif %}>Operations</option>
+          </select>
+          <div class="bg-white h-6 flex items-center px-2 border" style="border-color: black;">
+            <input type="date" name="departure_date" value="{{ main.departureDate }}" class="bg-transparent outline-none text-sm w-full" placeholder="{{ main.departureDate }}" required>
+          </div>
+          <div class="bg-white h-6 flex items-center px-2 border" style="border-color: black;"> 
+            <input type="date" name="return_date" value="{{ main.returnDate }}" class="bg-transparent outline-none text-sm w-full" placeholder="{{ main.returnDate }}" required>
+          </div>
+          <input type="text" name="purpose" value="{{ main.purpose }}" placeholder="Purpose" class="bg-white h-6 p-2 border" style="border-color: black;">
+        </div>
+
+<!-- Accordion: Transportation -->
+<div class="mt-4 ml-2 mr-2">
+    <div class="cursor-pointer bg-gray-100 border text-[#aa0061] p-2 flex justify-between items-center transition duration-300 hover:bg-[#aa0061] hover:text-white"
+         onclick="toggleAccordion('accordionContentTransport1', 'accordionIconTransport1')">
+      <h3 class="text-lg font-bold flex items-center">
+        Transportation
+        <span id="totalAmountBoxTransport1" value="{{ main.transpo_total }}" class="ml-4 text-black px-3 py-1 font-semibold text-lg">{{ main.transpo_total }}</span>
+      </h3>
+      <svg id="accordionIconTransport1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300"
+           fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </div>
+    <div id="accordionContentTransport1" class="border border-t-0 border-gray-300 p-4">
+      <div class="overflow-x-auto">
+        <table id="expenseTableTransport1" class="w-full border-collapse border border-gray-300">
+          <thead>
+            <tr class="bg-[#00A3AD] text-white">
+              <th class="p-2 text-center">Date</th>
+              <th class="p-2 text-center">From</th>
+              <th class="p-2 text-center">To</th>
+              <th class="p-2 text-center">Description</th>
+              <th class="p-2 text-center">Amount</th>
+              {% if main.table_type != 'CashAdvance' %}
+              <th class="p-2 text-center">Attachment</th>
+              {% endif %}
+              <th class="p-2 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody id='tableBodyTransport1'>
+            {% if transportation %}
+                {% for item in transportation %}
+                <tr class="bg-white border-t">
+                <td class="p-2" name="transport_date[]" value="{{ item.date|date:'Y-m-d' }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300">{{ item.date|date:'Y-m-d' }}</td>
+                <td class="p-2" name="transport_from[]" value="{{ item.locFrom }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" >{{ item.locFrom }}</td>
+                <td class="p-2" name="transport_to[]" value="{{ item.locTo }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300">{{ item.locTo }}</td>
+                <td class="p-2" name="transport_desc[]" value="{{ item.description }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300">{{ item.description }}</td>
+                <td class="p-2" name="transport_amount[]" data-amount="{{ item.amount }}" oninput="updateTotalAmount('expenseTableTransport1','totalAmountBoxTransport1', 'transportationSummary')">
+                    {{ item.amount }}
+                </td>
+                {% if main.table_type != 'CashAdvance' %}
+                <td class="p-2">
+                    {% if item.attachment %}
+                    <a href="{{ item.attachment.url }}" target="_blank">{{ item.attachment.name|slice:"receipts/" }}</a>
+                    {% else %}
+                    <div class="flex items-center space-x-2">
+                        <label class="flex items-center justify-center bg-transparent border border-gray-500 text-gray-500 text-sm w-full h-8 cursor-pointer transition duration-300 hover:bg-gray-500 hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 mr-1 fill-current" viewBox="0 0 32 32">
+                            <path d="M23.75 11.044a7.99 7.99 0 0 0-15.5-.009A8 8 0 0 0 9 27h3a1 1 0 0 0 0-2H9a6 6 0 0 1-.035-12 1.038 1.038 0 0 0 1.1-.854 5.991 5.991 0 0 1 11.862 0A1.08 1.08 0 0 0 23 13a6 6 0 0 1 0 12h-3a1 1 0 0 0 0 2h3a8 8 0 0 0 .75-15.956z"/>
+                            <path d="M20.293 19.707a1 1 0 0 0 1.414-1.414l-5-5a1 1 0 0 0-1.414 0l-5 5a1 1 0 0 0 1.414 1.414L15 16.414V29a1 1 0 0 0 2 0V16.414z"/>
+                        </svg>
+                        Upload
+                        <input type="file" name="transportation_attachment[]" class="hidden fileInput" />
+                        </label>
+                        <span class="fileName text-black font-semibold"></span>
+                    </div>
+                    {% endif %}                    
+                </td>
+                {% endif %}
+                <td class="p-2 actionCell">
+                    <button type="button" onclick="deleteRow(this, 'expenseTableTransport1', 'totalAmountBoxTransport1', 'transportationSummary')" class="flex items-center justify-center border border-red-500 text-red-500 text-sm w-full h-8 transition duration-300 hover:bg-red-500 hover:text-white">
+                    Delete
+                    </button>
+                </td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+            <tr class="bg-white border-t">
+                <td class="p-2"><input type="date" id="tDate" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+                <td class="p-2"><input type="text" id="tFrom" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="From"></td>
+                <td class="p-2"><input type="text" id="tTo" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="To"></td>
+                <td class="p-2"><input type="text" id="tDesc" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Description"></td>
+                <td class="p-2"><input type="number" id="tAmount" step="any" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Amount"></td>
+                <!-- Attachments cell -->
+                {% if main.table_type != 'CashAdvance' %}
+              <td class="p-2">
+                  <div class="flex items-center space-x-2">
+                      <label class="flex items-center justify-center bg-transparent border border-gray-500 text-gray-500 text-sm w-full h-8 cursor-pointer transition duration-300 hover:bg-gray-500 hover:text-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 mr-1 fill-current" viewBox="0 0 32 32">
+                          <path d="M23.75 11.044a7.99 7.99 0 0 0-15.5-.009A8 8 0 0 0 9 27h3a1 1 0 0 0 0-2H9a6 6 0 0 1-.035-12 1.038 1.038 0 0 0 1.1-.854 5.991 5.991 0 0 1 11.862 0A1.08 1.08 0 0 0 23 13a6 6 0 0 1 0 12h-3a1 1 0 0 0 0 2h3a8 8 0 0 0 .75-15.956z"/>
+                          <path d="M20.293 19.707a1 1 0 0 0 1.414-1.414l-5-5a1 1 0 0 0-1.414 0l-5 5a1 1 0 0 0 1.414 1.414L15 16.414V29a1 1 0 0 0 2 0V16.414z"/>
+                      </svg>
+                      Upload
+                      <input type="file" multiple class="hidden fileInput" />
+                      </label>
+                      <span class="fileName text-black font-semibold"></span>
+                  </div>
+                  </td>
+                  {% endif %}
+                <td class="p-2">
+                    <button type="button" onclick="addRow('expenseTableTransport1', 'totalAmountBoxTransport1', 'transportationSummary')" class="flex items-center justify-center border border-[#00A3AD] text-[#00A3AD] text-sm w-full h-8 transition duration-300 hover:bg-[#00A3AD] hover:text-white">
+                        Add Row
+                    </button>
+                </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+
+<!-- Accordion: Meal -->
+<div class="mt-4 ml-2 mr-2">
+    <div class="cursor-pointer bg-gray-100 border text-[#aa0061] p-2 flex justify-between items-center transition duration-300 hover:bg-[#aa0061] hover:text-white"
+         onclick="toggleAccordion('accordionContentMeal1', 'accordionIconMeal1')">
+      <h3 class="text-lg font-bold flex items-center">
+        Meal
+        <span id="totalAmountBoxMeal1" class="ml-4 text-black px-3 py-1 font-semibold text-lg">₱0.00</span>
+      </h3>
+      <svg id="accordionIconMeal1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300"
+           fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </div>
+    <div id="accordionContentMeal1" class="border border-t-0 border-gray-300 p-4">
+      <div class="overflow-x-auto">
+        <table id="expenseTableMeal1" class="w-full border-collapse border border-gray-300">
+          <thead>
+            <tr class="bg-[#00A3AD] text-white">
+              <th class="p-2 text-center">Date</th>
+              <th class="p-2 text-center">Meal Type</th>
+              <th class="p-2 text-center">Description</th>
+              <th class="p-2 text-center">Amount</th>
+              {% if main.table_type != 'CashAdvance' %}
+              <th class="p-2 text-center">Attachment</th>
+              {% endif %}
+              <th class="p-2 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody id = 'tableBodyMeal1'> 
+            {% if meal %}
+                {% for item in meal %}
+                <tr class="bg-white border-t">
+                <td class="p-2" name="meal_date[]" value="{{ item.date|date:'Y-m-d' }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300">{{ item.date|date:'Y-m-d' }}</td>
+                <td class="p-2" name="meal_type[]" value="{{ item.meal_type }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300">{{ item.meal_type }}</td>
+                <td class="p-2" name="meal_desc[]" value="{{ item.description }}">{{ item.description }}</td>
+                <td class="p-2" name="meal_amount[]" value="{{ item.amount }}">{{ item.amount }}</td>
+                {% if main.table_type != 'CashAdvance' %}
+                    <td class="p-2">
+                        {% if item.attachment %}
+                            <a href="{{ item.attachment.url }}" target="_blank">{{ item.attachment.name|slice:"receipts/" }}</a>
+                        {% else %}
+                        <div class="flex items-center space-x-2">
+                            <label class="flex items-center justify-center bg-transparent border border-gray-500 text-gray-500 text-sm w-full h-8 cursor-pointer transition duration-300 hover:bg-gray-500 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 mr-1 fill-current" viewBox="0 0 32 32">
+                                <path d="M23.75 11.044a7.99 7.99 0 0 0-15.5-.009A8 8 0 0 0 9 27h3a1 1 0 0 0 0-2H9a6 6 0 0 1-.035-12 1.038 1.038 0 0 0 1.1-.854 5.991 5.991 0 0 1 11.862 0A1.08 1.08 0 0 0 23 13a6 6 0 0 1 0 12h-3a1 1 0 0 0 0 2h3a8 8 0 0 0 .75-15.956z"/>
+                                <path d="M20.293 19.707a1 1 0 0 0 1.414-1.414l-5-5a1 1 0 0 0-1.414 0l-5 5a1 1 0 0 0 1.414 1.414L15 16.414V29a1 1 0 0 0 2 0V16.414z"/>
+                            </svg>
+                            Upload
+                            <input type="file" name="meal_attachment[]" class="hidden fileInput" />
+                            </label>
+                            <span class="fileName text-black font-semibold"></span>
+                        </div>
+                        {% endif %}                    
+                    </td>
+                {% endif %}
+                <td class="p-2 actionCell">
+                    <button type="button" onclick="deleteRow(this, 'expenseTableMeal1', 'totalAmountBoxMeal1', 'mealSummary')" class="flex items-center justify-center border border-red-500 text-red-500 text-sm w-full h-8 transition duration-300 hover:bg-red-500 hover:text-white">
+                    Delete
+                    </button>
+                </td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+            <tr class="bg-white border-t">
+                <td class="p-2"><input type="date" id="mDate" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+                <td class="p-2">
+                  <select id="mType" class="w-full p-2 bg-gray-100">
+                    <option value="" disabled selected hidden>Meal Type</option>
+                    <option value="Breakfast">Breakfast</option>
+                    <option value="Lunch">Lunch</option>
+                    <option value="Dinner">Dinner</option>
+                  </select>
+                </td>
+                <td class="p-2"><input type="text" id="mDesc" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Description"></td>
+                <td class="p-2"><input type="number" id="mAmount" step="any" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Amount"></td>
+                <!-- Attachments cell -->
+                    {% if main.table_type != 'CashAdvance' %}
+                    <td class="p-2">
+                        <div class="flex items-center space-x-2">
+                            <label class="flex items-center justify-center bg-transparent border border-gray-500 text-gray-500 text-sm w-full h-8 cursor-pointer transition duration-300 hover:bg-gray-500 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 mr-1 fill-current" viewBox="0 0 32 32">
+                                <path d="M23.75 11.044a7.99 7.99 0 0 0-15.5-.009A8 8 0 0 0 9 27h3a1 1 0 0 0 0-2H9a6 6 0 0 1-.035-12 1.038 1.038 0 0 0 1.1-.854 5.991 5.991 0 0 1 11.862 0A1.08 1.08 0 0 0 23 13a6 6 0 0 1 0 12h-3a1 1 0 0 0 0 2h3a8 8 0 0 0 .75-15.956z"/>
+                                <path d="M20.293 19.707a1 1 0 0 0 1.414-1.414l-5-5a1 1 0 0 0-1.414 0l-5 5a1 1 0 0 0 1.414 1.414L15 16.414V29a1 1 0 0 0 2 0V16.414z"/>
+                            </svg>
+                            Upload
+                            <input type="file" multiple class="hidden fileInput" />
+                            </label>
+                            <span class="fileName text-black font-semibold"></span>
+                        </div>
+                    </td>
+                    {% endif %}
+                <td class="p-2">
+                  <button type="button" onclick="addRow('expenseTableMeal1', 'totalAmountBoxMeal1', 'mealSummary')" class="flex items-center justify-center border border-[#00A3AD] text-[#00A3AD] text-sm w-full h-8 transition duration-300 hover:bg-[#00A3AD] hover:text-white">
+                    Add Row
+                  </button>
+                </td>
+              </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+
+<!-- Accordion: Lodging -->
+<div class="mt-4 ml-2 mr-2">
+    <div class="cursor-pointer bg-gray-100 border text-[#aa0061] p-2 flex justify-between items-center transition duration-300 hover:bg-[#aa0061] hover:text-white"
+         onclick="toggleAccordion('accordionContentLodging1', 'accordionIconLodging1')">
+      <h3 class="text-lg font-bold flex items-center">
+        Lodging
+        <span id="totalAmountBoxLodging1" class="ml-4 text-black px-3 py-1 font-semibold text-lg">₱0.00</span>
+      </h3>
+      <svg id="accordionIconLodging1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300"
+           fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </div>
+    <div id="accordionContentLodging1" class="border border-t-0 border-gray-300 p-4">
+      <div class="overflow-x-auto">
+        <table id="expenseTableLodging1" class="w-full border-collapse border border-gray-300">
+          <thead>
+            <tr class="bg-[#00A3AD] text-white">
+              <th class="p-2 text-center">Check-In Date</th>
+              <th class="p-2 text-center">Check-Out Date</th>
+              <th class="p-2 text-center">Description</th>
+              <th class="p-2 text-center">Amount</th>
+              {% if main.table_type != 'CashAdvance' %}
+              <th class="p-2 text-center">Attachment</th>
+              {% endif %}
+              <th class="p-2 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody id='tableBodyLodging1'>
+            {% if lodging %}
+                {% for item in lodging %}
+                <tr class="bg-white border-t">
+                  <td class="p-2"><input type="date" name="lodging_checkin[]" value="{{ item.check_in|date:'Y-m-d' }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+                  <td class="p-2"><input type="date" name="lodging_checkout[]" value="{{ item.check_out|date:'Y-m-d' }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+                  <td class="p-2"><input type="text" name="lodging_desc[]" value="{{ item.description }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Description"></td>
+                  <td class="p-2">
+                    <input type="text" name="lodging_amount[]" value="{{ item.amount }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 rounded amount-input" placeholder="Amount"
+                           oninput="updateTotalAmount('expenseTableLodging1','totalAmountBoxLodging1', 'lodgingSummary')">
+                  </td>
+                    {% if main.table_type != 'CashAdvance' %}
+                    <td class="p-2">
+                        {% if item.attachment %}
+                        <a href="{{ item.attachment.url }}" target="_blank">{{ item.attachment.name|basename }}</a>
+                        {% else %}
+                            <div class="flex items-center space-x-2">
+                                <label class="flex items-center justify-center bg-transparent border border-gray-500 text-gray-500 text-sm w-full h-8 cursor-pointer transition duration-300 hover:bg-gray-500 hover:text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 mr-1 fill-current" viewBox="0 0 32 32">
+                                    <path d="M23.75 11.044a7.99 7.99 0 0 0-15.5-.009A8 8 0 0 0 9 27h3a1 1 0 0 0 0-2H9a6 6 0 0 1-.035-12 1.038 1.038 0 0 0 1.1-.854 5.991 5.991 0 0 1 11.862 0A1.08 1.08 0 0 0 23 13a6 6 0 0 1 0 12h-3a1 1 0 0 0 0 2h3a8 8 0 0 0 .75-15.956z"/>
+                                    <path d="M20.293 19.707a1 1 0 0 0 1.414-1.414l-5-5a1 1 0 0 0-1.414 0l-5 5a1 1 0 0 0 1.414 1.414L15 16.414V29a1 1 0 0 0 2 0V16.414z"/>
+                                </svg>
+                                Upload
+                                <input type="file" name="lodging_attachment[]" class="hidden fileInput" />
+                                </label>
+                                <span class="fileName text-black font-semibold"></span>
+                            </div>
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                  <td class="p-2 actionCell">
+                    <button type="button" onclick="deleteRow(this, 'expenseTableLodging1','totalAmountBoxLodging1', 'lodgingSummary')" class="flex items-center justify-center border border-red-500 text-red-500 text-sm w-full h-8 transition duration-300 hover:bg-red-500 hover:text-white">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+              <tr class="bg-white border-t">
+                <td class="p-2"><input type="date" name="lodging_checkin[]" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+                <td class="p-2"><input type="date" name="lodging_checkout[]" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+                <td class="p-2"><input type="text" name="lodging_desc[]" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Description"></td>
+                <td class="p-2">
+                  <input type="text" name="lodging_amount[]" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 rounded amount-input" placeholder="Amount"
+                         oninput="updateTotalAmount('expenseTableLodging1', 'totalAmountBoxLodging1', 'lodgingSummary')">
+                </td>
+                {% if main.table_type != 'CashAdvance' %}
+                <td class="p-2">
+                    <div class="flex items-center space-x-2">
+                      <label class="flex items-center justify-center bg-transparent border border-gray-500 text-gray-500 text-sm w-full h-8 cursor-pointer transition duration-300 hover:bg-gray-500 hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 mr-1 fill-current" viewBox="0 0 32 32">
+                          <path d="M23.75 11.044a7.99 7.99 0 0 0-15.5-.009A8 8 0 0 0 9 27h3a1 1 0 0 0 0-2H9a6 6 0 0 1-.035-12 1.038 1.038 0 0 0 1.1-.854 5.991 5.991 0 0 1 11.862 0A1.08 1.08 0 0 0 23 13a6 6 0 0 1 0 12h-3a1 1 0 0 0 0 2h3a8 8 0 0 0 .75-15.956z"/>
+                          <path d="M20.293 19.707a1 1 0 0 0 1.414-1.414l-5-5a1 1 0 0 0-1.414 0l-5 5a1 1 0 0 0 1.414 1.414L15 16.414V29a1 1 0 0 0 2 0V16.414z"/>
+                        </svg>
+                        Upload
+                        <input type="file" multiple class="hidden fileInput" />
+                      </label>
+                      <span class="fileName text-black font-semibold"></span>
+                    </div>
+                </td>
+                {% endif %}
+                <td class="p-2">
+                  <button type="button" onclick="addRow('expenseTableLodging1', 'totalAmountBoxLodging1', 'lodgingSummary')" class="flex items-center justify-center border border-[#00A3AD] text-[#00A3AD] text-sm w-full h-8 transition duration-300 hover:bg-[#00A3AD] hover:text-white">
+                    Add Row
+                  </button>
+                </td>
+              </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+
+<!-- Mode of Payment -->
+        <div class="flex flex-wrap justify-between mt-4">
+          <div class="bg-gray-100 w-1/4 p-2 ml-2 mr-2">
+            <h3 class="font-bold text-lg mb-2">Mode of Payment:</h3>
+            <div class="flex flex-col space-y-2">
+              <label class="inline-flex items-center">
+                <input type="checkbox" name="payment_mode" value="GCash" class="accent-[#00A3AD] payment-checkbox" {% if main.paymentMode == "GCASH" %}checked{% endif %} onclick="onlyOneCheckbox(this)">
+                <span class="ml-1">GCash</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input type="checkbox" name="payment_mode" value="Metrobank" class="accent-[#00A3AD] payment-checkbox" {% if main.paymentMode == "METROBANK" %}checked{% endif %} onclick="onlyOneCheckbox(this)">
+                <span class="ml-1">Metrobank</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input type="checkbox" name="payment_mode" value="Cash" class="accent-[#00A3AD] payment-checkbox" {% if main.paymentMode == "CASH" %}checked{% endif %} onclick="onlyOneCheckbox(this)">
+                <span class="ml-1">Cash</span>
+              </label>
+            </div>
+            <div class="mt-2">
+              <label for="accountNumber" class="block font-semibold">Account #:</label>
+              <input type="text" name="account_number" value="{{ main.accountNumber }}" class="w-full h-8 border border-gray-300 p-2" placeholder="{{ main.accountNumber }}"> 
+            </div>
+          </div>
+
+<!-- Total Summary -->
+          <div class="bg-gray-100 w-1/4 p-2 mr-2">
+            <h3 class="font-bold text-lg">Total Summary</h3>
+            <div class="grid grid-cols-2">
+              <p class="text-medium text-left font-semibold">Transportation:</p>
+              <p class="text-medium text-center"><span id="transportationSummary">₱0.00</span></p>
+            </div>
+            <div class="grid grid-cols-2">
+              <p class="text-medium text-left font-semibold">Meal:</p>
+              <p class="text-medium text-center"><span id="mealSummary">₱0.00</span></p>
+            </div>
+            <div class="grid grid-cols-2">
+              <p class="text-medium text-left font-semibold">Lodging:</p>
+              <p class="text-medium text-center"><span id="lodgingSummary">₱0.00</span></p>
+            </div>
+            <hr class="my-2">
+            <div class="grid grid-cols-2 items-center">
+              <p class="text-xl font-semibold text-left">Grand Total:</p>
+              <p class="text-xl font-semibold text-center"><span id="grandTotalSummary">₱0.00</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Buttons -->
+        <div class="flex items-center justify-center gap-2 mt-4">
+          <button type="submit" name="save" style="border-color: #aa0061;" class="border w-20 h-8 text-sm text-[#aa0061] transition duration-300 hover:bg-[#aa0061] hover:text-white">
+            Save
+          </button>
+          <button type="submit" name="submit" style="background-color:#00A3AD;" class="border w-20 h-8 text-sm text-white">
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    // Initial data from backend
+    const initialTransportationData = [
+        {% for item in transportation %}
+        {
+            "date": "{{ item.date|date:'Y-m-d' }}",
+            "from": "{{ item.locFrom|escapejs }}",
+            "to": "{{ item.locTo|escapejs }}",
+            "desc": "{{ item.description|escapejs }}",
+            "amount": "{{ item.amount }}"
+        }{% if not forloop.last %},{% endif %}
+        {% empty %}
+        []
+        {% endfor %}
+    ];
+
+    const initialMealData = [
+        {% for item in meal %}
+        {
+            "date": "{{ item.date|date:'Y-m-d' }}",
+            "mealType": "{{ item.meal_type|escapejs }}",
+            "desc": "{{ item.description|escapejs }}",
+            "amount": "{{ item.amount }}"
+        }{% if not forloop.last %},{% endif %}
+        {% empty %}
+        []
+        {% endfor %}
+    ];
+
+    const initialLodgingData = [
+        {% for item in lodging %}
+        {
+            "checkIn": "{{ item.check_in|date:'Y-m-d' }}",
+            "checkOut": "{{ item.check_out|date:'Y-m-d' }}",
+            "desc": "{{ item.description|escapejs }}",
+            "amount": "{{ item.amount }}"
+        }{% if not forloop.last %},{% endif %}
+        {% empty %}
+        []
+        {% endfor %}
+    ];
+</script>
+
+  <!-- JavaScript for Accordion and Dynamic Rows -->
+<script>
+    // Tab1 and Tab2
+    function toggleAccordion(contentId, iconId) {
+      const content = document.getElementById(contentId);
+      const icon = document.getElementById(iconId);
+      content.classList.toggle('hidden');
+      icon.classList.toggle('rotate-180');
+    }
+      
+    // Tab1
+    function prepareTableDataAndSave() {
+      const actionType = 'save';
+      const form = document.getElementById('mainForm');
+
+      if (!form) {
+          console.error('Form not found');
+          return;
+      }
+
+      const requiredFields = [
+        document.querySelector("input[name='name']"),
+        document.querySelector("input[name='bu']"),
+        document.querySelector("select[name='dept']"),
+        document.querySelector("input[name='departure_date_display']"),
+        document.querySelector("input[name='return_date_display']"),
+        document.querySelector("input[name='purpose']"),
+        document.querySelector("input[name='payment_method']")
+      ];
+      let missingFields = [];
+
+        // Check each required field and add to missingFields if empty
+        requiredFields.forEach(field => {
+          if (field && (!field.value || field.value.trim() === '')) {  // Check if field is empty
+            missingFields.push(field);  // Add to missing fields
+            field.classList.add("border-red-500"); // Highlight missing field
+            setTimeout(() => {
+              field.classList.remove("border-red-500");
+            }, 4500);
+          }
+        });
+
+      if (missingFields.length > 0) {
+          alert("Please complete all required fields before saving.");
+          return;
+      }
+
+      // Handle date validation
+      const departureDateInput = document.getElementById("departure_date_display1");
+      const returnDateInput = document.getElementById("return_date_display1");
+
+      if (!departureDateInput.value) departureDateInput.value = "null";
+      if (!returnDateInput.value) returnDateInput.value = "null";
+
+
+      const formData = new FormData(form);
+
+
+      formData.append('transportationData', JSON.stringify(dataLists['expenseTableTransport1'] || []));
+      formData.append('mealData', JSON.stringify(dataLists['expenseTableMeal1'] || []));
+      formData.append('lodgingData', JSON.stringify(dataLists['expenseTableLodging1'] || []));
+      formData.append('actionType', actionType);
+
+      // Debug: Log FormData contents
+      for (let [key, value] of formData.entries()) {
+          console.log(`${key}: ${value}`);
+      }
+
+      // Submit the form
+      fetch(form.action, {
+          method: "POST",
+          body: formData,
+      })
+      .then(response => {
+          if (!response.ok) {
+              return response.text().then(text => { throw new Error(text || response.status); });
+          }
+          return response.text();
+      })
+      .then(data => {
+          console.log("Success:", data);
+          clearFormFields();  // Clear fields and close accordions after submission
+          showSuccessModal(); // Show success message
+      })
+      .catch(error => console.error("Error:", error));
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Initialize dataLists with backend data
+        if (typeof initialTransportationData !== 'undefined') {
+            dataLists['expenseTableTransport1'] = initialTransportationData;
+        }
+        if (typeof initialMealData !== 'undefined') {
+            dataLists['expenseTableMeal1'] = initialMealData;
+        }
+        if (typeof initialLodgingData !== 'undefined') {
+            dataLists['expenseTableLodging1'] = initialLodgingData;
+        }
+    
+        // Log for debugging
+        console.log('Initial Transportation Data:', dataLists['expenseTableTransport1']);
+        console.log('Initial Meal Data:', dataLists['expenseTableMeal1']);
+        console.log('Initial Lodging Data:', dataLists['expenseTableLodging1']);
+    
+        // Initialize date field
+        const dateInput = document.getElementById("date_filed_display1");
+        if (dateInput) {
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0]; // e.g., "2025-04-01"
+            if (!dateInput.value) {
+                dateInput.value = formattedDate;
+            }
+        } else {
+            console.error('Element with ID "date_filed_display1" not found');
+        }
+    
+        // Update totals after initialization
+        updateTotalAmount('expenseTableTransport1', 'totalAmountBoxTransport1', 'transportationSummary');
+        updateTotalAmount('expenseTableMeal1', 'totalAmountBoxMeal1', 'mealSummary');
+        updateTotalAmount('expenseTableLodging1', 'totalAmountBoxLodging1', 'lodgingSummary');
+    });
+  
+    // Tab1
+    function prepareTableDataAndSubmit() {
+      const actionType = 'submitted';
+      const form = document.getElementById('mainForm');
+      const departureDateInput = document.getElementById("departure_date_display1");
+      const returnDateInput = document.getElementById("return_date_display1");
+      const paymentCheckboxes = document.querySelectorAll(".payment-checkbox");
+      const accountNumberField = document.getElementById('accountNumber');
+    
+      // Required fields
+      const requiredFields = [
+          document.querySelector("input[name='name']"),
+          document.querySelector("input[name='bu']"),
+          document.querySelector("select[name='dept']"),
+          document.querySelector("input[name='departure_date_display']"),
+          document.querySelector("input[name='return_date_display']"),
+          document.querySelector("input[name='purpose']")
+      ];
+    
+      //Validation for Required Fields
+      const missingFields = requiredFields.filter(field => !field || !field.value.trim());
+      
+        requiredFields.forEach(field => {
+          if (field && missingFields.includes(field)) {
+              field.classList.add("border-red-500"); // Highlight missing field
+              
+              // Remove highlight after 5 seconds
+              setTimeout(() => {
+                  field.classList.remove("border-red-500");
+              }, 4500);
+          }
+      });
+    
+      //Payment Method Validation
+      const isPaymentSelected = [...paymentCheckboxes].some(checkbox => checkbox.checked);
+      
+      paymentCheckboxes.forEach(checkbox => {
+          checkbox.classList.toggle("border-red-500", !isPaymentSelected);
+      });
+    
+      //Improved Account Number Validation
+      const isNonCashSelected = [...paymentCheckboxes].some(checkbox => checkbox.checked && checkbox.value !== "Cash");
+    
+      if (isNonCashSelected && !accountNumberField.value.trim()) {
+          alert("Please enter account number.");
+          accountNumberField.classList.add("border-red-500");
+          accountNumberField.focus();
+          return;
+      } else {
+          accountNumberField.classList.remove("border-red-500");
+      }
+    
+      // Validate Expense Entries
+      if (!validateExpenseEntries()) {
+        return; // Stop submission if no expense entries
+      }
+    
+    
+      //Stop Submission if Fields are Missing
+      if (missingFields.length > 0 || !isPaymentSelected) {
+          alert("Please complete all required fields before saving.");
+          return;
+      }
+    
+      if (!form) {
+          console.error('Form not found');
+          return;
+      }
+    
+      //Ensure Departure & Return Dates are Handled Correctly
+      if (!departureDateInput.value) {
+          departureDateInput.value = "null";
+      }
+      if (!returnDateInput.value) {
+          returnDateInput.value = "null";
+      }
+    
+      //Proceed with Form Submission
+        const formData = new FormData(form);
+        formData.append('transportationData', JSON.stringify(dataLists['expenseTableTransport1'] || []));
+        formData.append('mealData', JSON.stringify(dataLists['expenseTableMeal1'] || []));
+        formData.append('lodgingData', JSON.stringify(dataLists['expenseTableLodging1'] || []));
+        formData.append('actionType', actionType);
+    
+      
+      
+    
+      //Debugging Output
+      for (let [key, value] of formData.entries()) {
+          console.log(`${key}: ${value}`);
+      }
+    
+      fetch(form.action, {
+          method: "POST",
+          body: formData,
+      })
+      .then(response => {
+          if (!response.ok) {
+              return response.text().then(text => { throw new Error(text || response.status); });
+          }
+          return response.text();
+      })
+      .then(data => {
+          console.log("Success:", data);
+          clearFormFields();  // Clear fields after successful submission
+          showSuccessModal(); // Show success modal
+      })
+      .catch(error => console.error("Error:", error));
+    }
+
+    function validateExpenseEntries() {
+      console.log("Checking expense entries for: tab1");
+      console.log("Transport Entries:", dataLists['expenseTableTransport1'].length);
+      console.log("Meal Entries:", dataLists['expenseTableMeal1'].length);
+      console.log("Lodging Entries:", dataLists['expenseTableLodging1'].length);
+    
+      const hasExpenseEntries = 
+        dataLists['expenseTableTransport1'].length > 0 ||
+        dataLists['expenseTableMeal1'].length > 0 ||
+        dataLists['expenseTableLodging1'].length > 0;
+    
+      if (!hasExpenseEntries) {
+        console.error("Error: No expense entries provided.");
+        alert("Please add at least one expense entry before submitting.");
+        return false;
+      }
+      return true;
+    }
+
+    // Add row to table tab1 and tab2
+    function addRow(tableId, totalBoxId, summaryId) {
+      const table = document.getElementById(tableId);
+      const tbody = table.querySelector('tbody');
+      const inputs = tbody.querySelectorAll('tr:last-child input, tr:last-child select');
+      let rowData = {};
+
+      // Collect input values based on table type
+      if (tableId === 'expenseTableTransport1') {
+        const fileInput = tbody.querySelector('tr:last-child input[type="file"]');
+        const file = fileInput && fileInput.files.length > 0 ? fileInput.files[0] : null;
+        rowData = {
+          date: inputs[0].value,
+          from: inputs[1].value,
+          to: inputs[2].value,
+          desc: inputs[3].value,
+          amount: inputs[4].value,
+          attachment: file, // Store the File object for new uploads
+          attachmentURL: file ? URL.createObjectURL(file) : '', // Temporary URL for preview
+          attachmentName: file ? file.name : ''
+        };
+      } else if (tableId === 'expenseTableMeal1') {
+        const fileInput = tbody.querySelector('tr:last-child input[type="file"]');
+        const file = fileInput && fileInput.files.length > 0 ? fileInput.files[0] : null;
+        rowData = {
+          date: inputs[0].value,
+          mealType: inputs[1].value,
+          desc: inputs[2].value,
+          amount: inputs[3].value,
+          attachment: file,
+          attachmentURL: file ? URL.createObjectURL(file) : '',
+          attachmentName: file ? file.name : ''
+        };
+      } else if (tableId === 'expenseTableLodging1') {
+        const fileInput = tbody.querySelector('tr:last-child input[type="file"]');
+        const file = fileInput && fileInput.files.length > 0 ? fileInput.files[0] : null;
+        rowData = {
+          checkIn: inputs[0].value,
+          checkOut: inputs[1].value,
+          desc: inputs[2].value,
+          amount: inputs[3].value,
+          attachment: file,
+          attachmentURL: file ? URL.createObjectURL(file) : '',
+          attachmentName: file ? file.name : ''
+        };
+      }
+
+      // Validate inputs
+      if (Object.values(rowData).some(val => !val)) {
+        alert('Please fill all fields');
+        return;
+      }
+
+      // Add to data list
+      dataLists[tableId].push(rowData);
+
+      // Create new row
+      const newRow = document.createElement('tr');
+      newRow.className = 'bg-white border-t';
+      if (tableId === 'expenseTableTransport1') {
+        newRow.innerHTML = `
+          <td class="p-2">${rowData.date}</td>
+          <td class="p-2">${rowData.from}</td>
+          <td class="p-2">${rowData.to}</td>
+          <td class="p-2">${rowData.desc}</td>
+          <td class="p-2">${rowData.amount}</td>
+          <td class="p-2">
+              ${rowData.attachmentURL ? 
+                  `<a href="${rowData.attachmentURL}" target="_blank">${rowData.attachmentName}</a>` : 
+                  'No file'}
+          </td>
+          <td class="p-2">
+            <button type="button" onclick="deleteRow(this, '${tableId}', '${totalBoxId}', '${summaryId}')" class="flex items-center justify-center border border-red-500 text-red-500 text-sm w-full h-8 transition duration-300 hover:bg-red-500 hover:text-white">
+              Delete
+            </button>
+          </td>
+        `;
+      } else if (tableId === 'expenseTableMeal1') {
+        newRow.innerHTML = `
+          <td class="p-2">${rowData.date}</td>
+          <td class="p-2">${rowData.mealType}</td>
+          <td class="p-2">${rowData.desc}</td>
+          <td class="p-2">${rowData.amount}</td>
+          <td class="p-2">
+              ${rowData.attachmentURL ? 
+                  `<a href="${rowData.attachmentURL}" target="_blank">${rowData.attachmentName}</a>` : 
+                  'No file'}
+          </td>
+          <td class="p-2">
+            <button type="button" onclick="deleteRow(this, '${tableId}', '${totalBoxId}', '${summaryId}')" class="flex items-center justify-center border border-red-500 text-red-500 text-sm w-full h-8 transition duration-300 hover:bg-red-500 hover:text-white">
+              Delete
+            </button>
+          </td>
+        `;
+      } else if (tableId === 'expenseTableLodging1') {
+        newRow.innerHTML = `
+          <td class="p-2">${rowData.checkIn}</td>
+          <td class="p-2">${rowData.checkOut}</td>
+          <td class="p-2">${rowData.desc}</td>
+          <td class="p-2">${rowData.amount}</td>
+          <td class="p-2">
+              ${rowData.attachmentURL ? 
+                  `<a href="${rowData.attachmentURL}" target="_blank">${rowData.attachmentName}</a>` : 
+                  'No file'}
+          </td>
+          <td class="p-2">
+            <button type="button" onclick="deleteRow(this, '${tableId}', '${totalBoxId}', '${summaryId}')" class="flex items-center justify-center border border-red-500 text-red-500 text-sm w-full h-8 transition duration-300 hover:bg-red-500 hover:text-white">
+              Delete
+            </button>
+          </td>
+        `;
+      }
+
+      // Insert new row before the input row
+      const inputRow = tbody.querySelector('tr:last-child');
+      tbody.insertBefore(newRow, inputRow);
+
+      // Clear inputs
+      inputs.forEach(input => input.value = '');
+
+      // Update totals
+      updateTotalAmount(tableId, totalBoxId, summaryId);
+
+    }
+
+    function onlyOneCheckbox(checkbox) {
+      const checkboxes = document.getElementsByClassName('payment-checkbox');
+      for (let i = 0; i < checkboxes.length; i++) {
+          if (checkboxes[i] !== checkbox) {
+              checkboxes[i].checked = false;
+          }
+      }
+    }
+
+  // Lists to store data tab1 and tab2
+    let dataLists = {
+      'expenseTableTransport1': [],
+      'expenseTableMeal1': [],
+      'expenseTableLodging1': [],
+    };
+  
+    // Tab1 and Tab2
+    function showSuccessModal() {
+      const modal = document.getElementById('successModal');
+      if (modal) {
+          modal.style.display = 'block';
+          setTimeout(() => { modal.style.display = 'none'; }, 3000); // Hide after 3 seconds
+      } else {
+          alert("Success! Your entry has been submitted.");
+      }
+    }
+
+    // Delete row function
+    function deleteRow(button, tableId, totalBoxId, summaryId) {
+      const row = button.closest('tr'); // More robust than parentElement.parentElement
+      const tbody = row.parentElement;
+      const index = Array.from(tbody.children).indexOf(row);
+
+      if (!dataLists[tableId]) {
+        console.error(`dataLists[${tableId}] is not initialized`);
+        return;
+      }
+
+      // Remove from dataLists and DOM
+      dataLists[tableId].splice(index, 1);
+      row.remove();
+
+      // Update totals
+      updateTotalAmount(tableId, totalBoxId, summaryId);
+    }
+
+    // Update total amount for a table
+    function updateTotalAmount(tableId, totalBoxId, summaryId) {
+      const totalBox = document.getElementById(totalBoxId);
+      const summaryBox = document.getElementById(summaryId);
+      const total = dataLists[tableId].reduce((sum, row) => sum + parseFloat(row.amount || 0), 0);
+      totalBox.textContent = `₱${total.toFixed(2)}`;
+      summaryBox.textContent = `₱${total.toFixed(2)}`;
+
+      const grandTotalBox = document.getElementById('grandTotalSummary');
+      const transportTotal = dataLists['expenseTableTransport1'].reduce((sum, row) => sum + parseFloat(row.amount || 0), 0);
+      const mealTotal = dataLists['expenseTableMeal1'].reduce((sum, row) => sum + parseFloat(row.amount || 0), 0);
+      const lodgingTotal = dataLists['expenseTableLodging1'].reduce((sum, row) => sum + parseFloat(row.amount || 0), 0);
+      const grandTotal = transportTotal + mealTotal + lodgingTotal;
+      grandTotalBox.textContent = `₱${grandTotal.toFixed(2)}`;
+
+    }
+
+
+
+    function onlyOneCheckbox(checkbox) {
+      const checkboxes = document.querySelectorAll('.payment-checkbox');
+      checkboxes.forEach(cb => {
+        if (cb !== checkbox) cb.checked = false;
+      });
+    }
+
+    // Initialize totals and expand accordions on page load
+    window.onload = function() {
+      toggleAccordion('accordionContentTransport1', 'accordionIconTransport1');
+      toggleAccordion('accordionContentMeal1', 'accordionIconMeal1');
+      toggleAccordion('accordionContentLodging1', 'accordionIconLodging1');
+      updateTotalAmount('expenseTableTransport1', 'totalAmountBoxTransport1', 'transportationSummary');
+      updateTotalAmount('expenseTableMeal1', 'totalAmountBoxMeal1', 'mealSummary');
+      updateTotalAmount('expenseTableLodging1', 'totalAmountBoxLodging1', 'lodgingSummary');
+    };
+    
+    function updateTotalAmount(tableId, totalBoxId, summaryId) {
+      const totalBox = document.getElementById(totalBoxId);
+      const summaryBox = document.getElementById(summaryId);
+      
+      if (!dataLists[tableId]) {
+          console.error(`No data found for tableId: ${tableId}`);
+          return;
+      }
+  
+      const total = dataLists[tableId].reduce((sum, row) => sum + parseFloat(row.amount || 0), 0);
+      
+      if (totalBox) {
+          totalBox.textContent = `₱${total.toFixed(2)}`;
+      } else {
+          console.error(`Element with ID "${totalBoxId}" not found.`);
+      }
+  
+      if (summaryBox) {
+          summaryBox.textContent = `₱${total.toFixed(2)}`;
+      } else {
+          console.error(`Element with ID "${summaryId}" not found.`);
+      }
+  
+      // Grand total calculation
+      const grandTotalBox = document.getElementById('grandTotalSummary');
+      if (grandTotalBox) {
+          const transportTotal = dataLists['expenseTableTransport1']?.reduce((sum, row) => sum + parseFloat(row.amount || 0), 0) || 0;
+          const mealTotal = dataLists['expenseTableMeal1']?.reduce((sum, row) => sum + parseFloat(row.amount || 0), 0) || 0;
+          const lodgingTotal = dataLists['expenseTableLodging1']?.reduce((sum, row) => sum + parseFloat(row.amount || 0), 0) || 0;
+          const grandTotal = transportTotal + mealTotal + lodgingTotal;
+          grandTotalBox.textContent = `₱${grandTotal.toFixed(2)}`;
+      } else {
+          console.error('Element with ID "grandTotalSummary" not found.');
+      }
+    }
+
+
+
+</script>
+
+
+</body>
+</html>

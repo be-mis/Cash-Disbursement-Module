@@ -1,0 +1,277 @@
+<form id="mainForm" method="POST" action="{% url 'save-purchase' table_type='CashAdvance' %}">
+    {% csrf_token %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 text-sm my-4 gap-2 sm:gap-8">
+      <div class="grid gap-2">
+        <input type="hidden" name="userEmail" value="{{ user_email }}">
+        <input type="hidden" name="userID" value="{{ user_id }}">
+        <input type="hidden" name="position" value="{{ position }}">
+
+        <div class="grid sm:grid-cols-6">
+          <span class="inline-flex items-center text-sm text-gray-600 font-medium">Name</span>
+          <input type="text" name="name" value="{{ username }}" class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-900 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none" required readonly>
+        </div>
+
+        <div class="grid sm:grid-cols-6">
+          <span class="inline-flex items-center text-sm text-gray-600 font-medium">Company</span>
+          <input type="text" name="bu" value="{{ company }}" class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-900 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none" required readonly>
+        </div>
+
+        <div class="grid sm:grid-cols-6">
+          <span class="inline-flex items-center text-sm text-gray-600 font-medium"> Department </span>
+          <select name="dept" class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-900 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none" required>
+            <option value="" disabled selected>Select Department</option>
+            <option value="EPC MERCHANDISING">EPC MERCHANDISING</option>
+            <option value="EPC SALES">EPC SALES</option>
+            <option value="NBFI MERCHANDISING">NBFI MERCHANDISING</option>
+            <option value="NBFI SALES">NBFI SALES</option>
+            <option value="Finance">Finance</option>
+            <option value="Marketing">Marketing</option>
+            <option value="HR">Human Resource</option>
+            <option value="MIS">MIS</option>
+            <option value="Operations">Operations</option>
+          </select>
+        </div>
+
+        <div class="grid sm:grid-cols-6">
+          <span class="inline-flex items-center text-sm text-gray-600 font-medium"> Purpose </span>
+        <input type="text" name="purpose" class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-900 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none">
+        </div>
+      </div>
+
+      <div class="grid gap-2">
+
+        <div class="grid sm:grid-cols-6">
+          <span class="inline-flex items-center text-sm text-gray-600 font-medium"> Requested Date </span>
+          <input type="text" value="{{today}}" name="requested_date" id="requested_date1" readonly class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-600 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none">
+        </div>
+
+        <div class="grid sm:grid-cols-6">
+          <span class="inline-flex items-center text-sm text-gray-600 font-medium"> Date Needed </span>
+          <input type="date" name="date_needed" id="date_needed1" class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-600 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none" placeholder="">
+        </div>
+
+        <div class="grid sm:grid-cols-6">
+          <span class="inline-flex items-center text-sm text-gray-600 font-medium">Departure Date</span>
+          <input
+            type="date"
+            id="departure_date_display1"
+            name="departure_date_display"
+            class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-600 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none"
+            required
+          >
+        </div>
+        <div class="grid sm:grid-cols-6">
+          <span class="inline-flex items-center text-sm text-gray-600 font-medium">Return Date</span>
+          <input
+            type="date"
+            id="return_date_display1"
+            name="return_date_display"
+            class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-600 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none"
+            required
+          >
+        </div>
+      </div>
+    </div>
+          <!-- Accordion: Transportation (Tab 1) -->
+          <div class="my-12">
+                <div class="cursor-pointer border-b-2 text-gray-600 flex justify-between items-center transition duration-300 hover:border-blue-600 hover:text-blue-600" onclick="toggleAccordion('accordionContentTransport1', 'accordionIconTransport1')">
+                  <h3 class="text-lg font-bold flex items-center">
+                    Transportation <span id="totalAmountBoxTransport1" class="ml-4 text-black px-3 py-1 font-semibold text-lg">₱0.00</span>
+                  </h3>
+                  <svg id="accordionIconTransport1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+
+                <div id="accordionContentTransport1" class="bg-gray-100 hidden">
+                    <div class="overflow-x-auto my-4">
+                        <table id="expenseTableTransport1" class="table-fixed w-full text-sm text-left rtl:text-right text-gray-50 bg-transparent">
+                            <thead class="font-medium text-medium text-gray-600">
+                                <th scope="col" class="w-40 sm:w-1/6 px-2 py-2"> Date </th>
+                                <th scope="col" class="w-80 sm:w-1/6 px-2 py-3"> Origin </th>
+                                <th scope="col" class="w-80 sm:w-1/6 px-2 py-3"> Destination </th>
+                                <th scope="col" class="w-80 sm:w-1/6 px-2 py-3"> Description </th>
+                                <th scope="col" class="w-40 sm:w-1/6 px-2 py-3"> Amount </th>
+                                <th scope="col" class="w-44 sm:w-1/6 px-2 py-3"> Action </th>
+                            </thead>
+                            <tbody id="tableBodyTransport1" class="text-gray-600">
+                                <tr class="border-b-2 bg-gray-50 text-gray-600">
+                                    <td class="p-2"><input type="date" id="tDate" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+                                    <td class="p-2"><input type="text" id="tFrom" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder=""></td>
+                                    <td class="p-2"><input type="text" id="tTo" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder=""></td>
+                                    <td class="p-2"><input type="text" id="tDesc" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder=""></td>
+                                    <td class="p-2"><input type="number" id="tAmount" step="any" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder=""></td>
+                                    <td class="p-2">
+                                        <button type="button" onclick="addRow('expenseTableTransport1', 'totalAmountBoxTransport1', 'transportationSummary')" class="flex rounded items-center justify-center border border-green-600 text-green-600 text-sm px-4 h-8 transition duration-300 hover:bg-green-600 hover:text-white">
+                                            Add Row
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                  <input type="hidden" name="transportationData" id="transportationDataField">
+                </div>
+         </div>
+  
+          
+          <!-- Accordion: Meal (Tab 1) -->
+          <div class="my-12">
+            <div class="cursor-pointer border-b-2 text-gray-600 flex justify-between items-center transition duration-300 hover:border-blue-600 hover:text-blue-600" onclick="toggleAccordion('accordionContentMeal1', 'accordionIconMeal1')">
+              <h3 class="text-lg font-bold flex items-center">
+                Meal
+                <span id="totalAmountBoxMeal1" class="ml-4 text-black px-3 py-1 font-semibold text-lg">₱0.00</span>
+              </h3>
+              <svg id="accordionIconMeal1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>              
+            </div>
+
+            <div id="accordionContentMeal1" class="bg-gray-100 hidden">
+              <div class="overflow-x-auto my-4">
+                <table id="expenseTableMeal1" class="table-fixed w-full text-sm text-left rtl:text-right text-gray-50 bg-transparent">
+                  <thead class="font-medium text-medium text-gray-600">
+                    <th scope="col" class="w-40 sm:w-1/5 px-2 py-2"> Date </th>
+                    <th scope="col" class="w-40 sm:w-1/5 px-2 py-3"> Meal Type </th>
+                    <th scope="col" class="w-80 sm:w-1/5 px-2 py-3"> Description </th>
+                    <th scope="col" class="w-40 sm:w-1/5 px-2 py-3"> Amount </th>
+                    <th scope="col" class="w-28 sm:w-1/5 px-2 py-3"> Action </th>
+                  </thead>
+
+                  <tbody id="tableBodyMeal1" class="text-gray-600">
+                    <tr class="border-b-2 bg-gray-50 text-gray-600">
+                      <td class="p-2"><input type="date" id="mDate" class="w-full h-8 p-2 rounded bg-gray-50 border border-gray-300 focus:border-blue-500 focus:outline-none"></td>
+                      <td class="p-2">
+                        <select id="mType" class="w-full h-8 px-2 rounded bg-gray-50 border border-gray-300 focus:border-blue-500 focus:outline-none">
+                          <option value="" disabled selected hidden>Meal Type</option>
+                          <option value="Breakfast">Breakfast</option>
+                          <option value="Lunch">Lunch</option>
+                          <option value="Dinner">Dinner</option>
+                        </select>
+                      </td>
+                      <td class="p-2"><input type="text" id="mDesc" class="w-full h-8 p-2 rounded bg-gray-50 border border-gray-300 focus:border-blue-500 focus:outline-none" placeholder=""></td>
+                      <td class="p-2"><input type="number" id="mAmount" step="any" class="w-full h-8 p-2 rounded bg-gray-50 border border-gray-300 focus:border-blue-500 focus:outline-none" placeholder=""></td>
+                      <td class="p-2">
+                        <button type="button" onclick="addRow('expenseTableMeal1', 'totalAmountBoxMeal1', 'mealSummary')" class="flex rounded items-center justify-center border border-green-600 text-green-600 text-sm px-4 h-8 transition duration-300 hover:bg-green-600 hover:text-white">
+                          Add Row
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <input type="hidden" name="mealData" id="mealDataField">
+            </div>
+          </div>
+
+          
+          <!-- Accordion: Lodging (Tab 1) -->
+          <div class="my-12">
+            <div class="cursor-pointer border-b-2 text-gray-600 flex justify-between items-center transition duration-300 hover:border-blue-600 hover:text-blue-600" onclick="toggleAccordion('accordionContentLodging1', 'accordionIconLodging1')">
+              <h3 class="text-lg font-bold flex items-center">
+                Lodging <span id="totalAmountBoxLodging1" class="ml-8 font-semibold text-lg">₱0.00</span>
+              </h3>
+              <svg id="accordionIconLodging1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            <div id="accordionContentLodging1" class="bg-gray-100 hidden">
+              <div class="overflow-x-auto my-4">
+                <table id="expenseTableLodging1" class="table-fixed w-full text-sm text-left rtl:text-right text-gray-50 bg-transparent">
+                  <thead class="font-medium text-medium text-gray-600">
+                    <th scope="col" class="w-40 sm:w-1/5 px-2 py-2"> Check-In Date </th>
+                    <th scope="col" class="w-40 sm:w-1/5 px-2 py-3"> Check-Out Date </th>
+                    <th scope="col" class="w-80 sm:w-1/5 px-2 py-3"> Lodge Type </th>
+                    <th scope="col" class="w-40 sm:w-1/5 px-2 py-3"> Amount </th>
+                    <th scope="col" class="w-28 sm:w-1/5 px-2 py-3"> Action </th>
+                </thead>
+                  <tbody id="tableBodyLodging1" class="text-gray-600">
+                    <tr class="border-b-2 bg-gray-50 text-gray-600">
+                      <td class="p-2"><input type="date" id="lCheckIn" class="w-full h-8 p-2 rounded bg-gray-50 border border-gray-300 focus:border-blue-500 focus:outline-none"></td>
+                      <td class="p-2"><input type="date" id="lCheckOut" class="w-full h-8 p-2 rounded bg-gray-50 border border-gray-300 focus:border-blue-500 focus:outline-none"></td>
+                      <td class="p-2"><input type="text" id="lDesc" class="w-full h-8 p-2 rounded bg-gray-50 border border-gray-300 focus:border-blue-500 focus:outline-none" placeholder=""></td>
+                      <td class="p-2"><input type="number" id="lAmount" step="any" class="w-full h-8 p-2 rounded bg-gray-50 border border-gray-300 focus:border-blue-500 focus:outline-none" placeholder=""></td>
+                      <td class="p-2">
+                        <button type="button" onclick="addRow('expenseTableLodging1', 'totalAmountBoxLodging1', 'lodgingSummary')" class="flex rounded items-center justify-center border border-green-600 text-green-600 text-sm px-4 h-8 transition duration-300 hover:bg-green-600 hover:text-white">
+                          Add Row
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <input type="hidden" name="lodgingData" id="lodgingDataField">
+            </div>
+          </div>
+
+          
+          <div class="grid sm:grid-cols-2 gap-8">
+          <!-- Mode of Payment -->
+          <div class="my-4">
+            <h3 class="font-bold border-b-2 text-gray-600 text-lg mb-2 border-b border-gray-200 text-gray-700 pb-1">Mode of Payment</h3>
+            <div>
+              <ul class="grid w-full gap-2 sm:gap-6 grid-cols-3">
+                <li>
+                  <input type="checkbox" id="mop-gcash" name="payment_method" value="GCash" class="hidden peer payment-checkbox" onclick="onlyOneCheckbox(this)">
+                  <label for="mop-gcash" class="inline-flex items-center justify-center w-full p-2 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100">
+                    <div class="block flex items-center justify-center">
+                      <div class="w-full text-sm font-semibold">GCash</div>
+                    </div>
+                  </label>
+                </li>
+                <li>
+                  <input type="checkbox" id="mop-bank" name="payment_method" value="Metrobank" class="hidden peer payment-checkbox" onclick="onlyOneCheckbox(this)">
+                  <label for="mop-bank" class="inline-flex items-center justify-center w-full p-2 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100">
+                    <div class="block">
+                      <div class="w-full text-sm font-semibold">Metrobank</div>
+                    </div>
+                  </label>
+                </li>
+                <li>
+                  <input type="checkbox" id="mop-cash" name="payment_method" value="Cash" class="hidden peer payment-checkbox" onclick="onlyOneCheckbox(this)">
+                  <label for="mop-cash" class="inline-flex items-center justify-center w-full p-2 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100">
+                    <div class="block">
+                      <div class="w-full text-sm font-semibold">Cash</div>
+                    </div>
+                  </label>
+                </li>
+              </ul>
+            </div>
+            <div class="my-2">
+              <label for="accountNumber" class="inline-flex items-center text-sm text-gray-600 font-medium" required>Account #:</label>
+              <input type="text" name="account_number" id="accountNumber" class="w-full rounded border border-gray-300 p-1 outline-none focus:border-blue-500" placeholder="Enter account number">
+            </div>
+          </div>
+          
+            <!-- Summary -->
+            <div class="bg-gray-100 p-4 rounded-sm">
+              <h3 class="mb-2 border-b border-gray-200 text-gray-700 pb-1 font-bold">Summary</h3>
+              <div class="grid grid-cols-2 gap-2 text-gray-600 text-sm">
+                <div class="font-medium">Total Transportation Expenses</div>
+                <div class="text-right"><span id="transportationSummary">₱0.00</span></div>
+          
+                <div class="font-medium">Total Meal Expenses</div>
+                <div class="text-right"><span id="mealSummary">₱0.00</span></div>
+          
+                <div class="font-medium">Total Lodging Expenses</div>
+                <div class="text-right"><span id="lodgingSummary">₱0.00</span></div>
+              </div>
+              <div class="grid grid-cols-2 mt-2 border-t border-gray-200 text-gray-700 pb-1 font-bold">
+                <div class="mt-2">Grand Total</div>
+                <div class="mt-2 text-right"><span id="grandTotalSummary">₱0.00</span></div>
+              </div>
+            </div>
+
+          </div>
+
+    <!-- Final Form Buttons -->
+    <div class="flex items-center justify-center gap-2 mt-4">
+      <button type="button" onclick="prepareTableDataAndSave()" style="border-color: #aa0061;" class="border w-20 h-8 text-sm text-[#aa0061] transition duration-300 hover:bg-[#aa0061] hover:text-white">
+        Save
+      </button>
+      <button type="button" onclick="submitCashAdvance()" style="background-color:#00A3AD;" class="border w-20 h-8 text-sm text-white">
+        Submit
+      </button>
+    </div>
+    <input type="hidden" name="actionType" id="actionTypeField">
+</form>

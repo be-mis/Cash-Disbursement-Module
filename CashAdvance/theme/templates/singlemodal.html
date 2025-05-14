@@ -1,0 +1,172 @@
+    <!-- SINGLE MODAL: CASH ADVANCE SUMMARY-->
+    <div id="cashAdvanceModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="border-t-8 w-full max-w-5xl bg-white p-6 shadow-lg relative max-h-[90vh] overflow-y-auto" style="border-color: #00A3AD;">
+            <!-- Close Modal Button -->
+            <button class="absolute top-2 right-2 text-black" onclick="closeModal()" aria-label="Close Modal">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+                    stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" 
+                        d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        
+            <!-- Modal Header -->
+
+            <h2 class="text-3xl text-center font-bold mb-4">
+                <span class="text-teal-600">CASH</span>
+                <span id="table-type" class="text-pink-600">ADVANCE</span>
+            </h2>
+        
+            <!-- Content Wrapper -->
+            <div class="p-5 space-y-4">
+                <!-- Top Details: Name, Dates, Department, etc. -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700 bg-gray-100 p-4">
+                <div>
+                    <strong>Name:</strong> 
+                    <span id="caName"></span>
+                </div>
+                <div>
+                    <strong>Date Filed:</strong> 
+                    <span id="caDateFiled"></span>
+                </div>
+                <div>
+                    <strong>Business Unit:</strong> 
+                    <span id="caBusinessUnit"></span>
+                </div>
+                <div>
+                    <strong>Department:</strong> 
+                    <span id="caDepartment"></span>
+                </div>
+                <div>
+                    <strong>Departure Date:</strong> 
+                    <span id="caDepartureDate"></span>
+                </div>
+                <div>
+                    <strong>Return Date:</strong> 
+                    <span id="caReturnDate"></span>
+                </div>
+                <div>
+                    <strong>Purpose:</strong> 
+                    <span id="caPurpose"></span>
+                </div>
+                <div class="md:col-span-2">
+                    <strong>Status:</strong>
+                    <span id="caStatus" class="font-medium">
+                    </span>
+                </div>
+                </div>
+                {% if is_approver and status == 'forapproval' %}
+                <div class="flex justify-end gap-4 mt-6">
+                <div>
+                    <button id="approveBtn" class="bg-[#00A3AD] text-white px-4 py-2 text-sm rounded hover:bg-white hover:text-[#00A3AD] hover:border hover:border-[#00A3AD] transition duration-200">Approve</button>
+                </div>
+                <div>
+                    <button id="rejectBtn" class="border border-pink-700 text-pink-700 px-4 py-2 text-sm rounded hover:bg-pink-700 hover:text-white transition duration-200">Reject</button>
+                </div>
+                </div>
+                {% endif %}
+
+                {% if is_ga and status != 'forapproval' and status != 'draft' %}
+                <div class="flex justify-end gap-4 mt-6">
+                <div>
+                    <button id="approveBtn" class="bg-[#00A3AD] text-white px-4 py-2 text-sm rounded hover:bg-white hover:text-[#00A3AD] hover:border hover:border-[#00A3AD] transition duration-200">Approve</button>
+                </div>
+                <div>
+                    <button id="rejectBtn" class="border border-pink-700 text-pink-700 px-4 py-2 text-sm rounded hover:bg-pink-700 hover:text-white transition duration-200">Reject</button>
+                </div>
+                </div>
+                {% endif %}
+                {% include 'cashAdvanceSub.html' %}
+                {% include 'approveModal.html' %}   
+                {% include 'rejectModal.html' %}
+
+            </div>
+<!-- END of SINGLE MODAL -->
+
+
+    <!-- SINGLE MODAL: Purchase SUMMARY-->
+
+<div id="purchaseModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="border-t-8 w-full max-w-5xl bg-white p-6 shadow-lg relative max-h-[90vh] overflow-y-auto" style="border-color: #00A3AD;">
+        <!-- Close Modal Button -->
+        <button class="absolute top-2 right-2 text-black" onclick="closeModal()" aria-label="Close Modal">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+                stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" 
+                    d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+    
+        <!-- Modal Header -->
+        <h2 class="text-3xl text-center font-bold mb-4">
+            <span class="text-teal-600">Purchase</span>
+            <span class="text-pink-600">Form</span>
+        </h2>
+    
+        <!-- Content Wrapper -->
+        <div class="p-5 space-y-4">
+            <!-- Top Details: Name, Dates, Department, etc. -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700 bg-gray-100 p-4">
+            <div>
+                <strong>Name:</strong> 
+                <span id="pName"></span>
+            </div>
+            <div>
+                <strong>Date Filed:</strong> 
+                <span id="pDate"></span>
+            </div>
+            <div>
+                <strong>Business Unit:</strong> 
+                <span id="pBusinessUnit"></span>
+            </div>
+            <div>
+                <strong>Department:</strong> 
+                <span id="pDepartment"></span>
+            </div>
+            <div>
+                <strong>Purpose:</strong> 
+                <span id="pPurpose"></span>
+            </div>
+            <div>
+                <strong>Status:</strong>
+                <span id="pStatus" class="font-medium">
+                </span>
+            </div>
+            </div>
+
+            {% if is_approver and status == 'forapproval' %}
+            <div class="flex justify-end gap-4 mt-6">
+              <div>
+                <button id="approveBtn" class="bg-[#00A3AD] text-white px-4 py-2 text-sm rounded hover:bg-white hover:text-[#00A3AD] hover:border hover:border-[#00A3AD] transition duration-200">Approve</button>
+              </div>
+              <div>
+                <button id="rejectBtn" class="border border-pink-700 text-pink-700 px-4 py-2 text-sm rounded hover:bg-pink-700 hover:text-white transition duration-200">Reject</button>
+              </div>
+            </div>
+            {% endif %}
+
+            {% if is_ga and status == 'forprocess' %}
+            <div class="flex justify-end gap-4 mt-6">
+              <div>
+                <button id="approveBtn" class="bg-[#00A3AD] text-white px-4 py-2 text-sm rounded hover:bg-white hover:text-[#00A3AD] hover:border hover:border-[#00A3AD] transition duration-200">Approve</button>
+              </div>
+              <div>
+                <button id="rejectBtn" class="border border-pink-700 text-pink-700 px-4 py-2 text-sm rounded hover:bg-pink-700 hover:text-white transition duration-200">Reject</button>
+              </div>
+            </div>
+            {% endif %}
+            
+            {% include 'purchaseSub.html' %}
+            {% include 'approveModal.html' %}
+            {% include 'rejectModal.html' %}
+    
+            <!-- Rejection Reason Display (if applicable) -->
+            <div id="rejectReasonContainer" class="mt-2 hidden text-sm bg-red-50 p-4">
+                <strong>Rejection Reason:</strong>
+                <p id="rejectReasonText" class="text-red-600"></p>
+            </div>
+            </div> <!-- End of Content Wrapper -->
+        </div>
+        </div>
+</div>
+<!-- END of SINGLE MODAL -->

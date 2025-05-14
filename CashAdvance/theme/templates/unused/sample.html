@@ -1,0 +1,751 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cash Advance</title>
+  <!-- Using Tailwind CSS v3 for JIT support of arbitrary colors -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+
+  <!-- Tabs Navigation -->
+  <div class="flex border-b mb-4">
+    <button class="tab-link py-2 px-4 text-black hover:text-[#00A3AD] focus:outline-none active border-b-2 border-blue-500" data-tab="tab1">
+      Cash Advance Form
+    </button>
+    <button class="tab-link py-2 px-4 text-black hover:text-[#00A3AD] focus:outline-none" data-tab="tab2">
+      Cash Advance Purchase Form
+    </button>
+  </div>
+
+  <!-- Tab 1: Cash Advance Form (Expense Form) -->
+  <div id="tab1" class="tab-pane">
+    <div class="border-t-8 max-w-(--my-max-width) bg-white p-6 shadow-lg rounded-lg relative" style="border-color: #00A3AD;">
+      <h2 class="text-2xl font-bold text-left ml-2 mb-4">
+        <span style="color: #00A3AD;">CASH ADVANCE</span>
+        <span style="color: #aa0061;">PURCHASE FORM</span>
+      </h2>
+      <form method="POST" action="" class="max-w-(--my-max-width)">
+        {% csrf_token %}
+        <!-- Basic Form Fields -->
+        <div class="grid grid-cols-2 gap-2 p-2 text-sm mt-4">
+          <input type="text" name="name" placeholder="Name" class="bg-white p-2 h-6 border" style="border-color: black;" required>
+          <div class="bg-white h-6 flex items-center px-2 border" style="border-color: black;">
+            <input type="text" name="date_filed_display" id="date_filed_display1" placeholder="Date Filed" class="bg-transparent outline-none text-gray-500 text-sm w-full"
+                   onfocus="(this.type='date'); this.style.color='#000'" 
+                   onblur="if(!this.value){ this.type='text'; this.style.color='#9CA3AF'}" required>
+          </div>
+          <input type="text" name="bu" placeholder="Business Unit" class="bg-white p-2 h-6 border" style="border-color: black;" required>
+          <input type="text" name="dept" placeholder="Department" class="bg-white border p-2 h-6" style="border-color: black;" required>
+          <div class="bg-white h-6 flex items-center px-2 border" style="border-color: black;">
+            <input type="text" name="departure_date_display" id="departure_date_display1" placeholder="Departure Date" class="bg-transparent outline-none text-gray-500 text-sm w-full"
+                   onfocus="(this.type='date'); this.style.color='#000'" 
+                   onblur="if(!this.value){ this.type='text'; this.style.color='#9CA3AF'}" required>
+          </div>
+          <div class="bg-white h-6 flex items-center px-2 border" style="border-color: black;"> 
+            <input type="text" name="return_date_display" id="return_date_display1" placeholder="Return Date" class="bg-transparent outline-none text-gray-500 text-sm w-full"
+                   onfocus="(this.type='date'); this.style.color='#000'" 
+                   onblur="if(!this.value){ this.type='text'; this.style.color='#9CA3AF'}" required>
+          </div>
+          <input type="text" name="purpose" placeholder="Purpose" class="bg-white h-6 p-2 border" style="border-color: black;">
+        </div>
+
+        <!-- Accordion: Transportation (Tab 1) -->
+        <div class="mt-4 ml-2 mr-2">
+          <div class="cursor-pointer bg-gray-100 border text-[#aa0061] p-2 flex justify-between items-center transition duration-300 hover:bg-[#aa0061] hover:text-white"
+               onclick="toggleAccordion('accordionContentTransport1', 'accordionIconTransport1')">
+            <h3 class="text-lg font-bold flex items-center">
+              Transportation
+              <span id="totalAmountBoxTransport1" class="ml-4 text-black px-3 py-1 font-semibold text-lg hidden">₱0.00</span>
+            </h3>
+            <svg id="accordionIconTransport1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300"
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <div id="accordionContentTransport1" class="border border-t-0 border-gray-300 p-4 hidden">
+            <div class="overflow-x-auto">
+              <table id="expenseTableTransport1" class="w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr class="bg-[#00A3AD] text-white">
+                    <th class="p-2 text-center">Date</th>
+                    <th class="p-2 text-center">From</th>
+                    <th class="p-2 text-center">To</th>
+                    <th class="p-2 text-center">Description</th>
+                    <th class="p-2 text-center">Amount</th>
+                    <th class="p-2 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="bg-white border-t">
+                    <td class="p-2"><input type="date" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+                    <td class="p-2"><input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="From"></td>
+                    <td class="p-2"><input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="To"></td>
+                    <td class="p-2"><input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Description"></td>
+                    <td class="p-2">
+                      <input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 rounded amount-input" placeholder="Amount" 
+                             oninput="updateTotalAmount('expenseTableTransport1','totalAmountBoxTransport1')" onblur="formatAmountInput(this)">
+                    </td>
+                    <td class="p-2 actionCell">
+                      <button onclick="addRow('expenseTableTransport1','totalAmountBoxTransport1')" type="button"
+                        class="flex items-center justify-center border border-[#00A3AD] text-[#00A3AD] text-sm w-full h-8 transition duration-300 hover:bg-[#00A3AD] hover:text-white">
+                        Add Row
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accordion: Meal (Tab 1) -->
+        <div class="mt-4 ml-2 mr-2">
+          <div class="cursor-pointer bg-gray-100 border text-[#aa0061] p-2 flex justify-between items-center transition duration-300 hover:bg-[#aa0061] hover:text-white"
+               onclick="toggleAccordion('accordionContentMeal1', 'accordionIconMeal1')">
+            <h3 class="text-lg font-bold flex items-center">
+              Meal
+              <span id="totalAmountBoxMeal1" class="ml-4 text-black px-3 py-1 font-semibold text-lg hidden">₱0.00</span>
+            </h3>
+            <svg id="accordionIconMeal1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300"
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <div id="accordionContentMeal1" class="border border-t-0 border-gray-300 p-4 hidden">
+            <div class="overflow-x-auto">
+              <table id="expenseTableMeal1" class="w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr class="bg-[#00A3AD] text-white">
+                    <th class="p-2 text-center">Date</th>
+                    <th class="p-2 text-center">Meal Type</th>
+                    <th class="p-2 text-center">Description</th>
+                    <th class="p-2 text-center">Amount</th>
+                    <th class="p-2 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="bg-white border-t">
+                    <td class="p-2"><input type="date" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+                    <td class="p-2">
+                      <select name="meal_type" class="w-full p-2 bg-gray-100">
+                        <option value="" disabled selected hidden>Meal Type</option>
+                        <option value="Breakfast">Breakfast</option>
+                        <option value="Lunch">Lunch</option>
+                        <option value="Dinner">Dinner</option>
+                      </select>
+                    </td>
+                    <td class="p-2"><input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Description"></td>
+                    <td class="p-2">
+                      <input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 rounded amount-input" placeholder="Amount"
+                             oninput="updateTotalAmount('expenseTableMeal1','totalAmountBoxMeal1')" onblur="formatAmountInput(this)">
+                    </td>
+                    <td class="p-2 actionCell">
+                      <button onclick="addRow('expenseTableMeal1','totalAmountBoxMeal1')" type="button"
+                        class="flex items-center justify-center border border-[#00A3AD] text-[#00A3AD] text-sm w-full h-8 transition duration-300 hover:bg-[#00A3AD] hover:text-white">
+                        Add Row
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accordion: Lodging (Tab 1) -->
+        <div class="mt-4 ml-2 mr-2">
+          <div class="cursor-pointer bg-gray-100 border text-[#aa0061] p-2 flex justify-between items-center transition duration-300 hover:bg-[#aa0061] hover:text-white"
+               onclick="toggleAccordion('accordionContentLodging1', 'accordionIconLodging1')">
+            <h3 class="text-lg font-bold flex items-center">
+              Lodging
+              <span id="totalAmountBoxLodging1" class="ml-4 text-black px-3 py-1 font-semibold text-lg hidden">₱0.00</span>
+            </h3>
+            <svg id="accordionIconLodging1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300"
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <div id="accordionContentLodging1" class="border border-t-0 border-gray-300 p-4 hidden">
+            <div class="overflow-x-auto">
+              <table id="expenseTableLodging1" class="w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr class="bg-[#00A3AD] text-white">
+                    <th class="p-2 text-center">Check-In Date</th>
+                    <th class="p-2 text-center">Check-Out Date</th>
+                    <th class="p-2 text-center">Description</th>
+                    <th class="p-2 text-center">Amount</th>
+                    <th class="p-2 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="bg-white border-t">
+                    <td class="p-2"><input type="date" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+                    <td class="p-2"><input type="date" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+                    <td class="p-2"><input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Description"></td>
+                    <td class="p-2">
+                      <input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 rounded amount-input" placeholder="Amount"
+                             oninput="updateTotalAmount('expenseTableLodging1','totalAmountBoxLodging1')" onblur="formatAmountInput(this)">
+                    </td>
+                    <td class="p-2 actionCell">
+                      <button onclick="addRow('expenseTableLodging1','totalAmountBoxLodging1')" type="button"
+                        class="flex items-center justify-center border border-[#00A3AD] text-[#00A3AD] text-sm w-full h-8 transition duration-300 hover:bg-[#00A3AD] hover:text-white">
+                        Add Row
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+       <!-- Parent container to place the summary box and mode-of-payment box side by side -->
+<div class="flex flex-wrap justify-between mt-4">
+
+  <!-- MODE OF PAYMENT BOX -->
+  <div class="bg-gray-100 w-1/4 p-2 ml-2 mr-2">
+    <h3 class="font-bold text-lg mb-2">Mode of Payment:</h3>
+    
+   <!-- Checkboxes -->
+<div class="flex flex-col space-y-2">
+  <label class="inline-flex items-center">
+    <input type="checkbox" class="accent-[#00A3AD] payment-checkbox" onclick="onlyOneCheckbox(this)">
+    <span class="ml-1">GCash</span>
+  </label>
+  <label class="inline-flex items-center">
+    <input type="checkbox" class="accent-[#00A3AD] payment-checkbox" onclick="onlyOneCheckbox(this)">
+    <span class="ml-1">Metrobank</span>
+  </label>
+  <label class="inline-flex items-center">
+    <input type="checkbox" class="accent-[#00A3AD] payment-checkbox" onclick="onlyOneCheckbox(this)">
+    <span class="ml-1">Cash</span>
+  </label>
+</div>
+    
+    <!-- Account Number -->
+    <div class="mt-2">
+      <label for="accountNumber" class="block font-semibold">Account #:</label>
+      <input type="text" id="accountNumber" class="w-full h-8 border border-gray-300 p-2" placeholder="Enter account number">
+    </div>
+  </div>
+
+  <!-- TOTAL SUMMARY BOX -->
+  <div class="bg-gray-100 w-1/4 p-2 mr-2">
+    <h3 class="font-bold text-lg">Total Summary</h3>
+    
+    <!-- Transportation row -->
+    <div class="grid grid-cols-2">
+      <p class="text-medium text-left font-semibold">Transportation:</p>
+      <p class="text-medium text-center"><span id="transportationSummary">₱0.00</span></p>
+    </div>
+    
+    <!-- Meal row -->
+    <div class="grid grid-cols-2">
+      <p class="text-medium text-left font-semibold">Meal:</p>
+      <p class="text-medium text-center"><span id="mealSummary">₱0.00</span></p>
+    </div>
+    
+    <!-- Lodging row -->
+    <div class="grid grid-cols-2">
+      <p class="text-medium text-left font-semibold">Lodging:</p>
+      <p class="text-medium text-center"><span id="lodgingSummary">₱0.00</span></p>
+    </div>
+    
+    <hr class="my-2">
+    
+    <!-- Grand Total row -->
+    <div class="grid grid-cols-2 items-center">
+      <p class="text-xl font-semibold text-left">Grand Total:</p>
+      <p class="text-xl font-semibold text-center"><span id="grandTotalSummary">₱0.00</span></p>
+    </div>
+  </div>
+
+
+</div>
+
+
+        <!-- Final Form Buttons for Tab 1 -->
+        <div class="flex items-center justify-center gap-2 mt-4">
+          <button type="submit" name="save" style="border-color: #aa0061;" class="border w-20 h-8 text-sm text-[#aa0061] transition duration-300 hover:bg-[#aa0061] hover:text-white">
+            Save
+          </button>
+          <button type="submit" name="submit" style="background-color:#00A3AD;" class="border w-20 h-8 text-sm text-white">
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tab 2: Cash Advance Form (Purchasing) -->
+  <div id="tab2" class="tab-pane hidden">
+    <div class="border-t-8 max-w-(--my-max-width) bg-white p-6 shadow-lg rounded-lg relative" style="border-color: #00A3AD;">
+      <h2 class="text-2xl font-bold text-left ml-2 mb-4">
+        <span style="color: #00A3AD;">CASH ADVANCE</span>
+        <span style="color: #aa0061;">PURCHASE FORM</span>
+      </h2>
+      <form method="POST" action="" class="max-w-(--my-max-width)">
+        {% csrf_token %}
+        <!-- Basic Form Fields -->
+        <div class="grid grid-cols-2 gap-2 p-2 text-sm mt-4">
+          <input type="text" name="name" placeholder="Name" class="bg-white p-2 h-6 border" style="border-color: black;" required>
+          <div class="bg-white h-6 flex items-center px-2 border" style="border-color: black;">
+            <input type="text" name="date_filed_display" id="date_filed_display_2" placeholder="Date Filed" class="bg-transparent outline-none text-gray-500 text-sm w-full"
+                   onfocus="(this.type='date'); this.style.color='#000'" onblur="if(!this.value){ this.type='text'; this.style.color='#9CA3AF'}" required>
+          </div>
+          <input type="text" name="bu" placeholder="Business Unit" class="bg-white p-2 h-6 border" style="border-color: black;" required>
+          <input type="text" name="dept" placeholder="Department" class="bg-white border p-2 h-6" style="border-color: black;" required>
+          <div class="bg-white h-6 flex items-center px-2 border" style="border-color: black;">
+            <input type="text" name="departure_date_display" id="departure_date_display_2" placeholder="Departure Date" class="bg-transparent outline-none text-gray-500 text-sm w-full"
+                   onfocus="(this.type='date'); this.style.color='#000'" onblur="if(!this.value){ this.type='text'; this.style.color='#9CA3AF'}" required>
+          </div>
+          <div class="bg-white h-6 flex items-center px-2 border" style="border-color: black;"> 
+            <input type="text" name="return_date_display" id="return_date_display_2" placeholder="Return Date" class="bg-transparent outline-none text-gray-500 text-sm w-full"
+                   onfocus="(this.type='date'); this.style.color='#000'" onblur="if(!this.value){ this.type='text'; this.style.color='#9CA3AF'}" required>
+          </div>
+          <input type="text" name="purposet" placeholder="Purpose" class="bg-white h-6 p-2 border" style="border-color: black;">
+        </div>
+        
+        <!-- Accordion: Purchasing (Tab 2) -->
+        <div class="mt-4 ml-2 mr-2">
+          <div class="cursor-pointer bg-gray-100 border text-[#aa0061] p-2 flex justify-between items-center transition duration-300 hover:bg-[#aa0061] hover:text-white"
+               onclick="toggleAccordion('accordionContentPurchasing2', 'accordionIconPurchasing2')">
+            <h3 class="text-lg font-bold flex items-center">
+              Purchase
+              <span id="totalAmountBoxPurchasing_2" class="ml-4 text-black px-3 py-1 font-semibold text-lg hidden">₱0.00</span>
+            </h3>
+            <svg id="accordionIconPurchasing2" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300"
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <div id="accordionContentPurchasing2" class="border border-t-0 border-gray-300 p-4 hidden">
+            <div class="overflow-x-auto">
+              <table id="expenseTablePurchasing_2" class="w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr class="bg-[#00A3AD] text-white">
+                    <th class="p-2 text-center">Date</th>
+                    <th class="p-2 text-center">Purchase #</th>
+                    <th class="p-2 text-center">Particular/s</th>
+                    <th class="p-2 text-center">Amount</th>
+                    <th class="p-2 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="bg-white border-t">
+                    <td class="p-2">
+                      <input type="date" class="w-full h-8 p-2 bg-gray-100 border border-gray-300">
+                    </td>
+                    <td class="p-2">
+                      <input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Purchase #">
+                    </td>
+                    <td class="p-2">
+                      <input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Particular/s">
+                    </td>
+                    <td class="p-2">
+                      <input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 amount-input" placeholder="Amount"
+                             oninput="updateTotalAmount('expenseTablePurchasing_2','totalAmountBoxPurchasing_2')" onblur="formatAmountInput(this)">
+                    </td>
+                    <td class="p-2 actionCell">
+                      <button onclick="addRow('expenseTablePurchasing_2','totalAmountBoxPurchasing_2')" type="button"
+                        class="flex items-center justify-center border border-[#00A3AD] text-[#00A3AD] text-sm w-full h-8 transition duration-300 hover:bg-[#00A3AD] hover:text-white">
+                        Add Row
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+       <!-- Parent container to place the summary box and mode-of-payment box side by side -->
+<div class="flex flex-wrap justify-between mt-4">
+
+  <!-- MODE OF PAYMENT BOX -->
+  <div class="bg-gray-100 w-1/4 p-2 mr-2">
+    <h3 class="font-bold text-lg mb-2">Mode of Payment:</h3>
+    
+   <!-- Checkboxes -->
+<div class="flex flex-col space-y-2">
+  <label class="inline-flex items-center">
+    <input type="checkbox" class="accent-[#00A3AD] payment-checkbox" onclick="onlyOneCheckbox(this)">
+    <span class="ml-1">GCash</span>
+  </label>
+  <label class="inline-flex items-center">
+    <input type="checkbox" class="accent-[#00A3AD] payment-checkbox" onclick="onlyOneCheckbox(this)">
+    <span class="ml-1">Metrobank</span>
+  </label>
+  <label class="inline-flex items-center">
+    <input type="checkbox" class="accent-[#00A3AD] payment-checkbox" onclick="onlyOneCheckbox(this)">
+    <span class="ml-1">Cash</span>
+  </label>
+</div>
+    <!-- Account Number -->
+    <div class="mt-2">
+      <label for="accountNumber" class="block font-semibold">Account #:</label>
+      <input type="text" id="accountNumber" class="w-full h-8 border border-gray-300 p-2" placeholder="Enter account number">
+    </div>
+  </div>
+  
+  <!-- TOTAL SUMMARY BOX -->
+  <div class="bg-gray-100 w-1/4 p-2 mr-2"                                                                                                                                                            "bg-gray-100 w-1/4 p-2 ml-2">
+    <h3 class="font-bold text-lg">Total Summary</h3>
+    
+    <!-- Transportation row -->
+    <div class="grid grid-cols-2">
+      <p class="text-medium text-left font-semibold">Purchase:</p>
+      <p class="text-medium text-center"><span id="purchaseSummaryTab2">₱0.00</span></p>
+    </div>
+    
+    <hr class="my-2">
+    
+    <!-- Grand Total row -->
+    <div class="grid grid-cols-2 items-center">
+      <p class="text-xl font-semibold text-left">Grand Total:</p>
+      <p class="text-xl font-semibold text-center"><span id="grandTotalPurchasing_2">₱0.00</span></p>
+    </div>
+  </div>
+
+</div>
+        
+        <!-- Final Form Buttons for Tab 2 -->
+        <div class="flex items-center justify-center gap-2 mt-4">
+          <button type="submit" name="save" style="border-color: #aa0061;" class="border w-20 h-8 text-sm text-[#aa0061] transition duration-300 hover:bg-[#aa0061] hover:text-white">
+            Save
+          </button>
+          <button type="submit" name="submit" style="background-color:#00A3AD;" class="border w-20 h-8 text-sm text-white">
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Shared JavaScript for Tabs, Form Functions, and Clearing on Tab Switch -->
+  <script>
+    // Store the initial HTML of each form so that progress can be cleared on tab switch.
+    // Lists to store data
+    let dataLists = {
+      'expenseTableTransport1': [],
+      'expenseTableMeal1': [],
+      'expenseTableLodging1': [],
+      'expenseTablePurchasing_2': []
+    };
+    let initialFormHTML = {};
+    document.addEventListener("DOMContentLoaded", function() {
+      document.querySelectorAll('.tab-pane form').forEach(form => {
+        const paneId = form.closest('.tab-pane').id;
+        initialFormHTML[paneId] = form.innerHTML;
+      });
+    });
+
+    // Tab switching functionality with form reset on switch.
+    const tabLinks = document.querySelectorAll('.tab-link');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+    tabLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        // Find currently active pane and reset its form using stored initial HTML.
+        const activePane = document.querySelector('.tab-pane:not(.hidden)');
+        if (activePane) {
+          const form = activePane.querySelector("form");
+          if (form && initialFormHTML[activePane.id]) {
+            form.innerHTML = initialFormHTML[activePane.id];
+          }
+        }
+        // Switch tabs
+        tabLinks.forEach(item => item.classList.remove('active', 'border-b-2', 'border-blue-500'));
+        tabPanes.forEach(pane => pane.classList.add('hidden'));
+        this.classList.add('active', 'border-b-2', 'border-blue-500');
+        const tabId = this.getAttribute('data-tab');
+        document.getElementById(tabId).classList.remove('hidden');
+      });
+    });
+
+    // Toggle Accordion Function
+    function toggleAccordion(contentId, iconId) {
+      const content = document.getElementById(contentId);
+      const icon = document.getElementById(iconId);
+      content.classList.toggle('hidden');
+      icon.classList.toggle('rotate-180');
+    }
+
+    // Format amount inputs with commas on blur
+    function formatAmountInput(input) {
+      let value = input.value.replace(/,/g, '');
+      if (value === '') return;
+      const num = parseFloat(value);
+      if (!isNaN(num)) {
+        input.value = num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+    }
+
+    // Update total for a given table, then update summary if applicable
+    function updateTotalAmount(tableId, totalBoxId) {
+      const amountInputs = document.querySelectorAll(`#${tableId} tbody .amount-input`);
+      let totalAmount = 0;
+      amountInputs.forEach(input => {
+        let rawValue = input.value.replace(/,/g, '');
+        const num = parseFloat(rawValue) || 0;
+        totalAmount += num;
+      });
+      const formattedTotal = `₱${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      document.getElementById(totalBoxId).innerText = formattedTotal;
+      
+      // If updating the purchasing table in Tab 2, update its summary
+      if (tableId === 'expenseTablePurchasing_2') {
+        updateGrandTotalTab2();
+      } else {
+        updateGrandTotal();
+      }
+    }
+
+    // Update row actions: if only one row or last row, show "Add Row", else "Remove"
+    function updateRowActions(tableId, totalBoxId) {
+      const tableBody = document.querySelector(`#${tableId} tbody`);
+      const rows = tableBody.querySelectorAll('tr');
+      rows.forEach((row, index) => {
+        const actionCell = row.querySelector('.actionCell');
+        if (!actionCell) return;
+        if (rows.length === 1 || index === rows.length - 1) {
+          actionCell.innerHTML = `
+            <button onclick="addRow('${tableId}','${totalBoxId}')" type="button"
+                    class="flex items-center justify-center border border-[#00A3AD] text-[#00A3AD] text-sm w-full h-8 transition duration-300 hover:bg-[#00A3AD] hover:text-white">
+              Add Row
+            </button>
+          `;
+        } else {
+          actionCell.innerHTML = `
+            <button onclick="removeRow(this, '${tableId}','${totalBoxId}')" type="button"
+                    class="flex items-center justify-center border border-[#aa0061] text-[#aa0061] text-sm w-full h-8 transition duration-300 hover:bg-[#aa0061] hover:text-white">
+              Remove
+            </button>
+          `;
+        }
+      });
+    }
+
+    // Add a new row to the specified table
+    function addRow(tableId, totalBoxId) {
+      const tableBody = document.querySelector(`#${tableId} tbody`);
+      const newRow = document.createElement('tr');
+      newRow.classList.add('bg-white', 'border-t');
+      if (tableId === 'expenseTableTransport1') {
+        newRow.innerHTML = `
+          <td class="p-2"><input type="date" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+          <td class="p-2"><input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="From"></td>
+          <td class="p-2"><input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="To"></td>
+          <td class="p-2"><input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Description"></td>
+          <td class="p-2">
+            <input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 rounded amount-input" placeholder="Amount"
+                   oninput="updateTotalAmount('expenseTableTransport1','totalAmountBoxTransport1')" onblur="formatAmountInput(this)">
+          </td>
+          <td class="p-2 actionCell"></td>
+        `;
+      } else if (tableId === 'expenseTableMeal1') {
+        newRow.innerHTML = `
+          <td class="p-2"><input type="date" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+          <td class="p-2">
+            <select name="meal_type" class="w-full p-2 bg-gray-100">
+              <option value="" disabled selected hidden>Meal Type</option>
+              <option value="Breakfast">Breakfast</option>
+              <option value="Lunch">Lunch</option>
+              <option value="Dinner">Dinner</option>
+            </select>
+          </td>
+          <td class="p-2"><input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Description"></td>
+          <td class="p-2">
+            <input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 rounded amount-input" placeholder="Amount"
+                   oninput="updateTotalAmount('expenseTableMeal1','totalAmountBoxMeal1')" onblur="formatAmountInput(this)">
+          </td>
+          <td class="p-2 actionCell"></td>
+        `;
+      } else if (tableId === 'expenseTableLodging1') {
+        newRow.innerHTML = `
+          <td class="p-2"><input type="date" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+          <td class="p-2"><input type="date" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+          <td class="p-2"><input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Description"></td>
+          <td class="p-2">
+            <input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 rounded amount-input" placeholder="Amount"
+                   oninput="updateTotalAmount('expenseTableLodging1','totalAmountBoxLodging1')" onblur="formatAmountInput(this)">
+          </td>
+          <td class="p-2 actionCell"></td>
+        `;
+      } else if (tableId === 'expenseTablePurchasing_2') {
+        newRow.innerHTML = `
+          <td class="p-2"><input type="date" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+          <td class="p-2"><input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Purchase #"></td>
+          <td class="p-2"><input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Particular/s"></td>
+          <td class="p-2">
+            <input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 rounded amount-input" placeholder="Amount"
+                   oninput="updateTotalAmount('expenseTablePurchasing_2','totalAmountBoxPurchasing_2')" onblur="formatAmountInput(this)">
+          </td>
+          <td class="p-2 actionCell"></td>
+        `;
+      } else {
+        newRow.innerHTML = `
+          <td class="p-2"><input type="date" class="w-full h-8 p-2 bg-gray-100 border border-gray-300"></td>
+          <td class="p-2"><input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="From"></td>
+          <td class="p-2"><input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="To"></td>
+          <td class="p-2"><input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300" placeholder="Description"></td>
+          <td class="p-2">
+            <input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 rounded amount-input" placeholder="Amount"
+                   oninput="updateTotalAmount('${tableId}','${totalBoxId}')" onblur="formatAmountInput(this)">
+          </td>
+          <td class="p-2 actionCell"></td>
+        `;
+      }
+      tableBody.appendChild(newRow);
+      updateTotalAmount(tableId, totalBoxId);
+      updateRowActions(tableId, totalBoxId);
+    }
+
+    // Remove a row from the table
+    function removeRow(button, tableId, totalBoxId) {
+      const row = button.closest('tr');
+      row.remove();
+      updateTotalAmount(tableId, totalBoxId);
+      updateRowActions(tableId, totalBoxId);
+    }
+
+  
+
+    // Update the grand total for Tab 1 (Transportation, Meal, Lodging)
+    function updateGrandTotal() {
+      const expenseTotalText = document.getElementById('totalAmountBoxTransport1') ? document.getElementById('totalAmountBoxTransport1').innerText : '₱0.00';
+      const mealTotalText = document.getElementById('totalAmountBoxMeal1') ? document.getElementById('totalAmountBoxMeal1').innerText : '₱0.00';
+      const lodgingTotalText = document.getElementById('totalAmountBoxLodging1') ? document.getElementById('totalAmountBoxLodging1').innerText : '₱0.00';
+      const expenseTotal = parseFloat(expenseTotalText.replace(/[₱,]/g, '')) || 0;
+      const mealTotal = parseFloat(mealTotalText.replace(/[₱,]/g, '')) || 0;
+      const lodgingTotal = parseFloat(lodgingTotalText.replace(/[₱,]/g, '')) || 0;
+      const grandTotal = expenseTotal + mealTotal + lodgingTotal;
+      const grandTotalFormatted = `₱${grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      if(document.getElementById('transportationSummary')) {
+        document.getElementById('transportationSummary').innerText = expenseTotalText;
+      }
+      if(document.getElementById('mealSummary')) {
+        document.getElementById('mealSummary').innerText = mealTotalText;
+      }
+      if(document.getElementById('lodgingSummary')) {
+        document.getElementById('lodgingSummary').innerText = lodgingTotalText;
+      }
+      if(document.getElementById('grandTotalSummary')) {
+        document.getElementById('grandTotalSummary').innerText = grandTotalFormatted;
+      }
+    }
+
+    // Update the purchasing summary for Tab 2 using the provided format
+    function updateGrandTotalTab2() {
+      const purchaseText = document.getElementById('totalAmountBoxPurchasing_2')
+        ? document.getElementById('totalAmountBoxPurchasing_2').innerText
+        : '₱0.00';
+      const purchaseValue = parseFloat(purchaseText.replace(/[₱,]/g, '')) || 0;
+      const grandTotalFormatted = `₱${purchaseValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      if (document.getElementById('purchaseSummaryTab2')) {
+        document.getElementById('purchaseSummaryTab2').innerText = purchaseText;
+      }
+      if (document.getElementById('grandTotalPurchasing_2')) {
+        document.getElementById('grandTotalPurchasing_2').innerText = grandTotalFormatted;
+      }
+    }
+    
+
+    document.addEventListener("DOMContentLoaded", function() {
+  // Handle Tab 1 Form
+  const form1 = document.querySelector("#tab1 form");
+  if (form1) {
+    const saveBtn1 = form1.querySelector("button[name='save']");
+    const submitBtn1 = form1.querySelector("button[name='submit']");
+    let formStatus1 = document.createElement("input");
+    formStatus1.type = "hidden";
+    formStatus1.name = "form_status";
+    form1.appendChild(formStatus1);
+
+    saveBtn1.addEventListener("click", function() {
+      formStatus1.value = "draft";
+      const requiredFields = form1.querySelectorAll("[required]");
+      requiredFields.forEach(field => field.removeAttribute("required"));
+    });
+
+    submitBtn1.addEventListener("click", function() {
+      formStatus1.value = "submit";
+    });
+  }
+
+  // Handle Tab 2 Form
+  const form2 = document.querySelector("#tab2 form");
+  if (form2) {
+    const saveBtn2 = form2.querySelector("button[name='save']");
+    const submitBtn2 = form2.querySelector("button[name='submit']");
+    let formStatus2 = document.createElement("input");
+    formStatus2.type = "hidden";
+    formStatus2.name = "form_status";
+    form2.appendChild(formStatus2);
+
+    saveBtn2.addEventListener("click", function() {
+      formStatus2.value = "draft";
+      const requiredFields = form2.querySelectorAll("[required]");
+      requiredFields.forEach(field => field.removeAttribute("required"));
+    });
+
+    submitBtn2.addEventListener("click", function() {
+      formStatus2.value = "submit";
+    });
+  }
+   // Store initial form HTML for each tab so that switching clears progress
+   let initialFormHTML = {};
+    document.addEventListener("DOMContentLoaded", function() {
+      document.querySelectorAll('.tab-pane form').forEach(form => {
+        const paneId = form.closest('.tab-pane').id;
+        initialFormHTML[paneId] = form.innerHTML;
+      });
+    });
+
+    // Tab switching functionality with clearing the form in the currently active tab
+    tabLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        // Reset the currently visible tab's form to its initial HTML (clearing progress)
+        const activePane = document.querySelector('.tab-pane:not(.hidden)');
+        if (activePane) {
+          const form = activePane.querySelector("form");
+          if (form && initialFormHTML[activePane.id]) {
+            form.innerHTML = initialFormHTML[activePane.id];
+          }
+        }
+        // Switch tabs
+        tabLinks.forEach(item => item.classList.remove('active', 'border-b-2', 'border-blue-500'));
+        tabPanes.forEach(pane => pane.classList.add('hidden'));
+        this.classList.add('active', 'border-b-2', 'border-blue-500');
+        const tabId = this.getAttribute('data-tab');
+        document.getElementById(tabId).classList.remove('hidden');
+      });
+    });
+
+      // Initialize totals for Tab 1 accordions
+      updateTotalAmount('expenseTableTransport1','totalAmountBoxTransport1');
+      updateTotalAmount('expenseTableMeal1','totalAmountBoxMeal1');
+      updateTotalAmount('expenseTableLodging1','totalAmountBoxLodging1');
+      
+      // Initialize totals for Tab 2 (Purchasing)
+      updateTotalAmount('expenseTablePurchasing_2','totalAmountBoxPurchasing_2');
+    });
+
+     // --- New Script for single checkbox selection ---
+     function onlyOneCheckbox(clickedCheckbox) {
+      // Query all checkboxes with the class "payment-checkbox"
+      const allCheckboxes = document.querySelectorAll('input.payment-checkbox');
+      if (clickedCheckbox.checked) {
+        allCheckboxes.forEach(checkbox => {
+          if (checkbox !== clickedCheckbox) {
+            checkbox.checked = false;
+          }
+        });
+      }
+    }
+    
+  </script>
+</body>
+</html>

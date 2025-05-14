@@ -1,0 +1,176 @@
+                            <!-- Eye (view) button -->
+                            {% if entry.table_type != 'Purchase' %}
+                            <button class="view-btn bg-green-100 px-2 py-1 rounded hover:bg-green-200"
+                                onclick="openModal({{ entry.id }}, '{{ entry.table_type }}')" title="View Summary">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5 c4.638 0 8.573 3.007 9.963 7.178 .07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5 c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                </svg>
+                            </button>
+                            {% elif entry.table_type == 'Purchase' %}
+                            <button class="view-btn bg-green-100 px-2 py-1 rounded hover:bg-green-200"
+                                onclick="openModal1({{ entry.id }}, '{{ entry.table_type }}')" title="View Summary">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5 c4.638 0 8.573 3.007 9.963 7.178 .07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5 c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                </svg>
+                            </button>
+                            {% endif %}
+
+
+
+                            
+
+
+/*
+function openModal(id, tableType) {
+    console.debug(`Fetching data for id: ${id}, tableType: ${tableType}`);
+    fetch(`/get_main_data/${id}/${tableType}/`, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(`HTTP ${response.status}: ${text}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Fetched data:", data);
+
+        const statusMap = {
+            draft: "Draft",
+            forapproval: "For Approval",
+            forprocess: "For Process",
+            forrelease: "For Release",
+            pendingliquidation: "Pending Liquidation",
+            denied: "Denied",
+            completed: "Completed"
+        };
+
+        if (tableType === 'Purchase') {
+            // Populate Purchase Modal
+            document.getElementById("pName").textContent = data.main.name;
+            document.getElementById("pBusinessUnit").textContent = data.main.businessUnit;
+            document.getElementById("pDepartment").textContent = data.main.department;
+            document.getElementById("pDate").textContent = formatDate(data.main.dateFiled);
+            document.getElementById("pPurpose").textContent = data.main.purpose;
+            document.getElementById("ppayment_mode").textContent = data.main.paymentMode;
+            document.getElementById("paccount_number").textContent = data.main.accountNumber;
+            document.getElementById("caStatus").textContent = statusMap[data.main.status] || data.main.status;
+
+            // Populate Purchase Table
+            let purchaseTableBody = document.querySelector("#purchaseModal #purchase tbody");
+            purchaseTableBody.innerHTML = "";
+            data.purchase.forEach(item => {
+                let row = document.createElement("tr");
+                row.innerHTML = `
+                    <td class="p-2 border border-gray-200">${formatDate(item.date)}</td>
+                    <td class="p-2 border border-gray-200">${item.purchase_number}</td>
+                    <td class="p-2 border border-gray-200">${item.particulars}</td>
+                    <td class="p-2 border border-gray-200">${item.amount}</td>
+                `;
+                purchaseTableBody.appendChild(row);
+            });
+
+            // Calculate Total
+            calculateTotal1(data);
+
+            // Rejection Reason
+            if (data.main.status === "rejected") {
+                document.getElementById("rejectReasonContainer").classList.remove("hidden");
+                document.getElementById("rejectReasonText").textContent = data.main.rejection_reason || 'N/A';
+            } else {
+                document.getElementById("rejectReasonContainer").classList.add("hidden");
+            }
+
+            // Show Modal
+            document.getElementById("purchaseModal").classList.remove("hidden");
+        } else {
+            // Populate CashAdvance/CashReimbursement/CashLiquidation Modal
+            document.getElementById("caName").textContent = data.main.name;
+            document.getElementById("caBusinessUnit").textContent = data.main.businessUnit;
+            document.getElementById("caDepartment").textContent = data.main.department;
+            document.getElementById("caDateFiled").textContent = formatDate(data.main.dateFiled);
+            document.getElementById("caDepartureDate").textContent = formatDate(data.main.departureDate);
+            document.getElementById("caReturnDate").textContent = formatDate(data.main.returnDate);
+            document.getElementById("caPurpose").textContent = data.main.purpose;
+            document.getElementById("payment_mode").textContent = data.main.paymentMode;
+            document.getElementById("account_number").textContent = data.main.accountNumber;
+            document.getElementById("caStatus").textContent = statusMap[data.main.status] || data.main.status;
+
+            // Set Table Type
+            document.getElementById("table-type").textContent = tableType === 'CashAdvance' ? "ADVANCE" :
+                                                               tableType === 'CashReimbursement' ? "REIMBURSEMENT" :
+                                                               "LIQUIDATION";
+
+            // Populate Transportation Table
+            let transportTableBody = document.querySelector("#cashAdvanceModal #transportation tbody");
+            transportTableBody.innerHTML = "";
+            data.transportation.forEach(item => {
+                let row = document.createElement("tr");
+                row.innerHTML = `
+                    <td class="p-2 border border-gray-200">${formatDate(item.date)}</td>
+                    <td class="p-2 border border-gray-200">${item.locFrom} - ${item.locTo}</td>
+                    <td class="p-2 border border-gray-200">${item.amount}</td>
+                `;
+                transportTableBody.appendChild(row);
+            });
+
+            // Populate Meal Table
+            let mealTableBody = document.querySelector("#cashAdvanceModal #meal tbody");
+            mealTableBody.innerHTML = "";
+            data.meal.forEach(item => {
+                let row = document.createElement("tr");
+                row.innerHTML = `
+                    <td class="p-2 border border-gray-200">${formatDate(item.date)}</td>
+                    <td class="p-2 border border-gray-200">${item.meal_type}</td>
+                    <td class="p-2 border border-gray-200">${item.amount}</td>
+                `;
+                mealTableBody.appendChild(row);
+            });
+
+            // Populate Lodging Table
+            let lodgingTableBody = document.querySelector("#cashAdvanceModal #lodging tbody");
+            lodgingTableBody.innerHTML = "";
+            data.lodging.forEach(item => {
+                let row = document.createElement("tr");
+                row.innerHTML = `
+                    <td class="p-2 border border-gray-200">${formatDate(item.check_in)} - ${formatDate(item.check_out)}</td>
+                    <td class="p-2 border border-gray-200">${item.description}</td>
+                    <td class="p-2 border border-gray-200">${item.amount}</td>
+                `;
+                lodgingTableBody.appendChild(row);
+            });
+
+            // Calculate Total
+            calculateTotal(data);
+
+            // Rejection Reason
+            if (data.main.status === "rejected") {
+                document.getElementById("rejectReasonContainer").classList.remove("hidden");
+                document.getElementById("rejectReasonText").textContent = data.main.rejection_reason || 'N/A';
+            } else {
+                document.getElementById("rejectReasonContainer").classList.add("hidden");
+            }
+
+            // Show Modal
+            document.getElementById("cashAdvanceModal").classList.remove("hidden");
+        }
+    })
+    .catch(error => {
+        console.error("Error fetching data:", error);
+        alert('Failed to load record data. Please try again.');
+    });
+}
+*/
