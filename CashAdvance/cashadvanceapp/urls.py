@@ -1,12 +1,12 @@
 from django.urls import path
 from . import views
 
-
-urlpatterns =[
-
+urlpatterns = [
     path('ca_dashboard', views.ca_dashboard, name='ca_dashboard'),
     path('cr_dashboard', views.cr_dashboard, name='cr_dashboard'),
     path('cl_dashboard', views.cl_dashboard, name='cl_dashboard'),
+
+
     
     path("CashAdvance/", views.cashadv, name="cashadvance-page"),
     path("CashReimbursement/", views.cashreim, name="cashreimbursement-page"),
@@ -18,20 +18,25 @@ urlpatterns =[
     path("Liquidation/<str:table_type>/", views.saveLiquidation, name="save-liquidation"),
 
     path('get_main_data/<int:main_id>/<str:table_type>/', views.get_main_data, name='get_main_data'),
+
+
     path('delete_main_data/<int:main_id>/<str:table_type>/', views.delete_main_data, name='delete-main-data'),
 
-    path('approve-request/<int:main_id>/<str:table_type>/<str:username>/<str:status>/', views.approveRequest, name="approve-request"),
+    
+    path('approve-request/<int:main_id>/<str:table_type>/<str:username>/', views.approveRequest, name="approve-request"),
     path('reject-request/<int:main_id>/<str:table_type>/<str:username>/', views.rejectRequest, name="reject-request"),
 
+
+
     path('send-email/', views.send_test_email, name='send_test_email'),
-
     path('search/<str:db>/', views.search, name='search-item'),
-
-    path('update/<int:id>/<str:table_type>/', views.updateRecord, name='update-page'),
-
+    path('draftsearch/<str:db>/', views.draftsearch, name='search-item'),
 
 
-    path('rolsi/', views.rolsi, name='rolsi'),
+    path('update/<int:id>/<str:table_type>/', views.updateRecord, name='update-advance'),
+    path('update/<int:id>/<str:table_type>/', views.updateRecord, name='update-reimbursement'),
+    path('update/<int:id>/<str:table_type>/', views.updateRecord, name='update-liquidation'),
 
-    
+    path('save_text/', views.save_text, name='save_text'),
+    path('sampleextract/', views.sampleextract, name='sampleextract'),
 ]
