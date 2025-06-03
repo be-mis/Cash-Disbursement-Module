@@ -56,15 +56,17 @@
             </div> 
         </div>
         {% include 'draftslist.html' %}
-    
-    {% include 'singlemodal.html' %}
     </div>
-
+    {% include 'singlemodal.html' %}
 </body>
+
 <script>
     
-    
     // DATE FORMAT
+    // This is like the helper function in our backend which we can call directly and pass in 
+    // the date string to format it
+    // Doing it this way allows the function to be reusable and maintainable
+    // We can further improve this by adding try catch to handle special cases such as the date is already in the desired format
     function formatDate(dateString) {
         if (!dateString) return ""; // Handle empty or undefined dates
         let date = new Date(dateString);
@@ -74,8 +76,21 @@
             year: "numeric"
         });
     }
-    
-    
+
+    // FILTERING
+    function filterTable(status) {
+        let rows = document.querySelectorAll("#dataTable tbody tr");
+
+        rows.forEach(row => {
+            let rowStatus = row.getAttribute("data-status");
+            
+            if (status === "All" || rowStatus === status) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    }
 
 
 
@@ -87,91 +102,98 @@
         }
     });
 
+
+
     function deletethisModal(id, tableType) {
         console.log(`Opening modal for id=${id}, tableType=${tableType}`);
         const modal = document.getElementById("deleteModal");
         const confirmBtn = document.getElementById("confirmDeleteBtn");
         const cancelBtn = document.getElementById("cancelDeleteBtn");
-      
+        
         if (!modal || !confirmBtn || !cancelBtn) {
-          console.error("Delete modal elements not found");
-          alert("Delete modal is not properly configured.");
-          return;
+            console.error("Delete modal elements not found");
+            alert("Delete modal is not properly configured.");
+            return;
         }
-      
+        
         modal.classList.remove("hidden");
         confirmBtn.dataset.deleteId = id;
         confirmBtn.dataset.tableType = tableType;
-      
+        
         const handleDelete = async () => {
-          try {
+            try {
             confirmBtn.disabled = true;
             confirmBtn.textContent = "Deleting...";
-      
+        
             // Clean query string (remove leading ? if present)
             let queryString = window.location.search;
             if (queryString.startsWith('?')) {
-              queryString = queryString.slice(1);
+                queryString = queryString.slice(1);
             }
             console.log(`Sending DELETE request to /delete_main_data/${id}/${tableType}/?${queryString}`);
-      
+            // this will fetch the url for deleting the selected data
             const response = await fetch(`/delete_main_data/${id}/${tableType}/?${queryString}`, {
-              method: "DELETE",
-              headers: {
+                method: "DELETE",
+                headers: {
                 "Content-Type": "application/json",
                 "Accept": "application/json",
-              },
+                },
             });
-      
+        
             if (!response.ok) {
-              const text = await response.text();
-              throw new Error(`HTTP ${response.status}: ${text}`);
+                const text = await response.text();
+                throw new Error(`HTTP ${response.status}: ${text}`);
             }
-      
+        
             const data = await response.json();
-      
+        
             if (data.status === "success") {
-              console.log("Delete successful, redirecting to:", data.redirect_url);
-              modal.classList.add("hidden");
-              window.location.href = data.redirect_url;
+                console.log("Delete successful, redirecting to:", data.redirect_url);
+                modal.classList.add("hidden");
+                window.location.href = data.redirect_url;
             } else {
-              throw new Error(data.message || "Delete failed");
+                throw new Error(data.message || "Delete failed");
             }
-          } catch (error) {
+            } catch (error) {
             console.error("Error deleting item:", error);
             alert(`Failed to delete item: ${error.message}`);
-          } finally {
+            } finally {
             confirmBtn.disabled = false;
             confirmBtn.textContent = "DELETE";
-          }
+            }
         };
-      
+        
         const closeModal = () => modal.classList.add("hidden");
-      
+        
         confirmBtn.onclick = handleDelete;
         cancelBtn.onclick = closeModal;
-      
+        
         modal.onclick = (e) => {
-          if (e.target === modal) closeModal();
+            if (e.target === modal) closeModal();
         };
     }
 
-
-
-
-
-    function openModal(id, tableType) {
+    // THE CONDITION FOR APPROVE/REJECT BUTTONS ARE LOCATED HERE
+    // YOU CAN ALSO FIND THE CONDITION FOR ENCRYPTING THE ACCOUNT NUMBER (ONLY SHOWING THE LAST 3 DIGITS WHICH YOU MAY ADJUST)
+    // WE CURRENTLY USE THE NAME OF THE USERS SINCE SOME APPROVERS AND THE GENERAL ACCOUNTING DOES NOT HAVE A PRESTO ACCOUNT YET
+    // WE MAY UPDATE THIS ONCE THE ACCOUNTS HAVE BEEN CREATED
+    function openModal(id, tableType, username, status) {
         console.debug(`Fetching data for id: ${id}, tableType: ${tableType}`);
-        
+
         // Map frontend tableType to backend expected values
         const tableTypeMapping = {
             'Purchase': 'PurchaseAdvance', // Adjust based on actual backend type
             'CashAdvance': 'CashAdvance',
             'CashReimbursement': 'CashReimbursement',
-            'CashLiquidation': 'CashLiquidation'
+            'CashLiquidation': 'CashLiquidation',
+            'PurchaseAdvance': 'PurchaseAdvance',
+            'PurchaseReimbursement': 'PurchaseReimbursement',
+            'PurchaseLiquidation': 'PurchaseLiquidation'
         };
+        const gaList = ['Sheila Prado', 'Gian Francisco'];
+        const approverList = ['Jonathan Emmanuel Francisco', 'Marle Cua-Chin'];
         const backendTableType = tableTypeMapping[tableType] || tableType;
-    
+
         fetch(`/get_main_data/${id}/${backendTableType}/`, {
             method: 'GET',
             headers: {
@@ -188,7 +210,7 @@
         })
         .then(data => {
             console.log("Fetched data:", data);
-    
+
             const statusMap = {
                 draft: "Draft",
                 forapproval: "For Approval",
@@ -198,8 +220,22 @@
                 denied: "Denied",
                 completed: "Completed"
             };
-    
-            if (tableType === 'Purchase') {
+
+
+            // Format account number based on gaList
+            // We want to hide/encrypt the account number if user is not GA
+            const isGaUser = gaList.includes(username);
+            const formatAccountNumber = (accountNumber) => {
+                if (!accountNumber) return 'N/A';
+                if (isGaUser) return accountNumber; // Full account number for gaList
+                return `******${accountNumber.slice(-3)}`; // Masked: ******last3
+            };
+
+            // Determine which modal to use based on tableType
+            const isPurchaseModal = ['PurchaseAdvance', 'PurchaseReimbursement', 'PurchaseLiquidation'].includes(tableType);
+            const isCashModal = ['CashAdvance', 'CashReimbursement', 'CashLiquidation'].includes(tableType);
+
+            if (isPurchaseModal) {
                 // Purchase Modal logic
                 document.getElementById("pName").textContent = data.main.name;
                 document.getElementById("pBusinessUnit").textContent = data.main.businessUnit;
@@ -207,9 +243,15 @@
                 document.getElementById("pDate").textContent = formatDate(data.main.date_requested); // Use date_requested
                 document.getElementById("pPurpose").textContent = data.main.purpose;
                 document.getElementById("ppayment_mode").textContent = data.main.paymentMode;
-                document.getElementById("paccount_number").textContent = data.main.accountNumber;
-                document.getElementById("caStatus").textContent = statusMap[data.main.status] || data.main.status;
-    
+                const accountContainer = document.getElementById("paccount_number").parentElement;
+                if (data.main.paymentMode === 'CASH') {
+                    accountContainer.style.display = 'none';
+                } else {
+                    accountContainer.style.display = 'block';
+                    // Display formatted account number
+                    document.getElementById("paccount_number").textContent = formatAccountNumber(data.main.accountNumber);
+                }
+                document.getElementById("pStatus").textContent = statusMap[data.main.status] || data.main.status;
                 let purchaseTableBody = document.querySelector("#purchaseModal #purchase tbody");
                 purchaseTableBody.innerHTML = "";
                 data.purchase.forEach(item => {
@@ -218,22 +260,30 @@
                         <td class="p-2 border border-gray-200">${formatDate(item.date)}</td>
                         <td class="p-2 border border-gray-200">${item.purchase_number}</td>
                         <td class="p-2 border border-gray-200">${item.particulars}</td>
+                        <td class="p-2 border border-gray-200">
+                            ${item.attachment 
+                                ? `<a href="${item.attachment}" target="_blank" class="text-blue-600 underline">${getFileName(item.attachment)}</a>` 
+                                : 'No attachment'}
+                        </td>
                         <td class="p-2 border border-gray-200">${item.amount}</td>
                     `;
                     purchaseTableBody.appendChild(row);
                 });
-    
+
                 calculateTotal1(data);
-    
+
                 if (data.main.status === "denied") {
                     document.getElementById("rejectReasonContainer").classList.remove("hidden");
                     document.getElementById("rejectReasonText").textContent = data.main.rejection_reason || 'N/A';
                 } else {
                     document.getElementById("rejectReasonContainer").classList.add("hidden");
                 }
-    
                 document.getElementById("purchaseModal").classList.remove("hidden");
-            } else {
+
+
+
+                
+            } else if (isCashModal) {
                 // CashAdvance/CashReimbursement/CashLiquidation Modal
                 document.getElementById("caName").textContent = data.main.name;
                 document.getElementById("caBusinessUnit").textContent = data.main.businessUnit;
@@ -243,82 +293,103 @@
                 document.getElementById("caReturnDate").textContent = formatDate(data.main.returnDate);
                 document.getElementById("caPurpose").textContent = data.main.purpose;
                 document.getElementById("payment_mode").textContent = data.main.paymentMode;
-                document.getElementById("account_number").textContent = data.main.accountNumber;
+                const accountContainer = document.getElementById("account_number").parentElement;
+                if (data.main.paymentMode === 'CASH') {
+                    accountContainer.style.display = 'none';
+                } else {
+                    accountContainer.style.display = 'block';
+                    // Display formatted account number
+                    document.getElementById("account_number").textContent = formatAccountNumber(data.main.accountNumber);
+                }
                 document.getElementById("caStatus").textContent = statusMap[data.main.status] || data.main.status;
-    
+
                 document.getElementById("table-type").textContent = tableType === 'CashAdvance' ? "ADVANCE" :
-                                                                   tableType === 'CashReimbursement' ? "REIMBURSEMENT" :
-                                                                   "LIQUIDATION";
-    
+                                                                tableType === 'CashReimbursement' ? "REIMBURSEMENT" :
+                                                                "LIQUIDATION";
+
                 // Populate Transportation, Meal, Lodging Tables
                 let transportTableBody = document.querySelector("#cashAdvanceModal #transportation tbody");
                 transportTableBody.innerHTML = "";
                 data.transportation.forEach(item => {
+                    let attachmentCell = '';
+                    if (tableType !== 'CashAdvance') {
+                        attachmentCell = `
+                            <td class="p-2 border border-gray-200">
+                                ${item.attachment 
+                                    ? `<a href="${item.attachment}" target="_blank" class="text-blue-600 underline">${getFileName(item.attachment)}</a>` 
+                                    : 'No attachment'}
+                            </td>`;
+                    }                    
                     let row = document.createElement("tr");
                     row.innerHTML = `
                         <td class="p-2 border border-gray-200">${formatDate(item.date)}</td>
                         <td class="p-2 border border-gray-200">${item.locFrom} - ${item.locTo}</td>
+                        ${attachmentCell}                    
                         <td class="p-2 border border-gray-200">${item.amount}</td>
                     `;
                     transportTableBody.appendChild(row);
                 });
-    
+
                 let mealTableBody = document.querySelector("#cashAdvanceModal #meal tbody");
                 mealTableBody.innerHTML = "";
                 data.meal.forEach(item => {
+                    let attachmentCell = '';
+                    if (tableType !== 'CashAdvance') {
+                        attachmentCell = `
+                            <td class="p-2 border border-gray-200">
+                                ${item.attachment 
+                                    ? `<a href="${item.attachment}" target="_blank" class="text-blue-600 underline">${getFileName(item.attachment)}</a>` 
+                                    : 'No attachment'}
+                            </td>`;
+                    }                    
                     let row = document.createElement("tr");
                     row.innerHTML = `
                         <td class="p-2 border border-gray-200">${formatDate(item.date)}</td>
                         <td class="p-2 border border-gray-200">${item.meal_type}</td>
+                        ${attachmentCell}                      
                         <td class="p-2 border border-gray-200">${item.amount}</td>
                     `;
                     mealTableBody.appendChild(row);
                 });
-    
+
                 let lodgingTableBody = document.querySelector("#cashAdvanceModal #lodging tbody");
                 lodgingTableBody.innerHTML = "";
                 data.lodging.forEach(item => {
-                    let row = document.createElement("tr");
-                    row.innerHTML = `
-                        <td class="p-2 border border-gray-200">${formatDate(item.check_in)} - ${formatDate(item.check_out)}</td>
-                        <td class="p-2 border border-gray-200">${item.description}</td>
-                        <td class="p-2 border border-gray-200">${item.amount}</td>
-                    `;
-                    lodgingTableBody.appendChild(row);
-                });
-    
-                calculateTotal(data);
-    
-                if (data.main.status === "denied") {
-                    document.getElementById("rejectReasonContainer").classList.remove("hidden");
-                    document.getElementById("rejectReasonText").textContent = data.main.rejection_reason || 'N/A';
-                } else {
-                    document.getElementById("rejectReasonContainer").classList.add("hidden");
-                }
-    
-                // Handle Approve/Reject buttons
-                const approveBtn = document.getElementById("approveBtn");
-                const rejectBtn = document.getElementById("rejectBtn");
-    
-                if (approveBtn && rejectBtn) {
-                    if (data.main.status === 'forapproval') {
-                        approveBtn.style.display = 'block';
-                        rejectBtn.style.display = 'block';
-                    } else {
-                        approveBtn.style.display = 'none';
-                        rejectBtn.style.display = 'none';
+                    let attachmentCell = '';
+                    if (tableType !== 'CashAdvance') {
+                        attachmentCell = `
+                            <td class="p-2 border border-gray-200">
+                                ${item.attachment 
+                                    ? `<a href="${item.attachment}" target="_blank" class="text-blue-600 underline">${getFileName(item.attachment)}</a>` 
+                                    : 'No attachment'}
+                            </td>`;
                     }
-    
-                    // Attach event listeners
-                    approveBtn.removeEventListener('click', openApproveModal);
-                    approveBtn.addEventListener('click', () => openApproveModal(id, tableType));
-                    rejectBtn.removeEventListener('click', openRejectModal);
-                    rejectBtn.addEventListener('click', () => openRejectModal(id, tableType));
-                } else {
-                    console.warn("Approve/Reject buttons not found in cashAdvanceModal. User may not be an approver.");
-                }
-    
+
+                        let row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td class="p-2 border border-gray-200">${formatDate(item.check_in)} - ${formatDate(item.check_out)}</td>
+                            <td class="p-2 border border-gray-200">${item.description}</td>
+                            ${attachmentCell}
+                            <td class="p-2 border border-gray-200">${item.amount}</td>
+                        `;
+                        lodgingTableBody.appendChild(row);
+                    });
+
+                    calculateTotal(data);
+
+                    if (data.main.status === "denied") {
+                        document.getElementById("rejectReasonContainer").classList.remove("hidden");
+                        document.getElementById("rejectReasonText").textContent = data.main.rejection_reason || 'N/A';
+                    } else {
+                        document.getElementById("rejectReasonContainer").classList.add("hidden");
+                    }
+
+                    const status = data.main.status;
+
                 document.getElementById("cashAdvanceModal").classList.remove("hidden");
+            } else {
+                console.error(`Invalid tableType: ${tableType}`);
+                alert('Invalid table type provided.');
             }
         })
         .catch(error => {
@@ -329,200 +400,25 @@
     }
 
 
-
-    // Function to open the Approve Modal and attach event listeners
-    function openApproveModal(id, tableType) {
-        const approveModal = document.getElementById("approveModal");
-        if (approveModal) {
-            approveModal.classList.remove("hidden");
-    
-            // Attach event listener to Approve button
-            const approveRequestBtn = document.getElementById("approverequest");
-            if (approveRequestBtn) {
-                approveRequestBtn.removeEventListener('click', handleApprove); // Prevent duplicate listeners
-                approveRequestBtn.addEventListener('click', () => handleApprove(id, tableType));
-            }
-    
-            // Attach event listeners to Cancel buttons
-            const cancelApproveBtn = document.getElementById("cancelApproveBtn");
-            const cancelApproveBtn2 = document.getElementById("cancelApproveBtn2");
-            if (cancelApproveBtn) {
-                cancelApproveBtn.removeEventListener('click', closeApproveModal);
-                cancelApproveBtn.addEventListener('click', closeApproveModal);
-            }
-            if (cancelApproveBtn2) {
-                cancelApproveBtn2.removeEventListener('click', closeApproveModal);
-                cancelApproveBtn2.addEventListener('click', closeApproveModal);
-            }
-        } else {
-            console.error("Approve modal not found.");
-        }
-    }
-    
-    // Function to open the reject modal
-    function openRejectModal(id, tableType) {
-        const rejectModal = document.getElementById("rejectModal");
-        if (rejectModal) {
-            rejectModal.classList.remove("hidden");
-
-            // Attach event listener to Reject button
-            const rejectRequestBtn = document.getElementById("rejectrequest");
-            if (rejectRequestBtn) {
-                rejectRequestBtn.removeEventListener('click', handleReject);
-                rejectRequestBtn.addEventListener('click', () => handleReject(id, tableType));
-            }
-
-            // Attach event listeners to Cancel buttons
-            const cancelRejectBtn = document.getElementById("cancelRejectBtn");
-            const cancelRejectBtn2 = document.getElementById("cancelRejectBtn2");
-            if (cancelRejectBtn) {
-                cancelRejectBtn.removeEventListener('click', closeRejectModal);
-                cancelRejectBtn.addEventListener('click', closeRejectModal);
-            }
-            if (cancelRejectBtn2) {
-                cancelRejectBtn2.removeEventListener('click', closeRejectModal);
-                cancelRejectBtn2.addEventListener('click', closeRejectModal);
-            }
-        } else {
-            console.error("Reject modal not found.");
-        }
-    }
-    
-    // Function to handle Approve action
-    function handleApprove(id, tableType) {
-        console.debug(`Approving request with id: ${id}, tableType: ${tableType}`);
-        fetch(`/approve-request/${id}/${tableType}/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({ action: 'approve' })
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.text().then(text => {
-                    throw new Error(`HTTP ${response.status}: ${text}`);
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            alert('Request approved successfully!');
-            closeApproveModal(); // Close the approve modal
-            closeModal(); // Close the main modal
-            // Optionally refresh the page or update the UI
-            location.reload();
-        })
-        .catch(error => {
-            console.error("Error approving request:", error);
-            alert('Failed to approve request. Please try again.');
-        });
-    }
-    
-   // Function to handle Reject action
-    async function handleReject(id, tableType) {
-        const rejectionReason = document.getElementById("rejectionReason")?.value.trim();
-        const rejectionError = document.getElementById("rejectionError");
-
-        // Validate rejection reason
-        if (!rejectionReason) {
-            if (rejectionError) {
-                rejectionError.classList.remove("hidden");
-            }
-            return;
-        } else {
-            if (rejectionError) {
-                rejectionError.classList.add("hidden");
-            }
-        }
-
-        console.debug(`Rejecting request with id: ${id}, tableType: ${tableType}, reason: ${rejectionReason}`);
-        try {
-            const response = await fetch(`/reject-request/${id}/${tableType}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ rejectionReason: rejectionReason }) // Changed to match backend
-            });
-
-            if (!response.ok) {
-                const text = await response.text();
-                throw new Error(`HTTP ${response.status}: ${text}`);
-            }
-
-            const data = await response.json();
-            if (data.status === 'success') {
-                alert('Request rejected successfully!');
-                closeRejectModal();
-                closeModal();
-                // Refresh the main modal with updated data
-                const updatedData = await fetchRecord(id, tableType);
-                if (updatedData) {
-                    openModal(updatedData);
-                } else {
-                    console.error('Failed to refresh modal data');
-                    location.reload(); // Fallback to page reload
-                }
-            } else {
-                console.error('Rejection failed:', data.message);
-                if (rejectionError) {
-                    rejectionError.textContent = data.message || 'Failed to reject request';
-                    rejectionError.classList.remove("hidden");
-                }
-            }
-        } catch (error) {
-            console.error("Error rejecting request:", error);
-            if (rejectionError) {
-                rejectionError.textContent = 'An error occurred while rejecting';
-                rejectionError.classList.remove("hidden");
-            }
-        }
-    }
-    
-    
-    // Function to close the main modal
-    function closeModal() {
-        const cashAdvanceModal = document.getElementById("cashAdvanceModal");
-        const purchaseModal = document.getElementById("purchaseModal");
-        if (cashAdvanceModal) cashAdvanceModal.classList.add("hidden");
-        if (purchaseModal) purchaseModal.classList.add("hidden");
-        closeApproveModal(); // Ensure approve modal is closed
-        closeRejectModal(); // Ensure reject modal is closed
-    }
-    
-    // Function to close the Approve modal
-    function closeApproveModal() {
-        const approveModal = document.getElementById("approveModal");
-        if (approveModal) approveModal.classList.add("hidden");
-    }
-    
-    // Function to close the Reject modal
-    function closeRejectModal() {
-        const rejectModal = document.getElementById("rejectModal");
-        if (rejectModal) {
-            rejectModal.classList.add("hidden");
-            // Clear the rejection reason input
-            const rejectionReason = document.getElementById("rejectionReason");
-            const rejectionError = document.getElementById("rejectionError");
-            if (rejectionReason) rejectionReason.value = "";
-            if (rejectionError) rejectionError.classList.add("hidden");
-        }
+    function getFileName(path) {
+        if (!path) return '';
+        return path.split('/').pop();
     }
 
 
+
+    // this search function will fetch the url and pass in the corresponding parameters
+    // this way, the current page/dashboard you are in will be the only target for the search
+    // Exclusive to only either CashAdvance, CashReimbursement, CashLiquidation and not mix the reader.result
 
     function searchTable(event) {
         event.preventDefault(); // Prevent form reload
         const searchInput = document.getElementById('searchInput').value;
         const username = "{{ username|escapejs }}";
         const userId = "{{ user_id|escapejs }}";
-
         const db = "CashAdvance";
 
-        fetch(`/search/${db}?word=${encodeURIComponent(searchInput)}&username=${encodeURIComponent(username)}&userId=${encodeURIComponent(userId)}`, {
+        fetch(`/draftsearch/${db}?word=${encodeURIComponent(searchInput)}&username=${encodeURIComponent(username)}&userId=${encodeURIComponent(userId)}`, {
             method: 'GET',
         })
         .then(response => {
@@ -535,21 +431,20 @@
         })
         .then(data => {
             if (data.records) {
-                // Filter out records with status 'draft'
-                const filteredRecords = data.records.filter(record => record.status === 'draft');
-                updateTable(filteredRecords);
+                // No need to filter out 'draft' status, as backend ensures only draft records are returned
+                updateTable(data.records);
             } else {
                 console.error('Error:', data.error || 'No records found');
             }
         })
         .catch(error => console.error('Error fetching data:', error));
     }
-    
-    
+
+    // As we add row for our forms, this will update the table and render the added data in real-time
     function updateTable(records) {
         const tableBody = document.getElementById('tableBody');
         tableBody.innerHTML = '';
-    
+
         records.forEach(record => {
             const statusMap = {
                 'draft': { text: 'Draft'},
@@ -561,30 +456,14 @@
                 'denied': { text: 'Denied' }
             };
             const statusInfo = statusMap[record.status] || { text: record.status };
-    
+
             const row = document.createElement('tr');
             row.className = 'bg-white border row';
             row.dataset.status = record.status;
             row.innerHTML = `
                 <td class="border p-2 text-left">${record.date_requested ? new Date(record.date_requested).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : ''}</td>
                 <td class="border p-2 text-left">${record.purpose || ''}</td>
-                <td class="border p-2 text-left">
-                    {% if entry.table_type == 'CashAdvance' %}
-                    Cash Advance - Travel
-                    {% elif entry.table_type == 'CashReimbursement' %}
-                    Cash Reimbursement - Travel
-                    {% elif entry.table_type == 'CashLiquidation' %}
-                    Cash Liquidation - Travel
-                    {% elif entry.table_type == 'PurchaseAdvance' %}
-                    Cash Advance - Purchase
-                    {% elif entry.table_type == 'PurchaseReimbursement' %}
-                    Cash Reimbursement - Purchase
-                    {% elif entry.table_type == 'PurchaseLiquidation' %}
-                    Cash Liquidation - Purchase
-                    {% else %}
-                    None
-                    {% endif %}
-                </td>
+                <td class="border p-2 text-left">${record.table_type || ''}</td>
                 <td class="border p-2 text-left">${statusInfo.text}</td>
                 <td class="border p-2 text-left">${record.name || ''}</td>
                 <td class="border p-2 text-left">
@@ -613,9 +492,11 @@
             tableBody.appendChild(row);
         });
     }
-        
-    // Attach event listeners
+            
+
     document.getElementById('searchInput').addEventListener('input', searchTable);
+
+
 
 
     // Automated calculation of the totals for Tab 1
@@ -640,7 +521,7 @@
         document.getElementById("pgrandTotalSummary").textContent = `₱${grandTotal.toFixed(2)}`;
     }
 
-
+    // This function calls the update url and does all the updating in the backend
     function updateRecord(id, table_type){
         window.location.href = `/update/${id}/${table_type}/`;
     }
@@ -656,7 +537,7 @@
     window.onclick = function(event) {
         let modal = document.getElementById("cashAdvanceModal");
         let modal1 = document.getElementById("purchaseModal");
-        let modal2 = document.getElementById("cashReimbursementModal");
+        //let modal2 = document.getElementById("cashReimbursementModal");
 
         if (event.target === modal) {
             closeModal();
@@ -664,10 +545,14 @@
         if (event.target === modal1) {
             closeModal();
         }
+        /*
         if (event.target === modal2) {
             closeModal();
         }
+            */
     };
 
 </script>
+
+
 </html>
