@@ -16,8 +16,6 @@
   </h2>
 </div>
 
-
-
 {% if db == 'ADVANCE' %}
 <form id="mainForm" method="POST" action="{% url 'save-advance' table_type='CashAdvance' %}">
 {% elif db == 'REIMBURSEMENT' %}
@@ -187,9 +185,9 @@
                       <td class="p-2">
                         <select id="mType" class="w-full h-8 px-2 rounded bg-gray-50 border border-gray-300 focus:border-blue-500 focus:outline-none">
                           <option value="" disabled selected hidden>Meal Type</option>
-                          <option value="Breakfast">Breakfast</option>
-                          <option value="Lunch">Lunch</option>
-                          <option value="Dinner">Dinner</option>
+                          <option value="BREAKFAST">Breakfast</option>
+                          <option value="LUNCH">Lunch</option>
+                          <option value="DINNER">Dinner</option>
                         </select>
                       </td>
                       <td class="p-2"><input type="text" id="mDesc" class="w-full h-8 p-2 rounded bg-gray-50 border border-gray-300 focus:border-blue-500 focus:outline-none" placeholder=""></td>
@@ -337,10 +335,10 @@
       <button type="button" onclick="submitCashAdvance()" style="background-color:#00A3AD;" class="border w-20 h-8 text-sm text-white">
         Submit
       </button>
-
+{% comment %} 
       <button type="button" onclick="clearFormFields()" class="bg-red-600 text-white px-4 py-2 rounded">
         Clear All
-      </button>
+      </button> {% endcomment %}
 
     </div>
     <input type="hidden" name="actionType" id="actionTypeField">
