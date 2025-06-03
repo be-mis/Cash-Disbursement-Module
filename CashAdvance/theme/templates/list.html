@@ -73,6 +73,10 @@
                                 </button>
                             {% endif %}
                             <!-- View button -->
+                            <!-- 
+                                onclick="openModal({{ entry.id }}, '{{ entry.table_type }}')"
+                                <button class="view-btn bg-green-100 px-2 py-1 rounded hover:bg-green-200"
+                            -->
                             <button class="view-btn bg-green-100 px-2 py-1 rounded hover:bg-green-200"
                                 onclick="openModal({{ entry.id }}, '{{ entry.table_type }}', '{{ username }}', '{{ entry.status }}')" title="View Summary">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
