@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 MEAL = (("BREAKFAST", "BREAKFAST"), ("LUNCH", "LUNCH"), ("DINNER", "DINNER"))
 PAYMENT = (("GCASH", "GCASH"), ("METROBANK", "METROBANK"), ("CASH", "CASH"))
 
-# CashAdvance model
+# CashAdvance model (Main Model)
 class CashAdvance(models.Model):
     #### Fetched from presto by sending session storage to django using Axios (Auto Filled when logged in)
     name = models.CharField(max_length=100)
@@ -44,8 +44,8 @@ class CashAdvance(models.Model):
     def __str__(self):
         return f"{self.name} - {self.purpose} (CashAdvance)"
 
-
-# CashLiquidation model
+ 
+# CashLiquidation model (Main Model)
 class CashLiquidation(models.Model):
     #### Link to the original CashAdvance
     cash_advance = models.ForeignKey(
@@ -91,6 +91,8 @@ class CashLiquidation(models.Model):
         return f"Liquidation for {self.name} - {self.status} (CAR ID: {self.cash_advance_id})"
 
 # CashReimbursement model (Independent)
+# By independet, I mean that the cash advance has a signals.py that
+# automatically creates a CashLiquidation request when a CashAdvance reach the status of 'pending_liquidation'
 class CashReimbursement(models.Model):
     #### Fetched from presto by sending session storage to django using Axios (Auto Filled when logged in)
     name = models.CharField(max_length=100)
@@ -138,7 +140,7 @@ class Transportation(models.Model):
     description = models.CharField(max_length=255, null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     attachment = models.FileField(upload_to='receipts/', null=True, blank=True)
-
+    extracted_data = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.date} - {self.locFrom} to {self.locTo}"
@@ -154,6 +156,7 @@ class Meal(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     attachment = models.FileField(upload_to='receipts/', null=True, blank=True)
     actual_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    extracted_data = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.date} - {self.meal_type}"
@@ -169,6 +172,7 @@ class Lodging(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     attachment = models.FileField(upload_to='receipts/', null=True, blank=True)
     actual_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)    
+    extracted_data = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.check_in} - {self.check_out} ({self.description})"
@@ -183,6 +187,21 @@ class Purchase(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     attachment = models.FileField(upload_to='receipts/', null=True, blank=True)
     actual_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)    
+    extracted_data = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"Purchase #{self.purchase_number} - {self.particulars}"
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
