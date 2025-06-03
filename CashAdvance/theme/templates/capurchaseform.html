@@ -110,7 +110,7 @@
                   </label>
                 </td>
                 <td class="p-2">
-                  <button type="button" onclick="addRow('expenseTablePurchasing_2', 'purchaseSummaryTab2', 'purchaseSummaryTab2')" class="flex rounded items-center justify-center border border-green-600 text-green-600 text-sm px-4 h-8 transition duration-300 hover:bg-green-600 hover:text-white">
+                  <button type="button" onclick="addRow('expenseTablePurchasing_2', 'purchaseSummaryTab2', 'purchaseSummaryTab2', '{{ db }}')" class="flex rounded items-center justify-center border border-green-600 text-green-600 text-sm px-4 h-8 transition duration-300 hover:bg-green-600 hover:text-white">
                     Add Row
                   </button>
                 </td>
@@ -189,9 +189,9 @@
         </button>
 
 
-        <button type="button" onclick="clearFormFields()" class="bg-red-600 text-white px-4 py-2 rounded">
+        {% comment %} <button type="button" onclick="clearFormFields()" class="bg-red-600 text-white px-4 py-2 rounded">
         Clear All
-      </button>
+      </button> {% endcomment %}
       </div>
       <input type="hidden" name="actionType" id="actionTypeFieldTab2">
     </form>
