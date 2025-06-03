@@ -21,66 +21,60 @@
             <div class="p-5 space-y-4">
                 <!-- Top Details: Name, Dates, Department, etc. -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700 bg-gray-100 p-4">
-                <div>
-                    <strong>Name:</strong> 
-                    <span id="caName"></span>
+                    <div>
+                        <strong>Name:</strong> 
+                        <span id="caName"></span>
+                    </div>
+                    <div>
+                        <strong>Date Filed:</strong> 
+                        <span id="caDateFiled"></span>
+                    </div>
+                    <div>
+                        <strong>Business Unit:</strong> 
+                        <span id="caBusinessUnit"></span>
+                    </div>
+                    <div>
+                        <strong>Department:</strong> 
+                        <span id="caDepartment"></span>
+                    </div>
+                    <div>
+                        <strong>Departure Date:</strong> 
+                        <span id="caDepartureDate"></span>
+                    </div>
+                    <div>
+                        <strong>Return Date:</strong> 
+                        <span id="caReturnDate"></span>
+                    </div>
+                    <div>
+                        <strong>Purpose:</strong> 
+                        <span id="caPurpose"></span>
+                    </div>
+                    <div class="md:col-span-2">
+                        <strong>Status:</strong>
+                        <span id="caStatus" class="font-medium">
+                        </span>
+                    </div>
                 </div>
-                <div>
-                    <strong>Date Filed:</strong> 
-                    <span id="caDateFiled"></span>
-                </div>
-                <div>
-                    <strong>Business Unit:</strong> 
-                    <span id="caBusinessUnit"></span>
-                </div>
-                <div>
-                    <strong>Department:</strong> 
-                    <span id="caDepartment"></span>
-                </div>
-                <div>
-                    <strong>Departure Date:</strong> 
-                    <span id="caDepartureDate"></span>
-                </div>
-                <div>
-                    <strong>Return Date:</strong> 
-                    <span id="caReturnDate"></span>
-                </div>
-                <div>
-                    <strong>Purpose:</strong> 
-                    <span id="caPurpose"></span>
-                </div>
-                <div class="md:col-span-2">
-                    <strong>Status:</strong>
-                    <span id="caStatus" class="font-medium">
-                    </span>
-                </div>
-                </div>
-                {% if is_approver and status == 'forapproval' %}
-                <div class="flex justify-end gap-4 mt-6">
-                <div>
-                    <button id="approveBtn" class="bg-[#00A3AD] text-white px-4 py-2 text-sm rounded hover:bg-white hover:text-[#00A3AD] hover:border hover:border-[#00A3AD] transition duration-200">Approve</button>
-                </div>
-                <div>
-                    <button id="rejectBtn" class="border border-pink-700 text-pink-700 px-4 py-2 text-sm rounded hover:bg-pink-700 hover:text-white transition duration-200">Reject</button>
-                </div>
-                </div>
-                {% endif %}
 
-                {% if is_ga and status != 'forapproval' and status != 'draft' %}
                 <div class="flex justify-end gap-4 mt-6">
-                <div>
-                    <button id="approveBtn" class="bg-[#00A3AD] text-white px-4 py-2 text-sm rounded hover:bg-white hover:text-[#00A3AD] hover:border hover:border-[#00A3AD] transition duration-200">Approve</button>
+                    <div>
+                        <button id="approveBtn" class="bg-[#00A3AD] text-white px-4 py-2 text-sm rounded hover:bg-white hover:text-[#00A3AD] hover:border hover:border-[#00A3AD] transition duration-200">Approve</button>
+                    </div>
+                    <div>
+                        <button id="rejectBtn" class="border border-pink-700 text-pink-700 px-4 py-2 text-sm rounded hover:bg-pink-700 hover:text-white transition duration-200">Reject</button>
+                    </div>
                 </div>
-                <div>
-                    <button id="rejectBtn" class="border border-pink-700 text-pink-700 px-4 py-2 text-sm rounded hover:bg-pink-700 hover:text-white transition duration-200">Reject</button>
-                </div>
-                </div>
-                {% endif %}
+
                 {% include 'cashAdvanceSub.html' %}
                 {% include 'approveModal.html' %}   
                 {% include 'rejectModal.html' %}
-
+                <div id="rejectReasonContainer" class="mt-2 hidden text-sm bg-red-50 p-4">
+                    <strong>Rejection Reason:</strong>
+                    <p id="rejectReasonText" class="text-red-600"></p>
+                </div>
             </div>
+        </div>
+    </div>
 <!-- END of SINGLE MODAL -->
 
 
@@ -107,66 +101,61 @@
         <div class="p-5 space-y-4">
             <!-- Top Details: Name, Dates, Department, etc. -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700 bg-gray-100 p-4">
-            <div>
-                <strong>Name:</strong> 
-                <span id="pName"></span>
-            </div>
-            <div>
-                <strong>Date Filed:</strong> 
-                <span id="pDate"></span>
-            </div>
-            <div>
-                <strong>Business Unit:</strong> 
-                <span id="pBusinessUnit"></span>
-            </div>
-            <div>
-                <strong>Department:</strong> 
-                <span id="pDepartment"></span>
-            </div>
-            <div>
-                <strong>Purpose:</strong> 
-                <span id="pPurpose"></span>
-            </div>
-            <div>
-                <strong>Status:</strong>
-                <span id="pStatus" class="font-medium">
-                </span>
-            </div>
+                <div>
+                    <strong>Name:</strong> 
+                    <span id="pName"></span>
+                </div>
+                <div>
+                    <strong>Date Filed:</strong> 
+                    <span id="pDate"></span>
+                </div>
+                <div>
+                    <strong>Business Unit:</strong> 
+                    <span id="pBusinessUnit"></span>
+                </div>
+                <div>
+                    <strong>Department:</strong> 
+                    <span id="pDepartment"></span>
+                </div>
+                <div>
+                    <strong>Purpose:</strong> 
+                    <span id="pPurpose"></span>
+                </div>
+                <div>
+                    <strong>Status:</strong>
+                    <span id="pStatus" class="font-medium">
+                    </span>
+                </div>
             </div>
 
-            {% if is_approver and status == 'forapproval' %}
-            <div class="flex justify-end gap-4 mt-6">
-              <div>
-                <button id="approveBtn" class="bg-[#00A3AD] text-white px-4 py-2 text-sm rounded hover:bg-white hover:text-[#00A3AD] hover:border hover:border-[#00A3AD] transition duration-200">Approve</button>
-              </div>
-              <div>
-                <button id="rejectBtn" class="border border-pink-700 text-pink-700 px-4 py-2 text-sm rounded hover:bg-pink-700 hover:text-white transition duration-200">Reject</button>
-              </div>
-            </div>
-            {% endif %}
-
-            {% if is_ga and status == 'forprocess' %}
-            <div class="flex justify-end gap-4 mt-6">
-              <div>
-                <button id="approveBtn" class="bg-[#00A3AD] text-white px-4 py-2 text-sm rounded hover:bg-white hover:text-[#00A3AD] hover:border hover:border-[#00A3AD] transition duration-200">Approve</button>
-              </div>
-              <div>
-                <button id="rejectBtn" class="border border-pink-700 text-pink-700 px-4 py-2 text-sm rounded hover:bg-pink-700 hover:text-white transition duration-200">Reject</button>
-              </div>
-            </div>
-            {% endif %}
+                {% if is_approver and is_forapproval %}
+                <div class="flex justify-end gap-4 mt-6">
+                    <div>
+                        <button id="approvePurchaseBtn" class="bg-[#00A3AD] text-white px-4 py-2 text-sm rounded hover:bg-white hover:text-[#00A3AD] hover:border hover:border-[#00A3AD] transition duration-200">Approve</button>
+                    </div>
+                    <div>
+                        <button id="rejectPurchaseBtn" class="border border-pink-700 text-pink-700 px-4 py-2 text-sm rounded hover:bg-pink-700 hover:text-white transition duration-200">Reject</button>
+                    </div>
+                </div>
+                {% elif is_ga and is_forga %}
+                <div class="flex justify-end gap-4 mt-6">
+                    <div>
+                        <button id="approvePurchaseBtn" class="bg-[#00A3AD] text-white px-4 py-2 text-sm rounded hover:bg-white hover:text-[#00A3AD] hover:border hover:border-[#00A3AD] transition duration-200">Approve</button>
+                    </div>
+                    <div>
+                        <button id="rejectPurchaseBtn" class="border border-pink-700 text-pink-700 px-4 py-2 text-sm rounded hover:bg-pink-700 hover:text-white transition duration-200">Reject</button>
+                    </div>
+                </div>
+                {% endif %}
             
-            {% include 'purchaseSub.html' %}
-            {% include 'approveModal.html' %}
-            {% include 'rejectModal.html' %}
-    
-            <!-- Rejection Reason Display (if applicable) -->
-            <div id="rejectReasonContainer" class="mt-2 hidden text-sm bg-red-50 p-4">
-                <strong>Rejection Reason:</strong>
-                <p id="rejectReasonText" class="text-red-600"></p>
-            </div>
-            </div> <!-- End of Content Wrapper -->
+                {% include 'purchaseSub.html' %}
+                {% include 'approveModal.html' %}
+                {% include 'rejectModal.html' %}
+                <div id="rejectReasonContainer" class="mt-2 hidden text-sm bg-red-50 p-4">
+                    <strong>Rejection Reason:</strong>
+                    <p id="rejectReasonText" class="text-red-600"></p>
+                </div>
         </div>
-        </div>
+    </div>
 </div>
 <!-- END of SINGLE MODAL -->
