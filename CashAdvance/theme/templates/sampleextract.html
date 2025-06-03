@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Improved OCR Extractor</title>
+  <script src="https://unpkg.com/tesseract.js@v4.0.2/dist/tesseract.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+</head>
+<body>
+  <h2>Upload PDF or Image for Text Extraction</h2>
+  <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.pdf" /><br /><br />
+  <pre id="output">Waiting for file...</pre>
+
+  <script>
+    document.getElementById("fileInput").addEventListener("change", async function (e) {
+      const file = e.target.files[0];
+      const output = document.getElementById("output");
+      output.textContent = "Processing...";
+
+      if (!file) {
+        output.textContent = "No file selected.";
+        return;
+      }
+
+      const extractTextFromImage = async (imageUrl) => {
+        try {
+          const result = await Tesseract.recognize(imageUrl, "eng");
+          return result.data.text;
+        } catch (error) {
+          console.error("Tesseract error:", error);
+          return "Error extracting text from image.";
+        }
+      };
+
+      const extractTextFromPDF = async (file) => {
+        try {
+          const typedarray = new Uint8Array(await file.arrayBuffer());
+          const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
+          let text = "";
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const viewport = page.getViewport({ scale: 2 });
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            await page.render({ canvasContext: context, viewport }).promise;
+            const dataUrl = canvas.toDataURL();
+            const pageText = await extractTextFromImage(dataUrl);
+            text += `--- Page ${i} ---\n` + pageText + "\n";
+          }
+          return text;
+        } catch (error) {
+          console.error("PDF.js error:", error);
+          return "Error extracting text from PDF.";
+        }
+      };
+
+      let extractedText = "";
+      if (file.type === "application/pdf") {
+        extractedText = await extractTextFromPDF(file);
+      } else if (file.type.startsWith("image/")) {
+        const imageUrl = URL.createObjectURL(file);
+        extractedText = await extractTextFromImage(imageUrl);
+        URL.revokeObjectURL(imageUrl);
+      } else {
+        output.textContent = "Unsupported file type.";
+        return;
+      }
+
+      const processedText = processText(extractedText);
+
+      // Send extracted text to server
+      try {
+        const response = await fetch('/save_text/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken(),
+          },
+          body: JSON.stringify({ text: processedText }),
+        });
+        const result = await response.json();
+        output.textContent = result.status === 'success' ? processedText : `Error: ${result.message}`;
+      } catch (error) {
+        console.error("Error sending text:", error);
+        output.textContent = "Error sending extracted text.";
+      }
+    });
+
+    function processText(text) {
+      const lines = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
+      const tinMatch = text.match(/TIN\s*[:\-]?\s*(\d{3}[- ]?\d{3}[- ]?\d{3}[- ]?\d{3}|\d{3}[- ]?\d{3}[- ]?\d{3})/i);
+      const tinNumber = tinMatch ? tinMatch[1].replace(/\s+/g, "") : "None";
+      let address = "Not found";
+      const addressRegex = /(ADDRESS|SPACE NO|UNIT NO|BLDG|LEVEL|STREET|ST|AVE|FLR|FLOOR|MALL|CITY|BARANGAY)[^\n]+/i;
+      let addressLines = [];
+      let addressStartIndex = -1;
+      for (let i = 0; i < lines.length; i++) {
+        if (addressRegex.test(lines[i])) {
+          addressStartIndex = i;
+          break;
+        }
+      }
+      if (addressStartIndex !== -1) {
+        for (let i = addressStartIndex; i < lines.length && addressLines.length < 3; i++) {
+          const line = lines[i];
+          if (line.match(/TIN|SALES INVOICE|TXN NUMBER|TOTAL|CASHIER/i)) break;
+          addressLines.push(line);
+        }
+        address = addressLines.join(", ").replace(/, ,/g, ",").trim();
+      } else {
+        address = lines.slice(0, 5).join(" ").split(" ").slice(0, 10).join(" ");
+      }
+      let declaredTotal = "Not found";
+      const totalRegex = /TOTAL[^\d]*(\d{1,6}(?:\.\d{1,2})?)/i;
+      const totalMatch = text.match(totalRegex);
+      if (totalMatch) {
+        declaredTotal = totalMatch[1];
+      } else {
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          const amounts = line.match(/(\d{1,6}(?:\.\d{1,2})?)/g);
+          if (amounts) {
+            const validAmount = amounts.find(val => parseFloat(val) >= 50 && parseFloat(val) < 1000);
+            if (validAmount) {
+              declaredTotal = validAmount;
+              break;
+            }
+          }
+        }
+      }
+      return `TIN Number: ${tinNumber}\nAddress: ${address}\nDeclared Total: ${declaredTotal}`;
+    }
+
+    function getCsrfToken() {
+      const cookies = document.cookie.split(';');
+      for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'csrftoken') return value;
+      }
+      return '';
+    }
+  </script>
+</body>
+</html>
