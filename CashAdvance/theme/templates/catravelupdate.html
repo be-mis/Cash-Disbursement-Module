@@ -1,112 +1,97 @@
-        <div class="my-4">
-        <h2 class="text-2xl font-bold">
-            <span style="color: #00A3AD;">
+{% load static %}
+<div class="my-4">
+    <h2 class="text-2xl font-bold">
+        <span style="color: #00A3AD;">
             CASH 
-            {% if db == 'ADVANCE' %}
-                ADVANCE
-            {% elif db == 'REIMBURSEMENT' %}
-                REIMBURSEMENT
-            {% elif db == 'LIQUIDATION' %}
-                LIQUIDATION
-            {% else %}
-                NO DB
-            {% endif %}
-            </span>            
-            <span style="color: #aa0061;">TRAVEL FORM</span>
-        </h2>
-        </div>
+            {% if db == 'ADVANCE' %} ADVANCE
+            {% elif db == 'REIMBURSEMENT' %} REIMBURSEMENT
+            {% elif db == 'LIQUIDATION' %} LIQUIDATION
+            {% else %} NO DB {% endif %}
+        </span>            
+        <span style="color: #aa0061;">TRAVEL FORM</span>
+    </h2>
+</div>
+  <script src="https://cdn.tailwindcss.com"></script>
 
-        {% if db == 'ADVANCE' %}
-        <form id="mainForm" method="POST" action="{% url 'save-advance' table_type='CashAdvance' %}">
-        {% elif db == 'REIMBURSEMENT' %}
-        <form id="mainForm" method="POST" action="{% url 'save-reimbursement' table_type='CashReimbursement' %}">
-        {% elif db == 'LIQUIDATION' %}
-        <form id="mainForm" method="POST" action="{% url 'save-liquidation' table_type='CashLiquidation' %}">
-        {% else %}
-        <form id="mainForm" method="POST" action="#">
-        {% endif %}
-            {% csrf_token %}
-            <div class="grid grid-cols-1 sm:grid-cols-2 text-sm my-4 gap-2 sm:gap-8">
-            <div class="grid gap-2">
-                <input type="hidden" name="userEmail" value="{{ main.user_email }}">
-                <input type="hidden" name="userID" value="{{ main.user_id }}">
-                <input type="hidden" name="position" value="{{ main.position }}">
 
-                <div class="grid sm:grid-cols-6">
+{% if db == 'ADVANCE' %}
+<form id="mainForm" method="POST" action="{% url 'update-advance' id=main.id table_type='CashAdvance' %}">
+{% elif db == 'REIMBURSEMENT' %}
+<form id="mainForm" method="POST" action="{% url 'update-reimbursement' id=main.id table_type='CashReimbursement' %}">
+{% elif db == 'LIQUIDATION' %}
+<form id="mainForm" method="POST" action="{% url 'update-liquidation' id=main.id table_type='CashLiquidation' %}">
+{% else %}
+<form id="mainForm" method="POST" action="#">
+{% endif %}
+    {% csrf_token %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 text-sm my-4 gap-2 sm:gap-8">
+        <div class="grid gap-2">
+            <input type="hidden" name="userEmail" value="{{ main.user_email }}">
+            <input type="hidden" name="userID" value="{{ main.user_id }}">
+            <input type="hidden" name="position" value="{{ main.position }}">
+            <input type="hidden" name="username" value="{{ main.username }}">
+            <input type="hidden" name="company" value="{{ main.company }}">
+            <input type="hidden" name="sessionId" value="{{ request.session.session_key|default:'default_session' }}">
+
+            <div class="grid sm:grid-cols-6">
                 <span class="inline-flex items-center text-sm text-gray-600 font-medium">Name</span>
                 <input type="text" name="name" value="{{ main.username }}" class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-900 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none" required readonly>
-                </div>
+            </div>
 
-                <div class="grid sm:grid-cols-6">
+            <div class="grid sm:grid-cols-6">
                 <span class="inline-flex items-center text-sm text-gray-600 font-medium">Company</span>
                 <input type="text" name="bu" value="{{ main.company }}" class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-900 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none" required readonly>
-                </div>
+            </div>
 
-                <div class="grid sm:grid-cols-6">
+            <div class="grid sm:grid-cols-6">
                 <span class="inline-flex items-center text-sm text-gray-600 font-medium"> Department </span>
                 <input type="text" name="dept" value="{{ main.department }}" class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-900 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none" required readonly>
-                </div>
+            </div>
 
-                <div class="grid sm:grid-cols-6">
+            <div class="grid sm:grid-cols-6">
                 <span class="inline-flex items-center text-sm text-gray-600 font-medium"> Purpose </span>
                 <input type="text" name="purpose" value="{{ main.purpose }}" class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-900 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none">
-                </div>
             </div>
+        </div>
 
-            <div class="grid gap-2">
-
-
-                <div class="grid sm:grid-cols-6">
+        <div class="grid gap-2">
+            <div class="grid sm:grid-cols-6">
                 <span class="inline-flex items-center text-sm text-gray-600 font-medium"> Requested Date </span>
                 <input type="text" value="{{ main.date_requested }}" name="date_requested" id="date_requested1" readonly class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-600 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none">
-                </div>
+            </div>
 
-                <div class="grid sm:grid-cols-6">
+            <div class="grid sm:grid-cols-6">
                 <span class="inline-flex items-center text-sm text-gray-600 font-medium"> Date Needed </span>
                 <input type="date" name="date_needed" value="{{ main.date_needed }}" id="date_needed1" class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-600 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none" placeholder="">
-                </div>
+            </div>
 
-                <div class="grid sm:grid-cols-6">
+            <div class="grid sm:grid-cols-6">
                 <span class="inline-flex items-center text-sm text-gray-600 font-medium">Departure Date</span>
-                <input
-                    type="date"
-                    id="departure_date_display1"
-                    name="departure_date_display"
-                    value="{{ main.departureDate }}"
-                    class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-600 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none"
-                    required
-                >
-                </div>
-                <div class="grid sm:grid-cols-6">
+                <input type="date" id="departure_date_display1" name="departure_date_display" value="{{ main.departureDate }}" class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-600 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none" required>
+            </div>
+
+            <div class="grid sm:grid-cols-6">
                 <span class="inline-flex items-center text-sm text-gray-600 font-medium">Return Date</span>
-                <input
-                    type="date"
-                    id="return_date_display1"
-                    value="{{ main.returnDate }}"
-                    name="return_date_display"
-                    class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-600 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none"
-                    required
-                >
-                </div>
+                <input type="date" id="return_date_display1" value="{{ main.returnDate }}" name="return_date_display" class="col-span-5 rounded-none rounded-e bg-gray-50 border text-gray-600 block flex-1 min-w-0 w-full text-sm border-gray-300 p-1 focus:border-blue-500 focus:outline-none" required>
             </div>
-            </div>
+        </div>
+    </div>
 
+    <!-- Transportation Accordion -->
+    <div class="my-12">
+        <div class="cursor-pointer border-b-2 text-gray-600 flex justify-between items-center transition duration-300 hover:border-blue-600 hover:text-blue-600" onclick="toggleAccordion('accordionContentTransport1', 'accordionIconTransport1')">
+            <h3 class="text-lg font-bold flex items-center">
+                Transportation <span id="totalAmountBoxTransport1" class="ml-4 text-black px-3 py-1 font-semibold text-lg">₱{{ transport_total|floatformat:2 }}</span>
+            </h3>
+            <svg id="accordionIconTransport1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+        </div>
 
-                <!-- Accordion: Transportation (Tab 1) -->
-                <div class="my-12">
-                <div class="cursor-pointer border-b-2 text-gray-600 flex justify-between items-center transition duration-300 hover:border-blue-600 hover:text-blue-600" onclick="toggleAccordion('accordionContentTransport1', 'accordionIconTransport1')">
-                    <h3 class="text-lg font-bold flex items-center">
-                    Transportation <span id="totalAmountBoxTransport1" class="ml-4 text-black px-3 py-1 font-semibold text-lg">₱0.00</span>
-                    </h3>
-                    <svg id="accordionIconTransport1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </div>
-
-                <div id="accordionContentTransport1" class="bg-gray-100 hidden">
-                    <div class="overflow-x-auto my-4">
-                    <table id="expenseTableTransport1" class="table-fixed w-full text-sm text-left rtl:text-right text-gray-50 bg-transparent">
-                        <thead class="font-medium text-medium text-gray-600">
+        <div id="accordionContentTransport1" class="bg-gray-100 hidden">
+            <div class="overflow-x-auto my-4">
+                <table id="expenseTableTransport1" class="table-fixed w-full text-sm text-left rtl:text-right text-gray-50 bg-transparent">
+                    <thead class="font-medium text-medium text-gray-600">
                         <tr>
                             <th class="w-40 sm:w-1/6 px-2 py-2">Date</th>
                             <th class="w-80 sm:w-1/6 px-2 py-3">Origin</th>
@@ -118,30 +103,34 @@
                             {% endif %}
                             <th class="w-44 sm:w-1/6 px-2 py-3">Action</th>
                         </tr>
-                        </thead>
-                        <tbody id="tableBodyTransport1" class="text-gray-600">
+                    </thead>
+                    <tbody id="tableBodyTransport1" class="text-gray-600">
                         {% for item in transportation_list %}
-                            <tr class="border-b-2 bg-gray-50 text-gray-600">
-                            <td class="p-2">{{ item.date }}</td>
-                            <td class="p-2">{{ item.from }}</td>
-                            <td class="p-2">{{ item.to }}</td>
-                            <td class="p-2">{{ item.desc }}</td>
-                            <td class="p-2">{{ item.amount }}</td>
+                        <tr class="border-b-2 bg-gray-50 text-gray-600" data-id="{{ item.id }}">
+                            <td class="p-2"><input type="date" name="transport_date[]" value="{{ item.date }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field"></td>
+                            <td class="p-2"><input type="text" name="transport_from[]" value="{{ item.from }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Origin"></td>
+                            <td class="p-2"><input type="text" name="transport_to[]" value="{{ item.to }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Destination"></td>
+                            <td class="p-2"><input type="text" name="transport_desc[]" value="{{ item.desc }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Description"></td>
+                            <td class="p-2"><input type="number" step="any" name="transport_amount[]" value="{{ item.amount }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Amount"></td>
                             {% if db == 'REIMBURSEMENT' or db == 'LIQUIDATION' %}
-                                <td class="p-2">
+                            <td class="p-2">
                                 {% if item.attachment %}
-                                    <a href="{{ item.attachment }}" target="_blank" class="text-blue-500 underline">{{ item.attachment|cut:"/media/" }}</a>
+                                <a href="{{ item.attachment }}" target="_blank" class="text-blue-500 underline">{{ item.attachment|cut:"/media/receipts/" }}</a>
                                 {% else %}
-                                    <span class="text-gray-400 italic">No attachment</span>
+                                <label class="w-full h-8 p-2 bg-gray-100 border border-gray-300 flex items-center cursor-pointer">
+                                    <span class="text-gray-600">Choose File</span>
+                                    <input type="file" name="transport_attachment[]" class="hidden">
+                                </label>
                                 {% endif %}
-                                </td>
+                            </td>
                             {% endif %}
                             <td class="p-2">
                                 <button type="button" onclick="deleteRow(this, 'expenseTableTransport1', 'totalAmountBoxTransport1', 'transportationSummary')" class="flex rounded items-center justify-center border border-red-500 text-red-500 text-sm px-4 h-8 transition duration-300 hover:bg-red-500 hover:text-white">
-                                Delete
+                                    Delete
                                 </button>
                             </td>
-                            </tr>
+                            <input type="hidden" name="transport_id[]" value="{{ item.id }}">
+                        </tr>
                         {% endfor %}
                         <!-- Input Row for Adding New Entry -->
                         <tr class="border-b-2 bg-gray-50 text-gray-600">
@@ -153,39 +142,39 @@
                             {% if db == 'REIMBURSEMENT' or db == 'LIQUIDATION' %}
                             <td class="p-2">
                                 <label class="w-full h-8 p-2 bg-gray-100 border border-gray-300 flex items-center cursor-pointer">
-                                <span class="text-gray-600">Choose File</span>
-                                <input type="file" class="hidden required-field" onchange="this.parentElement.querySelector('span').textContent = this.files.length ? this.files[0].name : 'Choose File'">
+                                    <span class="text-gray-600">Choose File</span>
+                                    <input type="file" class="hidden required-field" onchange="this.parentElement.querySelector('span').textContent = this.files.length ? this.files[0].name : 'Choose File'">
                                 </label>
                             </td>
                             {% endif %}
                             <td class="p-2 text-center">
-                            <button type="button" onclick="addRow('expenseTableTransport1', 'totalAmountBoxTransport1', 'transportationSummary', '{{ db }}')" class="flex rounded items-center justify-center border border-green-600 text-green-600 text-sm px-4 h-8 transition duration-300 hover:bg-green-600 hover:text-white">
-                                Add Row
-                            </button>
+                                <button type="button" onclick="addRow('expenseTableTransport1', 'totalAmountBoxTransport1', 'transportationSummary', '{{ db }}')" class="flex rounded items-center justify-center border border-green-600 text-green-600 text-sm px-4 h-8 transition duration-300 hover:bg-green-600 hover:text-white">
+                                    Add Row
+                                </button>
                             </td>
                         </tr>
-                        </tbody>
-                    </table>
-                    </div>
-                    <input type="hidden" name="transportationData" id="transportationDataField">
-                </div>
-                </div>
+                    </tbody>
+                </table>
+            </div>
+            <input type="hidden" name="transportationData" id="transportationDataField">
+        </div>
+    </div>
 
-                <!-- Accordion: Meal (Tab 1) -->
-                <div class="my-12">
-                <div class="cursor-pointer border-b-2 text-gray-600 flex justify-between items-center transition duration-300 hover:border-blue-600 hover:text-blue-600" onclick="toggleAccordion('accordionContentMeal1', 'accordionIconMeal1')">
-                    <h3 class="text-lg font-bold flex items-center">
-                    Meal <span id="totalAmountBoxMeal1" class="ml-4 text-black px-3 py-1 font-semibold text-lg">₱0.00</span>
-                    </h3>
-                    <svg id="accordionIconMeal1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </div>
+    <!-- Meal Accordion -->
+    <div class="my-12">
+        <div class="cursor-pointer border-b-2 text-gray-600 flex justify-between items-center transition duration-300 hover:border-blue-600 hover:text-blue-600" onclick="toggleAccordion('accordionContentMeal1', 'accordionIconMeal1')">
+            <h3 class="text-lg font-bold flex items-center">
+                Meal <span id="totalAmountBoxMeal1" class="ml-4 text-black px-3 py-1 font-semibold text-lg">₱{{ meal_total|floatformat:2 }}</span>
+            </h3>
+            <svg id="accordionIconMeal1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+        </div>
 
-                <div id="accordionContentMeal1" class="bg-gray-100 hidden">
-                    <div class="overflow-x-auto my-4">
-                    <table id="expenseTableMeal1" class="table-fixed w-full text-sm text-left rtl:text-right text-gray-50 bg-transparent">
-                        <thead class="font-medium text-medium text-gray-600">
+        <div id="accordionContentMeal1" class="bg-gray-100 hidden">
+            <div class="overflow-x-auto my-4">
+                <table id="expenseTableMeal1" class="table-fixed w-full text-sm text-left rtl:text-right text-gray-50 bg-transparent">
+                    <thead class="font-medium text-medium text-gray-600">
                         <tr>
                             <th class="w-40 sm:w-1/5 px-2 py-2">Date</th>
                             <th class="w-40 sm:w-1/5 px-2 py-3">Meal Type</th>
@@ -196,79 +185,90 @@
                             {% endif %}
                             <th class="w-28 sm:w-1/5 px-2 py-3">Action</th>
                         </tr>
-                        </thead>
-                        <tbody id="tableBodyMeal1" class="text-gray-600">
+                    </thead>
+                    <tbody id="tableBodyMeal1" class="text-gray-600">
                         {% for item in meal_list %}
-                            <tr class="border-b-2 bg-gray-50 text-gray-600">
-                            <td class="p-2">{{ item.date }}</td>
-                            <td class="p-2">{{ item.mealType }}</td>
-                            <td class="p-2">{{ item.desc }}</td>
-                            <td class="p-2">{{ item.amount }}</td>
+                        <tr class="border-b-2 bg-gray-50 text-gray-600" data-id="{{ item.id }}">
+                            <td class="p-2"><input type="date" name="meal_date[]" value="{{ item.date }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field"></td>
+                            <td class="p-2">
+                                <select name="meal_type[]" class="w-full h-8 px-2 bg-gray-100 border border-gray-300 required-field">
+                                    <option value="" disabled {% if not item.mealType %}selected{% endif %}>Meal Type</option>
+                                    <option value="Breakfast" {% if item.mealType == 'Breakfast' %}selected{% endif %}>Breakfast</option>
+                                    <option value="Lunch" {% if item.mealType == 'Lunch' %}selected{% endif %}>Lunch</option>
+                                    <option value="Dinner" {% if item.mealType == 'Dinner' %}selected{% endif %}>Dinner</option>
+                                </select>
+                            </td>
+                            <td class="p-2"><input type="text" name="meal_desc[]" value="{{ item.desc }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Description"></td>
+                            <td class="p-2"><input type="number" step="any" name="meal_amount[]" value="{{ item.amount }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Amount"></td>
                             {% if db == 'REIMBURSEMENT' or db == 'LIQUIDATION' %}
-                                <td class="p-2">
+                            <td class="p-2">
                                 {% if item.attachment %}
-                                    <a href="{{ item.attachment }}" target="_blank" class="text-blue-500 underline">{{ item.attachment|cut:"/media/" }}</a>
+                                <a href="{{ item.attachment }}" class="text-blue-500 underline">{{ item.attachment|cut:"/media/receipts/" }}</a>
                                 {% else %}
-                                    <span class="text-gray-400 italic">No attachment</span>
+                                <label class="w-full h-8 p-2 bg-gray-100 border border-gray-300 flex items-center cursor-pointer">
+                                    <span class="text-gray-600">Choose File</span>
+                                    <input type="file" name="meal_attachment[]" class="hidden">
+                                </label>
                                 {% endif %}
-                                </td>
+                            </td>
                             {% endif %}
                             <td class="p-2">
                                 <button type="button" onclick="deleteRow(this, 'expenseTableMeal1', 'totalAmountBoxMeal1', 'mealSummary')" class="flex rounded items-center justify-center border border-red-500 text-red-500 text-sm px-4 h-8 transition duration-300 hover:bg-red-500 hover:text-white">
-                                Delete
+                                    Delete
                                 </button>
                             </td>
-                            </tr>
+                            <input type="hidden" name="meal_id[]" value="{{ item.id }}">
+                        </tr>
                         {% endfor %}
                         <!-- Input Row for Adding New Entry -->
                         <tr class="border-b-2 bg-gray-50 text-gray-600">
-                            <td class="p-2"><input type="date" class="w-full h-8 p-2 rounded bg-gray-50 border border-gray-300 required-field"></td>
+                            <td class="p-2"><input type="date" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field"></td>
                             <td class="p-2">
-                            <select class="w-full h-8 px-2 rounded bg-gray-50 border border-gray-300 required-field">
-                                <option value="" disabled selected hidden>Meal Type</option>
-                                <option value="Breakfast">Breakfast</option>
-                                <option value="Lunch">Lunch</option>
-                                <option value="Dinner">Dinner</option>
-                            </select>
+                                <select class="w-full h-8 px-2 bg-gray-100 border border-gray-300 required-field">
+                                    <option value="" disabled selected>Meal Type</option>
+                                    <option value="Breakfast">Breakfast</option>
+                                    <option value="Lunch">Lunch</option>
+                                    <option value="Dinner">Dinner</option>
+                                </select>
                             </td>
-                            <td class="p-2"><input type="text" class="w-full h-8 p-2 rounded bg-gray-50 border border-gray-300 required-field" placeholder="Description"></td>
-                            <td class="p-2"><input type="number" step="any" class="w-full h-8 p-2 rounded bg-gray-50 border border-gray-300 required-field" placeholder="Amount"></td>
+                            <td class="p-2"><input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Description"></td>
+                            <td class="p-2"><input type="number" step="any" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Amount"></td>
                             {% if db == 'REIMBURSEMENT' or db == 'LIQUIDATION' %}
                             <td class="p-2">
                                 <label class="w-full h-8 p-2 bg-gray-100 border border-gray-300 flex items-center cursor-pointer">
-                                <span class="text-gray-600">Choose File</span>
-                                <input type="file" class="hidden required-field" onchange="this.parentElement.querySelector('span').textContent = this.files.length ? this.files[0].name : 'Choose File'">
+                                    <span class="text-gray-600">Choose File</span>
+                                    <input type="file" class="hidden required-field" onchange="this.parentElement.querySelector('span').textContent = this.files.length ? this.files[0].name : 'Choose File'">
                                 </label>
                             </td>
                             {% endif %}
                             <td class="p-2">
-                            <button type="button" onclick="addRow('expenseTableMeal1', 'totalAmountBoxMeal1', 'mealSummary', '{{ db }}')" class="flex rounded items-center justify-center border border-green-600 text-green-600 text-sm px-4 h-8 transition duration-300 hover:bg-green-600 hover:text-white">
-                                Add Row
-                            </button>
+                                <button type="button" onclick="addRow('expenseTableMeal1', 'totalAmountBoxMeal1', 'mealSummary', '{{ db }}')" class="flex rounded items-center justify-center border border-green-600 text-green-600 text-sm px-4 h-8 transition duration-300 hover:bg-green-600 hover:text-white">
+                                    Add Row
+                                </button>
                             </td>
                         </tr>
-                        </tbody>
-                    </table>
-                    </div>
-                    <input type="hidden" name="mealData" id="mealDataField">
-                </div>
-                </div>
+                    </tbody>
+                </table>
+            </div>
+            <input type="hidden" name="mealData" id="mealDataField">
+        </div>
+    </div>
 
-                <!-- Accordion: Lodging (Tab 1) -->
-                <div class="my-12">
-                <div class="cursor-pointer border-b-2 text-gray-600 flex justify-between items-center transition duration-300 hover:border-blue-600 hover:text-blue-600" onclick="toggleAccordion('accordionContentLodging1', 'accordionIconLodging1')">
-                    <h3 class="text-lg font-bold flex items-center">
-                    Lodging <span id="totalAmountBoxLodging1" class="ml-8 font-semibold text-lg">₱0.00</span>
-                    </h3>
-                    <svg id="accordionIconLodging1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </div>
+    <!-- Lodging Accordion -->
+    <div class="my-12">
+        <div class="cursor-pointer border-b-2 text-gray-600 flex justify-between items-center transition duration-300 hover:border-blue-600 hover:text-blue-600" onclick="toggleAccordion('accordionContentLodging1', 'accordionIconLodging1')">
+            <h3 class="text-lg font-bold flex items-center">
+                Lodging <span id="totalAmountBoxLodging1" class="ml-8 font-semibold text-lg">₱{{ lodging_total|floatformat:2 }}</span>
+            </h3>
+            <svg id="accordionIconLodging1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+        </div>
 
-                <div id="accordionContentLodging1" class="bg-gray-100 hidden">
-                    <div class="overflow-x-auto my-4">
-                    <table id="expenseTableLodging1" class="table-fixed w-full text-sm text-left rtl:text-right text-gray-50 bg-transparent">
-                        <thead class="font-medium text-medium text-gray-600">
+        <div id="accordionContentLodging1" class="bg-gray-100 hidden">
+            <div class="overflow-x-auto my-4">
+                <table id="expenseTableLodging1" class="table-fixed w-full text-sm text-left rtl:text-right text-gray-50 bg-transparent">
+                    <thead class="font-medium text-medium text-gray-600">
                         <tr>
                             <th class="w-40 sm:w-1/5 px-2 py-2">Check-In</th>
                             <th class="w-40 sm:w-1/5 px-2 py-3">Check-Out</th>
@@ -279,124 +279,512 @@
                             {% endif %}
                             <th class="w-28 sm:w-1/5 px-2 py-3">Action</th>
                         </tr>
-                        </thead>
-                        <tbody id="tableBodyLodging1" class="text-gray-600">
+                    </thead>
+                    <tbody id="tableBodyLodging1" class="text-gray-600">
                         {% for item in lodging_list %}
-                            <tr class="border-b-2 bg-gray-50 text-gray-600">
-                            <td class="p-2">{{ item.checkIn }}</td>
-                            <td class="p-2">{{ item.checkOut }}</td>
-                            <td class="p-2">{{ item.desc }}</td>
-                            <td class="p-2">{{ item.amount }}</td>
+                        <tr class="border-b-2 bg-gray-50 text-gray-600" data-id="{{ item.id }}">
+                            <td class="p-2"><input type="date" name="lodging_checkin[]" value="{{ item.checkIn }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field"></td>
+                            <td class="p-2"><input type="date" name="lodging_checkout[]" value="{{ item.checkOut }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field"></td>
+                            <td class="p-2"><input type="text" name="lodging_desc[]" value="{{ item.desc }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Description"></td>
+                            <td class="p-2"><input type="number" step="any" name="lodging_amount[]" value="{{ item.amount }}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Amount"></td>
                             {% if db == 'REIMBURSEMENT' or db == 'LIQUIDATION' %}
-                                <td class="p-2">
+                            <td class="p-2">
                                 {% if item.attachment %}
-                                    <a href="{{ item.attachment }}" target="_blank" class="text-blue-500 underline">{{ item.attachment|cut:"/media/" }}</a>
+                                <a href="{{ item.attachment }}" target="_blank" class="text-blue-500 underline">{{ item.attachment|cut:"/media/receipts/" }}</a>
                                 {% else %}
-                                    <span class="text-gray-400 italic">No attachment</span>
+                                <label class="w-full h-8 p-2 bg-gray-100 border border-gray-300 flex items-center cursor-pointer">
+                                    <span class="text-gray-600">Choose File</span>
+                                    <input type="file" name="lodging_attachment[]" class="hidden">
+                                </label>
                                 {% endif %}
-                                </td>
+                            </td>
                             {% endif %}
                             <td class="p-2">
                                 <button type="button" onclick="deleteRow(this, 'expenseTableLodging1', 'totalAmountBoxLodging1', 'lodgingSummary')" class="flex rounded items-center justify-center border border-red-500 text-red-500 text-sm px-4 h-8 transition duration-300 hover:bg-red-500 hover:text-white">
-                                Delete
+                                    Delete
                                 </button>
                             </td>
-                            </tr>
+                            <input type="hidden" name="lodging_id[]" value="{{ item.id }}">
+                        </tr>
                         {% endfor %}
                         <!-- Input Row for Adding New Entry -->
                         <tr class="border-b-2 bg-gray-50 text-gray-600">
-                            <td class="p-2"><input type="date" class="w-full h-8 p-2 rounded bg-gray-50 border border-gray-300 required-field"></td>
-                            <td class="p-2"><input type="date" class="w-full h-8 p-2 rounded bg-gray-50 border border-gray-300 required-field"></td>
-                            <td class="p-2"><input type="text" class="w-full h-8 p-2 rounded bg-gray-50 border border-gray-300 required-field" placeholder="Description"></td>
-                            <td class="p-2"><input type="number" step="any" class="w-full h-8 p-2 rounded bg-gray-50 border border-gray-300 required-field" placeholder="Amount"></td>
+                            <td class="p-2"><input type="date" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field"></td>
+                            <td class="p-2"><input type="date" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field"></td>
+                            <td class="p-2"><input type="text" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Description"></td>
+                            <td class="p-2"><input type="number" step="any" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Amount"></td>
                             {% if db == 'REIMBURSEMENT' or db == 'LIQUIDATION' %}
                             <td class="p-2">
                                 <label class="w-full h-8 p-2 bg-gray-100 border border-gray-300 flex items-center cursor-pointer">
-                                <span class="text-gray-600">Choose File</span>
-                                <input type="file" class="hidden required-field" onchange="this.parentElement.querySelector('span').textContent = this.files.length ? this.files[0].name : 'Choose File'">
+                                    <span class="text-gray-600">Choose File</span>
+                                    <input type="file" class="hidden required-field" onchange="this.parentElement.querySelector('span').textContent = this.files.length ? this.files[0].name : 'Choose File'">
                                 </label>
                             </td>
                             {% endif %}
                             <td class="p-2">
-                            <button type="button" onclick="addRow('expenseTableLodging1', 'totalAmountBoxLodging1', 'lodgingSummary', '{{ db }}')" class="flex rounded items-center justify-center border border-green-600 text-green-600 text-sm px-4 h-8 transition duration-300 hover:bg-green-600 hover:text-white">
-                                Add Row
-                            </button>
+                                <button type="button" onclick="addRow('expenseTableLodging1', 'totalAmountBoxLodging1', 'lodgingSummary', '{{ db }}')" class="flex rounded items-center justify-center border border-green-600 text-green-600 text-sm px-4 h-8 transition duration-300 hover:bg-green-600 hover:text-white">
+                                    Add Row
+                                </button>
                             </td>
                         </tr>
-                        </tbody>
-                    </table>
-                    </div>
-                    <input type="hidden" name="lodgingData" id="lodgingDataField">
-                </div>
-                </div>
+                    </tbody>
+                </table>
+            </div>
+            <input type="hidden" name="lodgingData" id="lodgingDataField">
+        </div>
+    </div>
 
-                
-                <div class="grid sm:grid-cols-2 gap-8">
-                <!-- Mode of Payment -->
-                <div class="my-4">
-                    <h3 class="font-bold border-b-2 text-gray-600 text-lg mb-2 border-b border-gray-200 text-gray-700 pb-1">Mode of Payment</h3>
-                    <div>
-                    <ul class="grid w-full gap-2 sm:gap-6 grid-cols-3">
-                        <li>
-                        <input type="checkbox" id="mop-gcash" name="payment_method" value="GCASH" class="hidden peer payment-checkbox" onchange="onlyOneCheckbox(this)">
+    <div class="grid sm:grid-cols-2 gap-8">
+        <!-- Mode of Payment -->
+        <div class="my-4">
+            <h3 class="font-bold border-b-2 text-gray-600 text-lg mb-2 border-b border-gray-200 text-gray-700 pb-1">Mode of Payment</h3>
+            <div>
+                <ul class="grid w-full gap-2 sm:gap-6 grid-cols-3">
+                    <li>
+                        <input type="checkbox" id="mop-gcash" name="payment_method" value="GCASH" class="hidden peer payment-checkbox" onchange="onlyOneCheckbox(this)" {% if main.paymentMode == 'GCASH' %}checked{% endif %}>
                         <label for="mop-gcash" class="inline-flex items-center justify-center w-full p-2 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100">
                             <div class="block flex items-center justify-center">
-                            <div class="w-full text-sm font-semibold">GCash</div>
+                                <div class="w-full text-sm font-semibold">GCash</div>
                             </div>
                         </label>
-                        </li>
-                        <li>
-                        <input type="checkbox" id="mop-bank" name="payment_method" value="METROBANK" class="hidden peer payment-checkbox" onchange="onlyOneCheckbox(this)">
+                    </li>
+                    <li>
+                        <input type="checkbox" id="mop-bank" name="payment_method" value="METROBANK" class="hidden peer payment-checkbox" onchange="onlyOneCheckbox(this)" {% if main.paymentMode == 'METROBANK' %}checked{% endif %}>
                         <label for="mop-bank" class="inline-flex items-center justify-center w-full p-2 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100">
                             <div class="block">
-                            <div class="w-full text-sm font-semibold">Metrobank</div>
+                                <div class="w-full text-sm font-semibold">Metrobank</div>
                             </div>
                         </label>
-                        </li>
-                        <li>
-                        <input type="checkbox" id="mop-cash" name="payment_method" value="CASH" class="hidden peer payment-checkbox" onchange="onlyOneCheckbox(this)">
+                    </li>
+                    <li>
+                        <input type="checkbox" id="mop-cash" name="payment_method" value="CASH" class="hidden peer payment-checkbox" onchange="onlyOneCheckbox(this)" {% if main.paymentMode == 'CASH' %}checked{% endif %}>
                         <label for="mop-cash" class="inline-flex items-center justify-center w-full p-2 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer peer-checked:border-blue-600 peer-checked:text-blue-600 hover:text-gray-600 hover:bg-gray-100">
                             <div class="block">
-                            <div class="w-full text-sm font-semibold">Cash</div>
+                                <div class="w-full text-sm font-semibold">Cash</div>
                             </div>
                         </label>
-                        </li>
-                    </ul>
-                    </div>
-
-                    
-                    <div class="my-2">
-                    <label for="accountNumber" class="inline-flex items-center text-sm text-gray-600 font-medium" required>Account #:</label>
-                    <input type="text" name="account_number" id="accountNumber" class="w-full rounded border border-gray-300 p-1 outline-none focus:border-blue-500" placeholder="Enter account number">
-                    </div>
-                </div>
-                
-                    <!-- Summary -->
-                    <div class="bg-gray-100 p-4 rounded-sm">
-                    <h3 class="mb-2 border-b border-gray-200 text-gray-700 pb-1 font-bold">Summary</h3>
-                    <div class="grid grid-cols-2 gap-2 text-gray-600 text-sm">
-                        <div class="font-medium">Total Transportation Expenses</div>
-                        <div class="text-right"><span id="transportationSummary">₱0.00</span></div>
-                
-                        <div class="font-medium">Total Meal Expenses</div>
-                        <div class="text-right"><span id="mealSummary">₱0.00</span></div>
-                
-                        <div class="font-medium">Total Lodging Expenses</div>
-                        <div class="text-right"><span id="lodgingSummary">₱0.00</span></div>
-                    </div>
-                    <div class="grid grid-cols-2 mt-2 border-t border-gray-200 text-gray-700 pb-1 font-bold">
-                        <div class="mt-2">Grand Total</div>
-                        <div class="mt-2 text-right"><span id="grandTotalSummary">₱0.00</span></div>
-                    </div>
-                    </div>
-
-                </div>
-
-            <!-- Final Form Buttons -->
-            <div class="flex items-center justify-center gap-2 mt-4">
-            {% comment %} <button type="button" onclick="submitUpdate()" style="background-color:#00A3AD;" class="border w-20 h-8 text-sm text-white">
-                Submit
-            </button> {% endcomment %}
+                    </li>
+                </ul>
             </div>
-            <input type="hidden" name="actionType" id="actionTypeField">
-        </form>
+            <div class="my-2">
+                <label for="accountNumber" class="inline-flex items-center text-sm text-gray-600 font-medium" required>Account #:</label>
+                <input type="text" name="account_number" value="{{ main.accountNumber }}" id="accountNumber" class="w-full rounded border border-gray-300 p-1 outline-none focus:border-blue-500">
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="bg-gray-100 p-4 rounded-sm">
+            <h3 class="mb-2 border-b border-gray-200 text-gray-700 pb-1 font-bold">Summary</h3>
+            <div class="grid grid-cols-2 gap-2 text-gray-600 text-sm">
+                <div class="font-medium">Total Transportation Expenses</div>
+                <div class="text-right"><span id="transportationSummary">₱{{ transport_total|floatformat:2 }}</span></div>
+                <div class="font-medium">Total Meal Expenses</div>
+                <div class="text-right"><span id="mealSummary">₱{{ meal_total|floatformat:2 }}</span></div>
+                <div class="font-medium">Total Lodging Expenses</div>
+                <div class="text-right"><span id="lodgingSummary">₱{{ lodging_total|floatformat:2 }}</span></div>
+            </div>
+            <div class="grid grid-cols-2 mt-2 border-t border-gray-200 text-gray-700 pb-1 font-bold">
+                <div class="mt-2">Grand Total</div>
+                <div class="mt-2 text-right"><span id="grandTotalSummary">₱{{ grand_total|floatformat:2 }}</span></div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="csrfmiddlewaretoken" value="...">
+    <!-- Form Buttons -->
+    <div class="flex items-center justify-center gap-2 mt-4">
+        <button type="submit" name="actionType" value="submit" style="background-color:#aa0061;" class="border w-20 h-8 text-sm text-white">Submit</button>
+    </div>
+    
+    <input type="hidden" name="actionType" id="actionTypeField">
+</form>
+
+<script>
+// Initialize dataLists for storing row data
+const dataLists = {
+    'expenseTableTransport1': [],
+    'expenseTableMeal1': [],
+    'expenseTableLodging1': []
+};
+
+// Initialize dataLists with pre-existing rows from the server
+function initializeDataLists() {
+    // Transportation table
+    const transportRows = document.querySelectorAll('#expenseTableTransport1 tbody tr:not(:last-child)');
+    transportRows.forEach(row => {
+        const inputs = row.querySelectorAll('input');
+        dataLists['expenseTableTransport1'].push({
+            date: inputs[0].value,
+            from: inputs[1].value,
+            to: inputs[2].value,
+            desc: inputs[3].value,
+            amount: inputs[4].value,
+            attachment: inputs[5] && inputs[5].files.length ? inputs[5].files[0] : null
+        });
+    });
+
+    // Meal table
+    const mealRows = document.querySelectorAll('#expenseTableMeal1 tbody tr:not(:last-child)');
+    mealRows.forEach(row => {
+        const inputs = row.querySelectorAll('input, select');
+        dataLists['expenseTableMeal1'].push({
+            date: inputs[0].value,
+            mealType: inputs[1].value,
+            desc: inputs[2].value,
+            amount: inputs[3].value,
+            attachment: inputs[4] && inputs[4].files.length ? inputs[4].files[0] : null
+        });
+    });
+
+    // Lodging table
+    const lodgingRows = document.querySelectorAll('#expenseTableLodging1 tbody tr:not(:last-child)');
+    lodgingRows.forEach(row => {
+        const inputs = row.querySelectorAll('input');
+        dataLists['expenseTableLodging1'].push({
+            checkIn: inputs[0].value,
+            checkOut: inputs[1].value,
+            desc: inputs[2].value,
+            amount: inputs[3].value,
+            attachment: inputs[4] && inputs[4].files.length ? inputs[4].files[0] : null
+        });
+    });
+}
+
+// Run initialization on page load
+document.addEventListener('DOMContentLoaded', initializeDataLists);
+
+// Function to check if at least one entry exists in any dataList
+function hasAtLeastOneEntry() {
+    return Object.values(dataLists).some(list => list.length > 0);
+}
+
+function toggleAccordion(contentId, iconId) {
+    const content = document.getElementById(contentId);
+    const icon = document.getElementById(iconId);
+    content.classList.toggle('hidden');
+    icon.classList.toggle('rotate-180');
+}
+
+function onlyOneCheckbox(checkbox) {
+    const checkboxes = document.getElementsByClassName('payment-checkbox');
+    for (let i = 0; i < checkboxes.length; i++) {
+        if (checkboxes[i] !== checkbox) {
+            checkboxes[i].checked = false;
+        }
+    }
+}
+
+function clearForm() {
+    const form = document.getElementById('mainForm');
+    
+    // Clear main form inputs (excluding readonly and hidden fields)
+    const mainInputs = form.querySelectorAll('input:not([readonly]):not([type="hidden"]), select, textarea');
+    mainInputs.forEach(input => {
+        if (input.type === 'text' || input.type === 'date' || input.type === 'number') {
+            input.value = '';
+        } else if (input.type === 'checkbox') {
+            input.checked = false;
+        } else if (input.tagName === 'SELECT') {
+            input.selectedIndex = 0;
+        }
+    });
+
+    // Clear file input labels
+    const fileLabels = form.querySelectorAll('label span');
+    fileLabels.forEach(span => {
+        span.textContent = 'Choose File';
+    });
+
+    // Clear accordion tables
+    const tables = [
+        { id: 'expenseTableTransport1', totalBox: 'totalAmountBoxTransport1', summary: 'transportationSummary' },
+        { id: 'expenseTableMeal1', totalBox: 'totalAmountBoxMeal1', summary: 'mealSummary' },
+        { id: 'expenseTableLodging1', totalBox: 'totalAmountBoxLodging1', summary: 'lodgingSummary' }
+    ];
+
+    tables.forEach(table => {
+        const tbody = document.getElementById(table.id).querySelector('tbody');
+        const rows = tbody.querySelectorAll('tr:not(:last-child)'); // Exclude input row
+        rows.forEach(row => row.remove());
+        
+        // Clear input row
+        const inputRow = tbody.querySelector('tr:last-child');
+        const inputs = inputRow.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            if (input.type === 'text' || input.type === 'date' || input.type === 'number') {
+                input.value = '';
+            } else if (input.type === 'file') {
+                input.value = '';
+                input.parentElement.querySelector('span').textContent = 'Choose File';
+            } else if (input.tagName === 'SELECT') {
+                input.selectedIndex = 0;
+            }
+        });
+
+        // Clear dataLists
+        dataLists[table.id] = [];
+
+        // Reset totals
+        document.getElementById(table.totalBox).textContent = '₱0.00';
+        document.getElementById(table.summary).textContent = '₱0.00';
+    });
+
+    // Reset grand total
+    document.getElementById('grandTotalSummary').textContent = '₱0.00';
+
+    // Reset hidden data fields
+    document.getElementById('transportationDataField').value = '';
+    document.getElementById('mealDataField').value = '';
+    document.getElementById('lodgingDataField').value = '';
+}
+
+function addRow(tableId, totalBoxId, summaryId, db) {
+    const table = document.getElementById(tableId);
+    if (!table) {
+        console.error(`Table with ID ${tableId} not found`);
+        return;
+    }
+
+    const tbody = table.querySelector('tbody');
+    if (!tbody) {
+        console.error(`tbody not found in table ${tableId}`);
+        return;
+    }
+
+    const inputRow = tbody.querySelector('tr:last-child');
+    const inputs = inputRow.querySelectorAll('input, select');
+    let rowData = {};
+
+    // Collect input values based on table type
+    if (tableId === 'expenseTableTransport1') {
+        rowData = {
+            date: inputs[0].value,
+            from: inputs[1].value,
+            to: inputs[2].value,
+            desc: inputs[3].value,
+            amount: inputs[4].value,
+            attachment: inputs[5]?.files[0] || null // Ensure file is captured
+        };
+    } else if (tableId === 'expenseTableMeal1') {
+        rowData = {
+            date: inputs[0].value,
+            mealType: inputs[1].value,
+            desc: inputs[2].value,
+            amount: inputs[3].value,
+            attachment: inputs[4]?.files[0] || null
+        };
+    } else if (tableId === 'expenseTableLodging1') {
+        rowData = {
+            checkIn: inputs[0].value,
+            checkOut: inputs[1].value,
+            desc: inputs[2].value,
+            amount: inputs[3].value,
+            attachment: inputs[4]?.files[0] || null
+        };
+    } else {
+        console.error(`Unknown tableId: ${tableId}`);
+        return;
+    }
+
+    // Validate inputs
+    if (tableId === 'expenseTableTransport1') {
+        if (!rowData.date || !rowData.from || !rowData.to || !rowData.desc || !rowData.amount) {
+            alert('Please fill all fields except attachment');
+            return;
+        }
+        if (['REIMBURSEMENT', 'LIQUIDATION'].includes(db) && !rowData.attachment) {
+            alert('Please upload an attachment');
+            return;
+        }
+    } else if (tableId === 'expenseTableMeal1') {
+        if (!rowData.date || !rowData.mealType || !rowData.desc || !rowData.amount) {
+            alert('Please fill all fields except attachment');
+            return;
+        }
+        if (['REIMBURSEMENT', 'LIQUIDATION'].includes(db) && !rowData.attachment) {
+            alert('Please upload an attachment');
+            return;
+        }
+    } else if (tableId === 'expenseTableLodging1') {
+        if (!rowData.checkIn || !rowData.checkOut || !rowData.desc || !rowData.amount) {
+            alert('Please fill all fields except attachment');
+            return;
+        }
+        if (['REIMBURSEMENT', 'LIQUIDATION'].includes(db) && !rowData.attachment) {
+            alert('Please upload an attachment');
+            return;
+        }
+    }
+
+    // Add to dataLists
+    dataLists[tableId].push(rowData);
+
+    // Create new row
+    const newRow = document.createElement('tr');
+    newRow.className = 'border-b-2 bg-gray-50 text-gray-600';
+    const showAttachmentColumn = ['REIMBURSEMENT', 'LIQUIDATION'].includes(db);
+
+    if (tableId === 'expenseTableTransport1') {
+        newRow.innerHTML = `
+            <td class="p-2"><input type="date" name="transport_date[]" value="${rowData.date}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field"></td>
+            <td class="p-2"><input type="text" name="transport_from[]" value="${rowData.from}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Origin"></td>
+            <td class="p-2"><input type="text" name="transport_to[]" value="${rowData.to}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Destination"></td>
+            <td class="p-2"><input type="text" name="transport_desc[]" value="${rowData.desc}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Description"></td>
+            <td class="p-2"><input type="number" step="any" name="transport_amount[]" value="${rowData.amount}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Amount"></td>
+            ${showAttachmentColumn ? `
+            <td class="p-2">
+                <label class="w-full h-8 p-2 bg-gray-100 border border-gray-300 flex items-center cursor-pointer">
+                    <span class="text-gray-600">${rowData.attachment ? rowData.attachment.name : 'Choose File'}</span>
+                    <input type="file" name="transport_attachment[]" class="hidden" onchange="this.parentElement.querySelector('span').textContent = this.files.length ? this.files[0].name : 'Choose File'">
+                </label>
+            </td>` : ''}
+            <td class="p-2">
+                <button type="button" onclick="deleteRow(this, '${tableId}', '${totalBoxId}', '${summaryId}')" class="flex rounded items-center justify-center border border-red-500 text-red-500 text-sm px-4 h-8 transition duration-300 hover:bg-red-500 hover:text-white">
+                    Delete
+                </button>
+            </td>
+            <input type="hidden" name="transport_id[]" value="">
+        `;
+    } else if (tableId === 'expenseTableMeal1') {
+        newRow.innerHTML = `
+            <td class="p-2"><input type="date" name="meal_date[]" value="${rowData.date}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field"></td>
+            <td class="p-2">
+                <select name="meal_type[]" class="w-full h-8 px-2 bg-gray-100 border border-gray-300 required-field">
+                    <option value="" disabled>Meal Type</option>
+                    <option value="Breakfast" ${rowData.mealType === 'Breakfast' ? 'selected' : ''}>Breakfast</option>
+                    <option value="Lunch" ${rowData.mealType === 'Lunch' ? 'selected' : ''}>Lunch</option>
+                    <option value="Dinner" ${rowData.mealType === 'Dinner' ? 'selected' : ''}>Dinner</option>
+                </select>
+            </td>
+            <td class="p-2"><input type="text" name="meal_desc[]" value="${rowData.desc}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Description"></td>
+            <td class="p-2"><input type="number" step="any" name="meal_amount[]" value="${rowData.amount}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Amount"></td>
+            ${showAttachmentColumn ? `
+            <td class="p-2">
+                <label class="w-full h-8 p-2 bg-gray-100 border border-gray-300 flex items-center cursor-pointer">
+                    <span class="text-gray-600">${rowData.attachment ? rowData.attachment.name : 'Choose File'}</span>
+                    <input type="file" name="meal_attachment[]" class="hidden" onchange="this.parentElement.querySelector('span').textContent = this.files.length ? this.files[0].name : 'Choose File'">
+                </label>
+            </td>` : ''}
+            <td class="p-2">
+                <button type="button" onclick="deleteRow(this, '${tableId}', '${totalBoxId}', '${summaryId}')" class="flex rounded items-center justify-center border border-red-500 text-red-500 text-sm px-4 h-8 transition duration-300 hover:bg-red-500 hover:text-white">
+                    Delete
+                </button>
+            </td>
+            <input type="hidden" name="meal_id[]" value="">
+        `;
+    } else if (tableId === 'expenseTableLodging1') {
+        newRow.innerHTML = `
+            <td class="p-2"><input type="date" name="lodging_checkin[]" value="${rowData.checkIn}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field"></td>
+            <td class="p-2"><input type="date" name="lodging_checkout[]" value="${rowData.checkOut}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field"></td>
+            <td class="p-2"><input type="text" name="lodging_desc[]" value="${rowData.desc}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Description"></td>
+            <td class="p-2"><input type="number" step="any" name="lodging_amount[]" value="${rowData.amount}" class="w-full h-8 p-2 bg-gray-100 border border-gray-300 required-field" placeholder="Amount"></td>
+            ${showAttachmentColumn ? `
+            <td class="p-2">
+                <label class="w-full h-8 p-2 bg-gray-100 border border-gray-300 flex items-center cursor-pointer">
+                    <span class="text-gray-600">${rowData.attachment ? rowData.attachment.name : 'Choose File'}</span>
+                    <input type="file" name="lodging_attachment[]" class="hidden" onchange="this.parentElement.querySelector('span').textContent = this.files.length ? this.files[0].name : 'Choose File'">
+                </label>
+            </td>` : ''}
+            <td class="p-2">
+                <button type="button" onclick="deleteRow(this, '${tableId}', '${totalBoxId}', '${summaryId}')" class="flex rounded items-center justify-center border border-red-500 text-red-500 text-sm px-4 h-8 transition duration-300 hover:bg-red-500 hover:text-white">
+                    Delete
+                </button>
+            </td>
+            <input type="hidden" name="lodging_id[]" value="">
+        `;
+    }
+
+    // Insert new row before the input row
+    tbody.insertBefore(newRow, inputRow);
+
+    // Clear input fields in the input row
+    inputs.forEach(input => {
+        if (input.type !== 'file') {
+            input.value = '';
+        } else {
+            input.value = ''; // Clear file input
+            input.parentElement.querySelector('span').textContent = 'Choose File';
+        }
+    });
+
+    // Update totals
+    try {
+        updateTotal(tableId, totalBoxId, summaryId);
+    } catch (e) {
+        console.error('Error updating totals:', e.message);
+    }
+}
+
+function deleteRow(button, tableId, totalBoxId, summaryId) {
+    const row = button.closest('tr');
+    const index = Array.from(row.parentElement.children).indexOf(row);
+    dataLists[tableId].splice(index, 1); // Remove from dataLists
+    row.remove();
+    updateTotal(tableId, totalBoxId, summaryId);
+}
+
+function updateTotal(tableId, totalBoxId, summaryId) {
+    const table = document.getElementById(tableId).querySelector('tbody');
+    const rows = table.querySelectorAll('tr:not(:last-child)');
+    let total = 0;
+    rows.forEach(row => {
+        const amountInput = row.querySelector('input[name$="_amount[]"]');
+        if (amountInput && amountInput.value) {
+            total += parseFloat(amountInput.value) || 0;
+        }
+    });
+    document.getElementById(totalBoxId).textContent = `₱${total.toFixed(2)}`;
+    document.getElementById(summaryId).textContent = `₱${total.toFixed(2)}`;
+    updateGrandTotal();
+}
+
+function updateGrandTotal() {
+    const transportTotal = parseFloat(document.getElementById('transportationSummary').textContent.replace('₱', '')) || 0;
+    const mealTotal = parseFloat(document.getElementById('mealSummary').textContent.replace('₱', '')) || 0;
+    const lodgingTotal = parseFloat(document.getElementById('lodgingSummary').textContent.replace('₱', '')) || 0;
+    const grandTotal = transportTotal + mealTotal + lodgingTotal;
+    document.getElementById('grandTotalSummary').textContent = `₱${grandTotal.toFixed(2)}`;
+}
+
+const form = document.getElementById('mainForm');
+form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Check if at least one entry exists
+    if (!hasAtLeastOneEntry()) {
+        alert('Please add at least one entry in any of the expense tables before submitting.');
+        return;
+    }
+
+    const formData = new FormData(form);
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': form.querySelector('input[name="csrfmiddlewaretoken"]').value
+        }
+    }).then(response => {
+        if (response.redirected) {
+            clearForm();
+            window.location.href = response.url;
+        } else if (response.ok) {
+            alert('Form submitted successfully');
+            clearForm();
+            const username = form.querySelector('input[name="username"]').value;
+            const userId = form.querySelector('input[name="userID"]').value;
+            const userEmail = form.querySelector('input[name="userEmail"]').value;
+            const position = form.querySelector('input[name="position"]').value;
+            const company = form.querySelector('input[name="company"]').value;
+            const sessionId = form.querySelector('input[name="sessionId"]').value;
+            const redirectUrl = `/CashAdvance?username=${encodeURIComponent(username)}&userId=${encodeURIComponent(userId)}&useremail=${encodeURIComponent(userEmail)}&sessionId=${encodeURIComponent(sessionId)}&position=${encodeURIComponent(position)}&company=${encodeURIComponent(company)}`;
+            window.location.href = redirectUrl;
+        } else {
+            return response.text().then(text => {
+                alert(`Error submitting form: ${text}`);
+            });
+        }
+    }).catch(error => {
+        console.error('Error:', error);
+        alert('Error submitting form: ' + error.message);
+    });
+});
+</script>
