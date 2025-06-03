@@ -6,6 +6,9 @@
                             <tr class="bg-gray-100">
                             <th class="p-2 border border-gray-200 text-left w-1/4">Date</th>
                             <th class="p-2 border border-gray-200 text-left w-1/4">From - To</th>
+                            {% if db != 'ADVANCE' %}
+                            <th class="p-2 border border-gray-200 text-left w-1/4">Attachment</th>
+                            {% endif %}                            
                             <th class="p-2 border border-gray-200 text-left w-1/4">Amount (PHP)</th>
                             </tr>
                         </thead>
@@ -13,6 +16,9 @@
                             <tr class="bg-white">
                             <td id="transportDate" class="p-2 border border-gray-200">-</td>
                             <td id="transportRoute" class="p-2 border border-gray-200">-</td>
+                            {% if db != 'ADVANCE' %}
+                            <td id="transportattachment" class="p-2 border border-gray-200">-</td>
+                            {% endif %}
                             <td id="transportAmount" class="p-2 border border-gray-200">-</td>
                             </tr>
                         </tbody>
@@ -25,6 +31,9 @@
                             <tr class="bg-gray-100">
                             <th class="p-2 border border-gray-200 text-left w-1/4">Date</th>
                             <th class="p-2 border border-gray-200 text-left w-1/4">Meal Type</th>
+                            {% if db != 'ADVANCE' %}
+                            <th class="p-2 border border-gray-200 text-left w-1/4">Attachment</th>
+                            {% endif %}
                             <th class="p-2 border border-gray-200 text-left w-1/4">Amount (PHP)</th>
                             </tr>
                         </thead>
@@ -32,6 +41,9 @@
                             <tr class="bg-white">
                             <td id="mealDate" class="p-2 border border-gray-200">-</td>
                             <td id="mealType" class="p-2 border border-gray-200">-</td>
+                            {% if db != 'ADVANCE' %}
+                            <td id="mealattachment" class="p-2 border border-gray-200">-</td>
+                            {% endif %}
                             <td id="mealAmount" class="p-2 border border-gray-200">-</td>
                             </tr>
                         </tbody>
@@ -44,6 +56,9 @@
                             <tr class="bg-gray-100">
                             <th class="p-2 border border-gray-200 text-left w-1/4">Check-In - Check-Out</th>
                             <th class="p-2 border border-gray-200 text-left w-1/4">Description</th>
+                            {% if db != 'ADVANCE' %}
+                            <th class="p-2 border border-gray-200 text-left w-1/4">Attachment</th>
+                            {% endif %}
                             <th class="p-2 border border-gray-200 text-left w-1/4">Amount (PHP)</th>
                             </tr>
                         </thead>
@@ -51,6 +66,9 @@
                             <tr class="bg-white">
                             <td id="lodgingDate" class="p-2 border border-gray-200">-</td>
                             <td id="lodgingDesc" class="p-2 border border-gray-200">-</td>
+                            {% if db != 'ADVANCE' %}
+                            <td id="lodgingattachment" class="p-2 border border-gray-200">-</td>
+                            {% endif %}                            
                             <td id="lodgingAmount" class="p-2 border border-gray-200">-</td>
                             </tr>
                         </tbody>
@@ -68,14 +86,12 @@
                     </p>
                     <p>
                         <strong><span id="account_number"> </span></strong>
-
                     </p>
                     </div>
                 
         
         
-        
-                <!-- Right Column: Total Summary -->
+                <!-- Right Column: Total Summaryyy -->
                     <div class="bg-gray-100 p-4 max-w-sm">
                     <h3 class="font-bold text-xl mb-2">Total Summary</h3>
                     <div class="grid grid-cols-2">
